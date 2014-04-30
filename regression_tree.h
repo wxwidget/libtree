@@ -23,7 +23,7 @@ public:
     bool leaf;    //is the node a leaf
     float pred;  // what this node predicts if leaf node
     int datasize;
-
+    RegressionTree();
     RegressionTree(const DataSet& data, const Index& index, const args_t& myargs, int depth = 1);
 
     bool find_split(const DataSet& data, const Index& index, const args_t& myargs, int& fsplit, float& vsplit);
@@ -86,21 +86,11 @@ public:
         }
         return best;
     }
-    float classify(const DataSet& test, vector<float>& preds);
+    float classify(const DataSet& test, vector<float>& preds) const;
 
-    float classify(const Instance* ins);
-    /*
-    // classify test points on tree, return rmse
-    float classify_all(const DataSet& test, const RegressionTree* const tree, preds_t& preds, const args_t& conf) {
-        int i, N = test.size();
-        float r = 0.0;
-        for(i = 0; i < N; i++) {
-            preds[i] += conf.alpha * RegressionTree::classify(test[i], tree);
-            r += squared(test[i]->label - preds[i]);
-        }
-        return sqrt(1.0 / N * r);
-    }
-     */
+    float classify(const Instance* ins) const;
+
+    void save(std::ostream&);
+    void load(std::istream&); 
 };
-
 #endif //AM_DECISION_TREE_ML_H

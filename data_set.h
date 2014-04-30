@@ -18,7 +18,8 @@ public:
     int qid;
     float pred;
     int idx;
-    Instance(int num_features, float* init, float missingValue) : numfeature(num_features), weight(1.0), label(-1), target(-1), qid(-1), pred(-1), idx(0) {
+    Instance(int num_features, float* init, float missingValue) : 
+        numfeature(num_features), weight(1.0), label(-1), target(-1), qid(-1), pred(-1), idx(0) {
         features = new float[num_features];
         for(int i = 0; i < num_features; i++)
             if(!init)
@@ -32,7 +33,20 @@ public:
     std::string asString() const {
         return "";
     }
-    void init(const char* in_string) {
+    void init_csvformat(const char* in_string) {
+        if(!sscanf(in_string, "%f", &target))
+            die("Class label must be real number.");
+        const char* pos = strchr(in_string, ',') + 1;
+        int i = 0;
+        for(; pos - 1 != NULL && pos[0] != '\0' && pos[0] != '#';
+                pos = strchr(pos, ',') + 1) {
+            float value = atof(pos);
+            if (i > numfeature)
+                die("index i extend feature number");
+            features[i++] = value;
+        }
+    }
+    void init_svmformat(const char* in_string) {
         size_t length = strlen(in_string);
         if(length == 0) die("Empty example string.");
         // Get class label.
@@ -83,6 +97,7 @@ public:
     int  numFeature() const {
         return mNumFeature;
     }
+    bool check(const std::string& str);
 private:
     DataSet(DataSet&) {};
     bool holdStorage;

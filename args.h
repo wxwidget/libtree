@@ -12,7 +12,7 @@ using namespace std;
 enum AlgType { ALG_BOOST, ALG_FOREST, ALG_REGRESSION };
 enum LossType { ALG_SQUARED_LOSS, ALG_ENTROPY };
 enum PredictType { ALG_MEAN, ALG_MODE };
-
+enum DataType{DATA_SVM, DATA_CSV_NOHEAD};
 struct args_t {
     int features; //number of features
     int trees;    //num of trees
@@ -22,11 +22,13 @@ struct args_t {
     int kfeatures;//random k features
     int minInstance;// mininum number of instance in the leaf to support the value;
     char* train_file;
+    char* output_file;
     int verbose;  //
     int rounds;
     AlgType alg;
     LossType loss;
     PredictType pred;
+    DataType  data_type;
     int missing;// 1, using nan as missing value, 0 use default value for missing value
     char* missing_file;//if missing == 0,
     unsigned long ntra;   //number of training data
@@ -35,23 +37,47 @@ struct args_t {
         trees = 1;
         alpha = 1.0;
         features = 701;
-        depth = 10;
+        depth = 4;
         kfeatures = -1;
         minInstance = 10;
+        train_file = NULL;
+        output_file = NULL;
         alg = ALG_REGRESSION;
         verbose = 0;
         rounds = 1;
         loss = ALG_SQUARED_LOSS;
         pred = ALG_MEAN;
+        data_type = DATA_SVM;
         missing = 1;
         missing_file = NULL;
     };
+    LossType  lossMapping(const char* str){
+        if (strcmp(str, "squared") == 0){
+            return ALG_SQUARED_LOSS;
+        }else if(strcmp(str, "entropy") == 0){
+            return ALG_ENTROPY;
+        }
+        return ALG_SQUARED_LOSS;
+    }
+    PredictType modeMapping(const char* str){
+        if (strcmp(str, "mean") == 0){
+            return ALG_MEAN;
+        }else if(strcmp(str, "mode") == 0){
+            return ALG_MODE;
+        }
+        return ALG_MEAN;
+    }
+    DataType formatMapping(const char* str){
+        if (strcmp(str, "csv") == 0){
+            return DATA_CSV_NOHEAD;
+        }
+        return DATA_SVM;
+    }
     int get_args(int argc, char** argv) {
         int c, i = 0;
-
         // option arguments
         opterr = 0;
-        while((c = getopt(argc, argv, "a:d:ef:i:k:t:l:mp:r:n:vzBFR")) != -1)
+        while((c = getopt(argc, argv, "f:a:d:l:t:i:k:o:m:p:r:n:t:vzBFR")) != -1)
             switch(c) {
             case 'a':
                 this->alpha = atof(optarg);
@@ -59,11 +85,17 @@ struct args_t {
             case 'd':
                 this->depth = atoi(optarg);
                 break;
-            case 'e':
-                this->loss = ALG_ENTROPY;
+            case 'l':
+                this->loss = lossMapping(optarg);
+                break;
+            case 'm':
+                this->pred = modeMapping(optarg);
                 break;
             case 't':
                 this->trees = atoi(optarg);
+                break;
+            case 'o':
+                this->output_file = optarg;
                 break;
             case 'p':
                 this->processors = atoi(optarg);
@@ -80,6 +112,9 @@ struct args_t {
             case 'n':
                 this->minInstance = atoi(optarg);
                 break;
+            case 'h':
+                this->data_type = formatMapping(optarg);
+                break;
             case 'i':
                 this->missing_file = optarg;
                 break;
@@ -91,9 +126,6 @@ struct args_t {
                 break;
             case 'R':
                 this->alg = ALG_REGRESSION;
-                break;
-            case 'm':
-                this->pred = ALG_MODE;
                 break;
             case 'v':
                 this->verbose = 1;

@@ -1,8 +1,14 @@
 #include <algorithm>
 #include <cmath>
 #include "regression_tree.h"
+#include "serialize.h"
 using namespace std;
 
+RegressionTree::RegressionTree():fid(-1), fvalue(-1), leaf(true), pred(-1), datasize(-1){
+    child[YES] = NULL;
+    child[NO] = NULL;
+    child[MISSING] = NULL;
+}
 RegressionTree::RegressionTree(const DataSet& data, const Index& index, const args_t& conf, int depth):
     leaf(false), fid(-1), fvalue(-1), pred(-1), datasize(data.size()) {
     for(int i = 0; i < CHILDTYPES; i++) {
@@ -32,7 +38,6 @@ RegressionTree::RegressionTree(const DataSet& data, const Index& index, const ar
         leaf = true;
         return;
     }
-
     // remember where we splitted, and recurse
     this->fid = f_split;
     this->fvalue = v_split;
@@ -88,7 +93,42 @@ void RegressionTree::print(int depth) {
             child[MISSING]->print(depth + 1);
     }
 }
-float RegressionTree::classify(const DataSet& test, vector<float>& preds) {
+void RegressionTree::save(std::ostream& out){
+    Serialize ser(out);
+    ser << fid << fvalue << pred << datasize << this->leaf;
+    if(!this->leaf) {
+        ser << int(child[YES] != NULL);
+        ser << int(child[NO] != NULL);
+        ser << int(child[MISSING] != NULL);
+        if(child[YES])
+            child[YES]->save(out);
+        if(child[NO])
+            child[NO]->save(out);
+        if(child[MISSING])
+            child[MISSING]->save(out);
+    }
+}
+void RegressionTree::load(std::istream& in){
+    Deserialize ser(in);
+    ser >> fid >> fvalue >> pred >> datasize >> leaf;
+    if(!this->leaf) {
+        int yes, no, missing;
+        ser >> yes >> no >> missing;
+        if(yes){
+            child[YES] = new RegressionTree();
+            child[YES]->load(in);
+        }
+        if(no){
+            child[NO] = new RegressionTree();
+            child[NO]->load(in);
+        }
+        if(missing){
+            child[MISSING] = new RegressionTree();
+            child[MISSING]->load(in);
+        }
+    }
+}
+float RegressionTree::classify(const DataSet& test, vector<float>& preds) const{
     float mse = 0.0;
     for(int i = 0; i < test.size(); ++i) {
         float p = classify(test[i]);
@@ -97,7 +137,7 @@ float RegressionTree::classify(const DataSet& test, vector<float>& preds) {
     }
     return mse;
 }
-float RegressionTree::classify(const Instance* ins) {
+float RegressionTree::classify(const Instance* ins) const {
     float* features = ins->features;
     float  featurevalue = ins->features[this->fid];
     if(this->leaf) {
@@ -128,10 +168,6 @@ bool RegressionTree::rmse_split(const DataSet& data, const Index& index, const a
             selectedFeature.push_back(i);
     }
     feature_sample(conf.features, conf.kfeatures, selectedFeature);
-    /*
-    if(args.alg != ALG_FOREST && conf.processors != 1)
-        return find_split_p(data, dataCount, invertIdx, NF, f_split, v_split, skip, args);
-    */
     size_t n = data.size();
     vector<int> location;
     location.reserve(n);
@@ -204,4 +240,3 @@ void RegressionTree::split_data(const DataSet& data, DataSet child[CHILDTYPES], 
             child[NO].push_back(data[i]);
     }
 }
-

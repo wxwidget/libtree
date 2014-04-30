@@ -34,12 +34,17 @@ int DataSet::read(const std::string& filename, const args_t& conf, int buffer_mb
 
     string line_string;
     while(getline(file_stream, line_string)) {
+        if (!check(line_string)){
+            die("wrong format, should be:  label [q:1] [name:value]");
+        }
         addVector(line_string, conf);
     }
     delete[] local_buffer;
     return 0;
 }
-
+bool DataSet::check(const std::string& str){
+    return str.find(':') > 0;
+}
 DataSet::DataSet(const string& file_name, const args_t& conf, int buffer_mb): holdStorage(true), mNumFeature(conf.features) {
     read(file_name, conf, buffer_mb);
 }
@@ -58,8 +63,13 @@ void DataSet::addVector(const string& vector_string, const args_t& conf) {
     if(0 == conf.missing) {
         mv = 0;
     }
-    Instance* a = new Instance(num_feature, 0, mv);
-    a->init(vector_string.c_str());
+    Instance* a = new Instance(num_feature, NULL, mv);
+    if (conf.data_type == DATA_CSV_NOHEAD){
+        a->init_csvformat(vector_string.c_str());
+    }
+    else{
+        a->init_svmformat(vector_string.c_str());
+    }
     push_back(a);
 }
 

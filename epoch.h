@@ -1,5 +1,5 @@
-#ifndef AM_RT_EPOCH_H
-#define AM_RT_EPOCH_H
+#ifndef AM_EPOCH_H
+#define AM_EPOCH_H
 
 #include <stdlib.h>
 #include <sys/time.h>
