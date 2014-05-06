@@ -9,7 +9,7 @@
 #include <vector>
 using namespace std;
 
-enum AlgType { ALG_BOOST, ALG_FOREST, ALG_REGRESSION };
+enum AlgType { ALG_BOOST, ALG_GBDT, ALG_FOREST, ALG_REGRESSION };
 enum LossType { ALG_SQUARED_LOSS, ALG_ENTROPY };
 enum PredictType { ALG_MEAN, ALG_MODE };
 enum DataType{DATA_SVM, DATA_CSV_NOHEAD};
@@ -77,7 +77,7 @@ struct args_t {
         int c, i = 0;
         // option arguments
         opterr = 0;
-        while((c = getopt(argc, argv, "f:a:d:l:t:i:k:o:m:p:r:n:t:vzBFR")) != -1)
+        while((c = getopt(argc, argv, "f:a:d:l:t:i:k:o:m:p:r:n:t:vzGBFR")) != -1)
             switch(c) {
             case 'a':
                 this->alpha = atof(optarg);
@@ -126,6 +126,9 @@ struct args_t {
                 break;
             case 'R':
                 this->alg = ALG_REGRESSION;
+                break;
+            case 'G':
+                this->alg = ALG_GBDT;
                 break;
             case 'v':
                 this->verbose = 1;

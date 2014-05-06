@@ -23,7 +23,9 @@ public:
     bool leaf;    //is the node a leaf
     float pred;  // what this node predicts if leaf node
     int datasize;
+    float weight;
     RegressionTree();
+
     RegressionTree(const DataSet& data, const Index& index, const args_t& myargs, int depth = 1);
 
     bool find_split(const DataSet& data, const Index& index, const args_t& myargs, int& fsplit, float& vsplit);

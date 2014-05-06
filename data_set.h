@@ -16,10 +16,9 @@ public:
     float target;
     float weight;
     int qid;
-    float pred;
     int idx;
     Instance(int num_features, float* init, float missingValue) : 
-        numfeature(num_features), weight(1.0), label(-1), target(-1), qid(-1), pred(-1), idx(0) {
+        numfeature(num_features), weight(1.0), label(-1), target(-1), qid(-1), idx(0) {
         features = new float[num_features];
         for(int i = 0; i < num_features; i++)
             if(!init)

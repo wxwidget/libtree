@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
         t->load(model);
         trees.push_back(t);
     }
-    trees.classify(data, 1, preds);
+    trees.classify(data, preds);
     for(int i = 0; i < preds.size(); ++i){
         printf("%f %f\n", data[i]->target, preds[i]);
     }

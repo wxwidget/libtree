@@ -6,6 +6,8 @@
 #include "data_set.h"
 #include "index.h"
 #include "regression_tree.h"
+#include "gbdt.h"
+#include "boosted.h"
 #include "args.h"
 #include "epoch.h"
 using namespace std;
@@ -15,7 +17,7 @@ int main(int argc, char* argv[]) {
     args_t myargs;
     if(myargs.get_args(argc, argv)) {
         printf("tree usage: [-options] train.txt \n");
-        printf("\t options=[f:a:d:l:i:k:t:o:m:p:r:n:h:vzBFR]");
+        printf("\t options=[f:a:d:l:i:k:t:o:m:p:r:n:h:vzGBFR]");
         printf("\nRequired flags:\n");
         printf("-f int\tNumber of features in the data sets. \n");
         printf("\n");
@@ -33,7 +35,8 @@ int main(int argc, char* argv[]) {
         printf("-v \tprint debuging info .\n");
         printf("-z \tsubstitute missing features with zeros (recommended if missing features exist).\n");
         printf("-h \tstring[csv,svm], data format, csv: with no head, svm : libsvm or ranksvm");
-        printf("-B \tgradient boosting mode (standalone).\n");
+        printf("-G \tgradient boosting mode (standalone).\n");
+        printf("-B \tnaive boosting mode (standalone).\n");
         printf("-F \trun random forest (standalone).\n");
         printf("-R \trun regression tree (standalone).\n");
         printf("\n\n");
@@ -50,44 +53,43 @@ int main(int argc, char* argv[]) {
     train.addIndex();
     // presort the training data for each feature
     Index index(train);
-    vector<RegressionTree*> trees;
     myargs.ntra = train.size();
     vector<float> train_preds(train.size(), 0);
-    for(int round = 0; round < myargs.rounds; round++) {
-        size_t N = train.size();
-        vector<int> countData(myargs.ntra, 1);
-        if(myargs.alg == ALG_BOOST || myargs.alg == ALG_REGRESSION) {
-            for(int T = 0; T < myargs.trees; T++) {
-                // make tree
-                RegressionTree* t = new RegressionTree(train, index, myargs);
-                // get classification on training data
-                float train_rmse = t->classify(train, train_preds);
-                // update targets
-                for(size_t i = 0; i < N; i++) {
-                    train[i]->target = train[i]->label - train_preds[i];
-                    if(myargs.verbose) {
-                        //fprintf(stdout, "label:%f,predict:%f\n", train[i]->label, train_preds[i]);
-                    }
-                }
-                if(myargs.verbose) {
-                    fprintf(stderr, "Tree:%d,mse:%f", T, (float)train_rmse);
-                    fprintf(stderr, "\n");
-                    t->print();
-                }
-                trees.push_back(t);
-            }
+    size_t N = train.size();
+    //pure regression
+    if (myargs.alg == ALG_REGRESSION){
+        RegressionTree* t = new RegressionTree(train, index, myargs);
+        float train_rmse = t->classify(train, train_preds);
+        if(myargs.verbose) {
+            fprintf(stderr, "rmse:%f\n", (float)train_rmse);
+            t->print();
         }
-        // forest
-        if(myargs.alg == ALG_FOREST) {
-            //TODO
+    }
+    //naive boost
+    else if(myargs.alg == ALG_BOOST) {
+        BoostedTree* t = new BoostedTree();
+        t->train(train, index, myargs);
+        float rmse = t->classify(train, train_preds);
+        if(myargs.verbose) {
+            fprintf(stderr, "rmse:%f\n", (float)rmse);
+            //t->print();
+        }
+    }
+    // forest
+    else if(myargs.alg == ALG_FOREST) {
+        //TODO
+    }
+    else if (myargs.alg == ALG_GBDT){
+        GBDTree* t = new GBDTree();
+        t->train(train, index, myargs);
+        float rmse = t->classify(train, train_preds);
+        if(myargs.verbose) {
+            fprintf(stderr, "rmse:%f\n", (float)rmse);
+            //t->print();
         }
     }
     if (myargs.output_file){
         ofstream of(myargs.output_file,std::ofstream::out);
-        for(int i = 0; i < trees.size(); ++i){
-            trees[i]->save(of);
-            delete trees[i];
-        }
     }
     return 0;
 }

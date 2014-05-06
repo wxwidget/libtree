@@ -4,13 +4,13 @@
 #include "serialize.h"
 using namespace std;
 
-RegressionTree::RegressionTree():fid(-1), fvalue(-1), leaf(true), pred(-1), datasize(-1){
+RegressionTree::RegressionTree():fid(-1), fvalue(-1), leaf(true), pred(-1), datasize(-1), weight(1.0f){
     child[YES] = NULL;
     child[NO] = NULL;
     child[MISSING] = NULL;
 }
 RegressionTree::RegressionTree(const DataSet& data, const Index& index, const args_t& conf, int depth):
-    leaf(false), fid(-1), fvalue(-1), pred(-1), datasize(data.size()) {
+    leaf(false), fid(-1), fvalue(-1), pred(-1), datasize(data.size()),weight(1.0f) {
     for(int i = 0; i < CHILDTYPES; i++) {
         child[i] = NULL;
     }
@@ -95,7 +95,7 @@ void RegressionTree::print(int depth) {
 }
 void RegressionTree::save(std::ostream& out){
     Serialize ser(out);
-    ser << fid << fvalue << pred << datasize << this->leaf;
+    ser << fid << fvalue << pred << datasize << weight << this->leaf;
     if(!this->leaf) {
         ser << int(child[YES] != NULL);
         ser << int(child[NO] != NULL);
@@ -110,7 +110,7 @@ void RegressionTree::save(std::ostream& out){
 }
 void RegressionTree::load(std::istream& in){
     Deserialize ser(in);
-    ser >> fid >> fvalue >> pred >> datasize >> leaf;
+    ser >> fid >> fvalue >> pred >> datasize >> weight >> leaf;
     if(!this->leaf) {
         int yes, no, missing;
         ser >> yes >> no >> missing;

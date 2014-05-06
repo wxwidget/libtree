@@ -1,4 +1,4 @@
-SRCS = data_set.cpp index.cpp regression_tree.cpp serialize.cpp boosted.cpp
+SRCS = data_set.cpp index.cpp regression_tree.cpp serialize.cpp boosted.cpp gbdt.cpp
 OBJ=$(SRCS:.cpp=.o)
 
 %.o: %.cpp
