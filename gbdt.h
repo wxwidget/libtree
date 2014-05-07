@@ -4,7 +4,7 @@
 #include "regression_tree.h"
 class GBDTree: public std::vector<RegressionTree*>{
 public:
-    GBDTree():T0(0){}
+    GBDTree(){}
     ~GBDTree();
     float classify (const Instance* const instance) const;
     float classify (const DataSet& data, vector<float>& preds) const;
@@ -13,6 +13,5 @@ public:
     void load(std::istream&); 
 private:
     GBDTree(GBDTree&) {};
-    float T0;
 };
 #endif

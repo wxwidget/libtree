@@ -5,6 +5,7 @@
 #include "data_set.h"
 #include "args.h"
 #include "index.h"
+#include "serialize.h"
 using namespace std;
 typedef enum {
     dtnLeaf,
@@ -93,6 +94,8 @@ public:
     float classify(const Instance* ins) const;
 
     void save(std::ostream&);
+    void save(Serialize&);
     void load(std::istream&); 
+    void load(Deserialize&);
 };
 #endif //AM_DECISION_TREE_ML_H

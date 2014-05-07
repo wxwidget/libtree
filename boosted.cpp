@@ -47,9 +47,27 @@ float BoostedTree::train(const DataSet& data, const Index& index, const args_t& 
         push_back(t);
     }
 }
+void BoostedTree::save(std::ostream& out){
+    Serialize ser(out);
+    ser << (int)this->size();
+    for(int i = 0;i < this->size(); ++i){
+        at(i)->save(ser);
+    }
+}
+void BoostedTree::load(std::istream&in){
+    Deserialize ser(in);
+    int numTrees;
+    ser >> numTrees;
+    for(int i = 0;i < numTrees; ++i){
+        RegressionTree* tree = new RegressionTree();
+        tree->load(ser);
+        push_back(tree);
+    }
+}
 BoostedTree::~BoostedTree(){
     iterator it = begin();
     for(; it != end();++it){
         delete *it;
     }
 }
+

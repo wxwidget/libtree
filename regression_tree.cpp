@@ -93,40 +93,48 @@ void RegressionTree::print(int depth) {
             child[MISSING]->print(depth + 1);
     }
 }
-void RegressionTree::save(std::ostream& out){
-    Serialize ser(out);
+
+void RegressionTree::save(Serialize& ser){
     ser << fid << fvalue << pred << datasize << weight << this->leaf;
     if(!this->leaf) {
         ser << int(child[YES] != NULL);
         ser << int(child[NO] != NULL);
         ser << int(child[MISSING] != NULL);
         if(child[YES])
-            child[YES]->save(out);
+            child[YES]->save(ser);
         if(child[NO])
-            child[NO]->save(out);
+            child[NO]->save(ser);
         if(child[MISSING])
-            child[MISSING]->save(out);
+            child[MISSING]->save(ser);
     }
 }
-void RegressionTree::load(std::istream& in){
-    Deserialize ser(in);
+void RegressionTree::save(std::ostream& out){
+    Serialize ser(out);
+    save(ser);
+}
+
+void RegressionTree::load(Deserialize& ser){
     ser >> fid >> fvalue >> pred >> datasize >> weight >> leaf;
     if(!this->leaf) {
         int yes, no, missing;
         ser >> yes >> no >> missing;
         if(yes){
             child[YES] = new RegressionTree();
-            child[YES]->load(in);
+            child[YES]->load(ser);
         }
         if(no){
             child[NO] = new RegressionTree();
-            child[NO]->load(in);
+            child[NO]->load(ser);
         }
         if(missing){
             child[MISSING] = new RegressionTree();
-            child[MISSING]->load(in);
+            child[MISSING]->load(ser);
         }
     }
+}
+void RegressionTree::load(std::istream& in){
+    Deserialize ser(in);
+    load(ser);
 }
 float RegressionTree::classify(const DataSet& test, vector<float>& preds) const{
     float mse = 0.0;

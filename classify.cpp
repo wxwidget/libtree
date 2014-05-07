@@ -24,15 +24,14 @@ int main(int argc, char* argv[]) {
         die("could not load data files\n");
     }
     BoostedTree trees;
+    trees.load(model);
     vector<float> preds;
-    while(model){
-        RegressionTree* t = new RegressionTree();
-        t->load(model);
-        trees.push_back(t);
-    }
     trees.classify(data, preds);
+    double sum = 0.0;
     for(int i = 0; i < preds.size(); ++i){
-        printf("%f %f\n", data[i]->target, preds[i]);
+        sum += (data[i]->label - preds[i]) *  (data[i]->label - preds[i]);
+        printf("%d %f\n", (int)data[i]->label, (int)round(preds[i]), preds[i]);
     }
+    fprintf(stderr, "rmse:%f\n", sum/2);
     return 0;
 }
