@@ -3,6 +3,7 @@
 #include <cmath>
 #include <ctime>
 #include <fstream>
+#include <map>
 #include "data_set.h"
 #include "regression_tree.h"
 #include "epoch.h"
@@ -28,10 +29,31 @@ int main(int argc, char* argv[]) {
     vector<float> preds;
     trees.classify(data, preds);
     double sum = 0.0;
+    int correct = 0;
+    typedef map<int, int> Row;
+    map<int, Row> matrix;
     for(int i = 0; i < preds.size(); ++i){
         sum += (data[i]->label - preds[i]) *  (data[i]->label - preds[i]);
-        printf("%d %f\n", (int)data[i]->label, (int)round(preds[i]), preds[i]);
+        int label = (int)data[i]->label;
+        int pred = (int)round(preds[i]);
+        if (label==pred){
+            correct++;
+        }
+        matrix[label][pred] += 1;
+        printf("%d %d\n", (int)data[i]->label, (int)round(preds[i]));
     }
     fprintf(stderr, "rmse:%f\n", sum/2);
+    fprintf(stderr, "correct instance :%d of %d, pre:%f\n", correct, data.size(),float(correct)/data.size());
+    map<int, Row>::const_iterator it = matrix.begin();
+    for(; it != matrix.end(); ++it){
+        int label = it->first;
+        const Row& predic = it->second;
+        fprintf(stderr,"label:%d\t", label);
+        Row::const_iterator rit = predic.begin();
+        for(; rit != predic.end(); ++rit){
+            fprintf(stderr,"%d:%d\t", rit->first, rit->second);
+        }
+        fprintf(stderr,"\n");
+    }
     return 0;
 }

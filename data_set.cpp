@@ -10,7 +10,7 @@ void die(const std::string& reason) {
     exit(1);
 };
 
-DataSet::DataSet(): holdStorage(false), mNumFeature(0) {
+DataSet::DataSet(bool hold): holdStorage(hold), mNumFeature(0) {
 }
 
 DataSet::~DataSet() {

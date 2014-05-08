@@ -83,7 +83,7 @@ public:
 };
 class DataSet: public std::vector<Instance*> {
 public:
-    DataSet();
+    DataSet(bool hold=false);
     DataSet(const std::string& file_name, const args_t& conf, int buffer_mb = 128);
     ~DataSet();
     // Debug string.
@@ -95,6 +95,9 @@ public:
     void addIndex();
     int  numFeature() const {
         return mNumFeature;
+    }
+    void setNumFeature(int f){
+        mNumFeature = f;
     }
     bool check(const std::string& str);
 private:

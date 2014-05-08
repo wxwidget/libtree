@@ -3,9 +3,14 @@ OBJ=$(SRCS:.cpp=.o)
 
 %.o: %.cpp
 	g++ -g $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-test:${OBJ}
-	g++ -g main.cpp ${OBJ} -o train
-	g++ -g classify.cpp ${OBJ} -o classify
+
+libtree.a:${OBJ}
+	$(AR) rcs $@ $^ 
+
+test:libtree.a
+	g++ -g main.cpp -ltree -o train
+	g++ -g classify.cpp -ltree -o classify
 clean:
 	rm *.o
 	rm train classify
+	rm libtree.a

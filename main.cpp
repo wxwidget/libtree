@@ -31,11 +31,11 @@ int main(int argc, char* argv[]) {
         printf("-t \tint, number of trees for random forest.[default 1]\n");
         printf("-n \tint, min number of instance per node.[default 10] \n");
         printf("-m \tstring=[mode,mean] use mode for prediction at leaf nodes.[default mean] \n");
-        printf("-r \tnumber tress of gbdt.[default 1 ]\n");
         printf("-v \tprint debuging info .\n");
         printf("-z \tsubstitute missing features with zeros (recommended if missing features exist).\n");
-        printf("-h \tstring[csv,svm], data format, csv: with no head, svm : libsvm or ranksvm");
+        printf("-h \tstring[csv,svm], data format, csv: with no head, svm : libsvm or ranksvm\n");
         printf("-G \tgradient boosting mode (standalone).\n");
+        printf("-r \tnumber tress of gbdt.[default 1 ]\n");
         printf("-B \tnaive boosting mode (standalone).\n");
         printf("-F \trun random forest (standalone).\n");
         printf("-R \trun regression tree (standalone).\n");
@@ -83,13 +83,10 @@ int main(int argc, char* argv[]) {
         GBDTree* t = new GBDTree();
         t->train(train, index, myargs);
         float rmse = t->classify(train, train_preds);
-        if(myargs.verbose) {
-            fprintf(stderr, "rmse:%f\n", (float)rmse);
-            //t->print();
+        if (myargs.output_file){
+            ofstream of(myargs.output_file,std::ofstream::out);
+            t->save(of);
         }
-    }
-    if (myargs.output_file){
-        ofstream of(myargs.output_file,std::ofstream::out);
     }
     return 0;
 }

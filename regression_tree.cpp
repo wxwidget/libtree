@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <cassert>
 #include "regression_tree.h"
 #include "serialize.h"
 using namespace std;
@@ -63,6 +64,7 @@ void RegressionTree::sort_data_by_feature(vector<int>& location, const Index& in
 
 ///////////////////////
 bool RegressionTree::entropy_split(const DataSet& data, const Index& dataCount, const args_t& conf, int& f_split, float& v_split) {
+    assert(false);
     return false;
 }
 //////////////////////
@@ -216,7 +218,7 @@ bool RegressionTree::rmse_split(const DataSet& data, const Index& index, const a
                 continue;
             //I = L + R + M ;
             I = L + R;
-            if(I < min && i > conf.minInstance) {
+            if(I < min && i >= conf.minInstance) {
                 min = I;
                 fsplit = f;
                 vsplit = (data[location[i]]->features[f] + data[location[i + 1]]->features[f]) / 2;
