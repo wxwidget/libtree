@@ -23,7 +23,7 @@ make test
 `. /workspace/libtree-venv/bin/activate`，然后 `cd /workspace/libtree`。
 只使用 Python 时，`python -m pip install .` 即可编译并安装原生 wheel 和 NumPy。
 必须有 C++17 编译器。目前验证的平台为 Linux，未提供 Windows wheel。
-XGBoost 仅用于基准比较。
+XGBoost 与 LightGBM 仅用于基准比较。
 
 ```python
 import numpy as np
@@ -47,6 +47,13 @@ classifier.close()
 会被拒绝。`fit` 替换旧模型，不修改输入。`close` 释放原生内存，自动回收也
 有效。支持 `get_params`、`set_params`、`score` 和 sklearn `clone`，但尚未
 实现完整的 sklearn estimator 协议，例如高级 metadata routing。
+
+## 参数化命令行
+
+原生主程序 `xgbt` 支持 train/predict、CSV 输入、模型文件和全部 GBDT 参数。
+先运行 `./build/xgbt --help`，再查看[命令指南](docs/cli.zh-CN.md)。
+[三方对比报告](benchmarks/COMPARISON_REPORT.zh-CN.md)增加了 LightGBM，分别对比
+C++ 与 Python 的效果、训练/预测时间及内存。
 
 ## 五分钟使用 C++
 
@@ -119,7 +126,7 @@ XGBoost 3.4.1 的效果、训练时间、预测时间和进程内存。
 本次重构删除了不安全的裸指针所有权、不完整的随机森林和 entropy 分支、
 未经推导的 boosting 权重及未经校验的二进制模型读写。旧 `train`/`classify`
 命令、头文件和模型格式不兼容，需通过新 API 重新训练。原 `data/` 文件保留为
-历史数据。当前不支持多分类、排序、稀疏矩阵、GPU/分布式训练、模型持久化或
+历史数据。当前不支持多分类、排序、稀疏矩阵、GPU/分布式训练、Python 模型持久化或
 样本权重。贡献前请阅读[设计决策和风格例外](docs/design.zh-CN.md)。
 
 [Validation evidence / 验证记录](docs/validation.md)

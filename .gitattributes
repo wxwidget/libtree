@@ -5,4 +5,6 @@
 benchmarks/KAGGLE_REPORT.html linguist-generated=true
 benchmarks/kaggle-results.json linguist-generated=true
 benchmarks/kaggle-summary.json linguist-generated=true
+benchmarks/comparison-results.json linguist-generated=true
+benchmarks/comparison-summary.json linguist-generated=true
 benchmarks/results.json linguist-generated=true

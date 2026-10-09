@@ -16,7 +16,7 @@ class NativeBuild(build_py):
             os.environ.get("CXX", "g++"), "-std=c++17", "-O3", "-DNDEBUG",
             "-shared", "-fPIC", "-Wall", "-Wextra", "-Werror",
             f"-I{root / 'include'}", str(root / "src/gbdt.cc"),
-            str(root / "src/c_api.cc"), "-o", str(destination),
+            str(root / "src/c_api.cc"), str(root / "src/model.cc"), "-o", str(destination),
         ], check=True)
 
 

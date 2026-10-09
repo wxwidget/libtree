@@ -2,6 +2,7 @@
 #define LIBTREE_GBDT_H_
 
 #include <cstddef>
+#include <iosfwd>
 #include <vector>
 
 namespace libtree {
@@ -33,6 +34,9 @@ class Gbdt {
   // Replaces the fitted model. The caller retains ownership of all inputs.
   void Fit(MatrixView features, const std::vector<float>& labels);
   std::vector<float> Predict(MatrixView features) const;
+  // Versioned text format; failed loads preserve any existing fitted model.
+  void SaveModel(std::ostream& output) const;
+  void LoadModel(std::istream& input);
   const std::vector<double>& training_loss() const { return training_loss_; }
   std::size_t num_trees() const { return trees_.size(); }
 

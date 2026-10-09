@@ -1,6 +1,8 @@
 # Validation evidence / 验证记录
 
 Current local validation: 2026-10-09, Linux x86-64, GCC 14.2, Python 3.12.14.
+The initial migration evidence below is historical; the latest CLI and three-engine
+validation is recorded at the end of this document.
 These are local executions; the GitHub Actions workflow is configured but has
 not been observed on GitHub during local validation; inspect Actions after pushing.
 
@@ -35,11 +37,11 @@ branch coverage is deliberately reported separately from line coverage.
 The migration is intentionally breaking: legacy C++ headers, CLI flags and
 binary model files are removed. Both language interfaces now use one C++17 core.
 The supported workflow is dense regression/binary classification on CPU.
-Other platforms, model persistence, multiclass, ranking, sparse/GPU/distributed
+Other platforms, Python model persistence, multiclass, ranking, sparse/GPU/distributed
 training, and Kaggle leaderboard submissions were not validated.
 
 重构有意不兼容旧头文件、命令和模型格式，需要重新训练；支持稠密 CPU 回归
-和二分类。未验证其他平台、模型持久化、多分类、排序、稀疏、GPU、分布式或
+和二分类。未验证其他平台、Python 模型持久化、多分类、排序、稀疏、GPU、分布式或
 Kaggle 榜单提交。Google 格式/命名已检查，标准异常是明确的风格例外。
 
 ## Additional Kaggle-data validation / 新增 Kaggle 数据验证
@@ -70,3 +72,48 @@ so chart rendering needs no CDN. Browser validation used installed Chromium:
 filtering, JSON export, 180-row timing CSV export and a 390px mobile layout all
 passed without JavaScript errors. Desktop/mobile screenshots are retained under
 benchmarks/report-assets/.
+
+## Parameterized CLI and three engines / 参数化命令与三方比较
+
+TDD: CLI contract tests were added first and failed because `xgbt` did not exist.
+The C++17 command now supports numeric CSV training, versioned model saving,
+loading and standalone prediction. C++ checks verify lossless model round trips
+and rollback on failed loads. Eleven CLI tests cover missing values, invalid
+parameters/CSV, model cycles, shared children, invalid feature indices, bounds,
+trailing data, output preservation and input/output path aliases.
+
+| Latest check | Result |
+| --- | --- |
+| C++ behavioral checks | 1,031 checks passed |
+| CTest | 4/4 targets passed |
+| Python behavior + CLI | 29/29 pytest cases passed (18 + 11) |
+| Performance and ownership guards | 2/2 passed |
+| ASan + UBSan + LSan | 4/4 native targets and all 11 CLI cases passed |
+| Native source line coverage | 532/559 = 95.2%; core 99.5%, model 100%, CLI 94.1% |
+| Native source function coverage | 41/41 = 100% |
+| Native source branch coverage | 726/1,142 = 63.6%; core 84.1% |
+| Python line coverage | 128/134 = 95.5% (rounded display 96%) |
+| Google clang-format | Warnings-as-errors dry run passed |
+| CMake installation | Installed executable and train/save/load/predict example passed |
+| Native Python wheel | Rebuilt, installed and prediction-tested outside the checkout |
+| Benchmark preparation tests | 4/4 passed |
+| Non-default benchmark parameters | 30 runs; 3 engines × both interfaces × 5 datasets; prediction parity passed |
+| Formal comparison | 270 runs; 5 datasets × 3 splits × both interfaces × 3 engines × 3 repeats |
+
+The formal run uses XGBoost 3.4.1 and LightGBM 4.7.0. All quality baselines,
+finite predictions, repeat determinism and C++/Python parity checks passed.
+Every recorded source SHA256 matches the committed implementation. Timing,
+process peak memory, quality metrics and comparability limitations are in the
+[three-engine report](../benchmarks/COMPARISON_REPORT.zh-CN.md).
+
+The offline [HTML report](../benchmarks/KAGGLE_REPORT.html) now uses
+comparison-results.json and comparison-summary.json. Aggregate means, sample
+standard deviations and training/prediction/memory medians are rechecked
+against the raw evidence before rendering. Plotly receives independent layout
+objects to prevent chart updates from mutating shared axis configuration.
+Browser checks verify all seven charts, three-engine traces, numeric axes after
+interface/log-scale changes, filtering, 270-row CSV and JSON downloads, and a
+390px mobile viewport. No JavaScript errors were observed.
+
+Coverage and sanitizer diagnostics are local evidence, not a proof of all
+possible inputs or a claim that remote GitHub Actions has run.

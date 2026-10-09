@@ -4,9 +4,11 @@
 #include <chrono>
 #include <cstdint>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -17,6 +19,11 @@ namespace {
 using Clock = std::chrono::steady_clock;
 double Seconds(Clock::time_point start) {
   return std::chrono::duration<double>(Clock::now() - start).count();
+}
+std::string Precise(double value) {
+  std::ostringstream output;
+  output << std::setprecision(17) << value;
+  return output.str();
 }
 std::uint64_t PeakRssKib() {
   std::ifstream status("/proc/self/status");
@@ -58,17 +65,19 @@ struct Dataset {
 };
 // Function signatures from xgboost/include/xgboost/c_api.h. Stable exported
 // ABI.
-class Xgboost {
+class NativeLibrary {
  public:
   using Size = std::uint64_t;
   using Handle = void*;
-  explicit Xgboost(const char* path)
-      : library_(dlopen(path, RTLD_NOW | RTLD_LOCAL)) {
+  explicit NativeLibrary(const char* path,
+                         const char* error_symbol = "XGBGetLastError")
+      : library_(dlopen(path, RTLD_NOW | RTLD_LOCAL)),
+        error_symbol_(error_symbol) {
     if (!library_) throw std::runtime_error(dlerror());
   }
-  ~Xgboost() { dlclose(library_); }
-  Xgboost(const Xgboost&) = delete;
-  Xgboost& operator=(const Xgboost&) = delete;
+  ~NativeLibrary() { dlclose(library_); }
+  NativeLibrary(const NativeLibrary&) = delete;
+  NativeLibrary& operator=(const NativeLibrary&) = delete;
   template <typename Function>
   Function Symbol(const char* name) {
     auto symbol = dlsym(library_, name);
@@ -78,11 +87,12 @@ class Xgboost {
   }
   void Check(int result) {
     if (result != 0)
-      throw std::runtime_error(Symbol<const char* (*)()>("XGBGetLastError")());
+      throw std::runtime_error(Symbol<const char* (*)()>(error_symbol_)());
   }
 
  private:
   void* library_;
+  const char* error_symbol_;
 };
 }  // namespace
 int main(int argc, char** argv) {
@@ -92,12 +102,23 @@ int main(int argc, char** argv) {
           "usage: native_benchmark data output binary engine [libxgboost.so]");
     Dataset data(argv[1]);
     const bool binary = std::string(argv[3]) == "1";
+    libtree::Parameters p;
+    p.objective = binary ? libtree::Objective::kBinaryLogistic
+                         : libtree::Objective::kSquaredError;
+    if (argc == 13) {
+      p.num_trees = std::stoi(argv[6]);
+      p.max_depth = std::stoi(argv[7]);
+      p.max_bins = std::stoi(argv[8]);
+      p.min_samples_leaf = std::stoi(argv[9]);
+      p.learning_rate = std::stod(argv[10]);
+      p.l2 = std::stod(argv[11]);
+      p.min_gain = std::stod(argv[12]);
+    } else if (argc != 5 && argc != 6)
+      throw std::runtime_error("invalid benchmark arguments");
+    const libtree::Gbdt validated(p);
     std::vector<float> predictions;
     double fit_seconds, predict_seconds;
     if (std::string(argv[4]) == "libtree") {
-      libtree::Parameters p;
-      p.objective = binary ? libtree::Objective::kBinaryLogistic
-                           : libtree::Objective::kSquaredError;
       libtree::Gbdt model(p);
       auto start = Clock::now();
       model.Fit({data.train_x.data(), data.train_rows, data.cols},
@@ -107,31 +128,96 @@ int main(int argc, char** argv) {
       predictions =
           model.Predict({data.test_x.data(), data.test_rows, data.cols});
       predict_seconds = Seconds(start);
-    } else {
-      if (argc != 6 || std::string(argv[4]) != "xgboost")
-        throw std::runtime_error("invalid engine");
-      Xgboost api(argv[5]);
+    } else if (std::string(argv[4]) == "lightgbm") {
+      if (argc != 6 && argc != 13)
+        throw std::runtime_error("LightGBM library path required");
+      NativeLibrary api(argv[5], "LGBM_GetLastError");
+      using Handle = void*;
       auto matrix =
-          api.Symbol<int (*)(const float*, Xgboost::Size, Xgboost::Size, float,
-                             Xgboost::Handle*, int)>(
-              "XGDMatrixCreateFromMat_omp");
+          api.Symbol<int (*)(const void*, int, std::int32_t, std::int32_t, int,
+                             const char*, Handle, Handle*)>(
+              "LGBM_DatasetCreateFromMat");
+      auto labels =
+          api.Symbol<int (*)(Handle, const char*, const void*, int, int)>(
+              "LGBM_DatasetSetField");
+      auto create = api.Symbol<int (*)(Handle, const char*, Handle*)>(
+          "LGBM_BoosterCreate");
+      auto update =
+          api.Symbol<int (*)(Handle, int*)>("LGBM_BoosterUpdateOneIter");
+      auto predict = api.Symbol<int (*)(Handle, const void*, int, std::int32_t,
+                                        std::int32_t, int, int, int, int,
+                                        const char*, std::int64_t*, double*)>(
+          "LGBM_BoosterPredictForMat");
+      auto free_dataset = api.Symbol<int (*)(Handle)>("LGBM_DatasetFree");
+      auto free_booster = api.Symbol<int (*)(Handle)>("LGBM_BoosterFree");
+      std::ostringstream options;
+      options
+          << std::setprecision(17)
+          << "objective=" << (binary ? "binary" : "regression")
+          << " max_depth=" << p.max_depth
+          << " num_leaves=" << (1 << p.max_depth) << " max_bin=" << p.max_bins
+          << " min_data_in_leaf=" << p.min_samples_leaf
+          << " learning_rate=" << p.learning_rate << " lambda_l2=" << p.l2
+          << " min_gain_to_split=" << p.min_gain
+          << " num_threads=1 verbosity=-1 seed=42 data_random_seed=42 "
+             "deterministic=true"
+          << " force_col_wise=true feature_pre_filter=false min_data_in_bin=1";
+      Handle train = nullptr, booster = nullptr;
+      auto cleanup = [&](int*) {
+        if (booster) free_booster(booster);
+        if (train) free_dataset(train);
+      };
+      int sentinel = 0;
+      std::unique_ptr<int, decltype(cleanup)> guard(&sentinel, cleanup);
+      auto start = Clock::now();
+      api.Check(matrix(data.train_x.data(), 0, data.train_rows, data.cols, 1,
+                       options.str().c_str(), nullptr, &train));
+      api.Check(
+          labels(train, "label", data.train_y.data(), data.train_rows, 0));
+      api.Check(create(train, options.str().c_str(), &booster));
+      for (int i = 0; i < p.num_trees; ++i) {
+        int finished = 0;
+        api.Check(update(booster, &finished));
+        if (finished) break;
+      }
+      fit_seconds = Seconds(start);
+      start = Clock::now();
+      std::vector<double> output(data.test_rows);
+      std::int64_t count = 0;
+      api.Check(predict(booster, data.test_x.data(), 0, data.test_rows,
+                        data.cols, 1, 0, 0, -1, "num_threads=1", &count,
+                        output.data()));
+      if (count != static_cast<std::int64_t>(data.test_rows))
+        throw std::runtime_error("LightGBM prediction size mismatch");
+      predictions.assign(output.begin(), output.end());
+      predict_seconds = Seconds(start);
+    } else {
+      if ((argc != 6 && argc != 13) || std::string(argv[4]) != "xgboost")
+        throw std::runtime_error("invalid engine");
+      NativeLibrary api(argv[5]);
+      auto matrix = api.Symbol<int (*)(
+          const float*, NativeLibrary::Size, NativeLibrary::Size, float,
+          NativeLibrary::Handle*, int)>("XGDMatrixCreateFromMat_omp");
       auto set_info =
-          api.Symbol<int (*)(Xgboost::Handle, const char*, const float*,
-                             Xgboost::Size)>("XGDMatrixSetFloatInfo");
-      auto create = api.Symbol<int (*)(const Xgboost::Handle*, Xgboost::Size,
-                                       Xgboost::Handle*)>("XGBoosterCreate");
+          api.Symbol<int (*)(NativeLibrary::Handle, const char*, const float*,
+                             NativeLibrary::Size)>("XGDMatrixSetFloatInfo");
+      auto create =
+          api.Symbol<int (*)(const NativeLibrary::Handle*, NativeLibrary::Size,
+                             NativeLibrary::Handle*)>("XGBoosterCreate");
       auto param =
-          api.Symbol<int (*)(Xgboost::Handle, const char*, const char*)>(
+          api.Symbol<int (*)(NativeLibrary::Handle, const char*, const char*)>(
               "XGBoosterSetParam");
-      auto update = api.Symbol<int (*)(Xgboost::Handle, int, Xgboost::Handle)>(
-          "XGBoosterUpdateOneIter");
-      auto predict =
-          api.Symbol<int (*)(Xgboost::Handle, Xgboost::Handle, int, unsigned,
-                             int, Xgboost::Size*, const float**)>(
-              "XGBoosterPredict");
-      auto free_matrix = api.Symbol<int (*)(Xgboost::Handle)>("XGDMatrixFree");
-      auto free_booster = api.Symbol<int (*)(Xgboost::Handle)>("XGBoosterFree");
-      Xgboost::Handle train = nullptr, test = nullptr, booster = nullptr;
+      auto update =
+          api.Symbol<int (*)(NativeLibrary::Handle, int,
+                             NativeLibrary::Handle)>("XGBoosterUpdateOneIter");
+      auto predict = api.Symbol<int (*)(
+          NativeLibrary::Handle, NativeLibrary::Handle, int, unsigned, int,
+          NativeLibrary::Size*, const float**)>("XGBoosterPredict");
+      auto free_matrix =
+          api.Symbol<int (*)(NativeLibrary::Handle)>("XGDMatrixFree");
+      auto free_booster =
+          api.Symbol<int (*)(NativeLibrary::Handle)>("XGBoosterFree");
+      NativeLibrary::Handle train = nullptr, test = nullptr, booster = nullptr;
       // RAII also covers failures after any successful allocation.
       auto cleanup = [&](int*) {
         if (booster) free_booster(booster);
@@ -147,22 +233,24 @@ int main(int argc, char** argv) {
       api.Check(create(&train, 1, &booster));
       api.Check(param(booster, "objective",
                       binary ? "binary:logistic" : "reg:squarederror"));
-      for (const auto& pair : std::vector<std::pair<const char*, const char*>>{
+      for (const auto& pair : std::vector<std::pair<std::string, std::string>>{
                {"tree_method", "hist"},
-               {"max_depth", "4"},
-               {"max_bin", "64"},
-               {"eta", "0.1"},
-               {"lambda", "1"},
+               {"max_depth", std::to_string(p.max_depth)},
+               {"max_bin", std::to_string(p.max_bins)},
+               {"eta", Precise(p.learning_rate)},
+               {"lambda", Precise(p.l2)},
+               {"gamma", Precise(p.min_gain)},
                {"nthread", "1"},
                {"seed", "42"}}) {
-        api.Check(param(booster, pair.first, pair.second));
+        api.Check(param(booster, pair.first.c_str(), pair.second.c_str()));
       }
-      for (int i = 0; i < 100; ++i) api.Check(update(booster, i, train));
+      for (int i = 0; i < p.num_trees; ++i)
+        api.Check(update(booster, i, train));
       fit_seconds = Seconds(start);
       start = Clock::now();
       api.Check(matrix(data.test_x.data(), data.test_rows, data.cols,
                        std::numeric_limits<float>::quiet_NaN(), &test, 1));
-      Xgboost::Size count;
+      NativeLibrary::Size count;
       const float* output;
       api.Check(predict(booster, test, 0, 0, 0, &count, &output));
       predictions.assign(output, output + count);

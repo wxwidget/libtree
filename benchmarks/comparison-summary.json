@@ -1,0 +1,896 @@
+[
+  {
+    "dataset": "titanic",
+    "language": "cpp",
+    "engine": "libtree",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8392887455440502,
+        "std": 0.014402741923289749
+      },
+      "average_precision": {
+        "mean": 0.797226360015175,
+        "std": 0.00942342755803937
+      },
+      "accuracy": {
+        "mean": 0.7982062780269058,
+        "std": 0.024967553196547195
+      },
+      "log_loss": {
+        "mean": 0.49292833860944474,
+        "std": 0.03060843550822983
+      },
+      "positive_fraction": {
+        "mean": 0.3856502175331116,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.0124677,
+    "predict_seconds_median": 0.000499467,
+    "peak_rss_mib_median": 2.0234375,
+    "fit_seconds_min": 0.0117229,
+    "fit_seconds_max": 0.0191197,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "titanic",
+    "language": "cpp",
+    "engine": "xgboost",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8325128727437333,
+        "std": 0.014524601094093278
+      },
+      "average_precision": {
+        "mean": 0.7874045012383598,
+        "std": 0.021376702163784723
+      },
+      "accuracy": {
+        "mean": 0.8071748878923767,
+        "std": 0.013452914798206317
+      },
+      "log_loss": {
+        "mean": 0.49045267191130176,
+        "std": 0.021287457448638546
+      },
+      "positive_fraction": {
+        "mean": 0.3856502175331116,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.00885284,
+    "predict_seconds_median": 0.000384462,
+    "peak_rss_mib_median": 7.2734375,
+    "fit_seconds_min": 0.00834646,
+    "fit_seconds_max": 0.0155808,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "titanic",
+    "language": "cpp",
+    "engine": "lightgbm",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8337152718836643,
+        "std": 0.01434506532115232
+      },
+      "average_precision": {
+        "mean": 0.793365590436301,
+        "std": 0.021703511796331898
+      },
+      "accuracy": {
+        "mean": 0.8101644245142003,
+        "std": 0.018669650219427254
+      },
+      "log_loss": {
+        "mean": 0.4912700146992126,
+        "std": 0.02214140754825303
+      },
+      "positive_fraction": {
+        "mean": 0.3856502175331116,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.00758596,
+    "predict_seconds_median": 0.000569974,
+    "peak_rss_mib_median": 9.234375,
+    "fit_seconds_min": 0.00680362,
+    "fit_seconds_max": 0.00996422,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "titanic",
+    "language": "python",
+    "engine": "libtree",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8392887455440502,
+        "std": 0.014402741923289749
+      },
+      "average_precision": {
+        "mean": 0.797226360015175,
+        "std": 0.00942342755803937
+      },
+      "accuracy": {
+        "mean": 0.7982062780269058,
+        "std": 0.024967553196547195
+      },
+      "log_loss": {
+        "mean": 0.49292833860944474,
+        "std": 0.03060843550822983
+      },
+      "positive_fraction": {
+        "mean": 0.3856502175331116,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.012182672000562889,
+    "predict_seconds_median": 0.0004966720007359982,
+    "peak_rss_mib_median": 127.37109375,
+    "fit_seconds_min": 0.011643137000646675,
+    "fit_seconds_max": 0.013036531000579998,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "titanic",
+    "language": "python",
+    "engine": "xgboost",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8325128727437333,
+        "std": 0.014524601094093278
+      },
+      "average_precision": {
+        "mean": 0.7874045012383598,
+        "std": 0.021376702163784723
+      },
+      "accuracy": {
+        "mean": 0.8071748878923767,
+        "std": 0.013452914798206317
+      },
+      "log_loss": {
+        "mean": 0.49045267191130176,
+        "std": 0.021287457448638546
+      },
+      "positive_fraction": {
+        "mean": 0.3856502175331116,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.014843927999208972,
+    "predict_seconds_median": 0.0011774249996960862,
+    "peak_rss_mib_median": 130.8046875,
+    "fit_seconds_min": 0.013449809000121604,
+    "fit_seconds_max": 0.02280555800007278,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "titanic",
+    "language": "python",
+    "engine": "lightgbm",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8337152718836643,
+        "std": 0.01434506532115232
+      },
+      "average_precision": {
+        "mean": 0.793365590436301,
+        "std": 0.021703511796331898
+      },
+      "accuracy": {
+        "mean": 0.8101644245142003,
+        "std": 0.018669650219427254
+      },
+      "log_loss": {
+        "mean": 0.4912700146992126,
+        "std": 0.02214140754825303
+      },
+      "positive_fraction": {
+        "mean": 0.3856502175331116,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.01858882399938011,
+    "predict_seconds_median": 0.0011954020001212484,
+    "peak_rss_mib_median": 134.453125,
+    "fit_seconds_min": 0.017179600999952527,
+    "fit_seconds_max": 0.021538441999837232,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "insurance",
+    "language": "cpp",
+    "engine": "libtree",
+    "metrics": {
+      "rmse": {
+        "mean": 4642.018401563749,
+        "std": 148.9017774081519
+      },
+      "mae": {
+        "mean": 2542.2561848958335,
+        "std": 21.660873575030713
+      },
+      "r2": {
+        "mean": 0.8566198348999023,
+        "std": 0.015626535339775725
+      }
+    },
+    "fit_seconds_median": 0.015567,
+    "predict_seconds_median": 0.000637877,
+    "peak_rss_mib_median": 2.02734375,
+    "fit_seconds_min": 0.0145839,
+    "fit_seconds_max": 0.0166215,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "insurance",
+    "language": "cpp",
+    "engine": "xgboost",
+    "metrics": {
+      "rmse": {
+        "mean": 4631.367498828394,
+        "std": 115.59686930898073
+      },
+      "mae": {
+        "mean": 2548.842529296875,
+        "std": 24.767596832381432
+      },
+      "r2": {
+        "mean": 0.8573761185010275,
+        "std": 0.013452313696349867
+      }
+    },
+    "fit_seconds_median": 0.00931445,
+    "predict_seconds_median": 0.000406036,
+    "peak_rss_mib_median": 7.37890625,
+    "fit_seconds_min": 0.00857294,
+    "fit_seconds_max": 0.010655,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "insurance",
+    "language": "cpp",
+    "engine": "lightgbm",
+    "metrics": {
+      "rmse": {
+        "mean": 4640.7889779681955,
+        "std": 191.69374782024633
+      },
+      "mae": {
+        "mean": 2529.6382649739585,
+        "std": 18.09220749424307
+      },
+      "r2": {
+        "mean": 0.8565577268600464,
+        "std": 0.018316315009912456
+      }
+    },
+    "fit_seconds_median": 0.00750507,
+    "predict_seconds_median": 0.000891772,
+    "peak_rss_mib_median": 9.23828125,
+    "fit_seconds_min": 0.00682239,
+    "fit_seconds_max": 0.00985816,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "insurance",
+    "language": "python",
+    "engine": "libtree",
+    "metrics": {
+      "rmse": {
+        "mean": 4642.018401563749,
+        "std": 148.9017774081519
+      },
+      "mae": {
+        "mean": 2542.2561848958335,
+        "std": 21.660873575030713
+      },
+      "r2": {
+        "mean": 0.8566198348999023,
+        "std": 0.015626535339775725
+      }
+    },
+    "fit_seconds_median": 0.015244690999679733,
+    "predict_seconds_median": 0.000666089999867836,
+    "peak_rss_mib_median": 127.40625,
+    "fit_seconds_min": 0.014089538999542128,
+    "fit_seconds_max": 0.01773618199968041,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "insurance",
+    "language": "python",
+    "engine": "xgboost",
+    "metrics": {
+      "rmse": {
+        "mean": 4631.367498828394,
+        "std": 115.59686930898073
+      },
+      "mae": {
+        "mean": 2548.842529296875,
+        "std": 24.767596832381432
+      },
+      "r2": {
+        "mean": 0.8573761185010275,
+        "std": 0.013452313696349867
+      }
+    },
+    "fit_seconds_median": 0.014484039000308258,
+    "predict_seconds_median": 0.0011247029997321079,
+    "peak_rss_mib_median": 130.81640625,
+    "fit_seconds_min": 0.013550111999393266,
+    "fit_seconds_max": 0.020560879999720783,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "insurance",
+    "language": "python",
+    "engine": "lightgbm",
+    "metrics": {
+      "rmse": {
+        "mean": 4640.7889779681955,
+        "std": 191.69374782024633
+      },
+      "mae": {
+        "mean": 2529.6382649739585,
+        "std": 18.09220749424307
+      },
+      "r2": {
+        "mean": 0.8565577268600464,
+        "std": 0.018316315009912456
+      }
+    },
+    "fit_seconds_median": 0.017999952000536723,
+    "predict_seconds_median": 0.001505022999481298,
+    "peak_rss_mib_median": 132.91796875,
+    "fit_seconds_min": 0.01677371299956576,
+    "fit_seconds_max": 0.02008343000034074,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "pima",
+    "language": "cpp",
+    "engine": "libtree",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8074029850746269,
+        "std": 0.03898246888505456
+      },
+      "average_precision": {
+        "mean": 0.6716104526050828,
+        "std": 0.04516069258395845
+      },
+      "accuracy": {
+        "mean": 0.734375,
+        "std": 0.046292679256852064
+      },
+      "log_loss": {
+        "mean": 0.5494063344784561,
+        "std": 0.07123879603036976
+      },
+      "positive_fraction": {
+        "mean": 0.3489583432674408,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.00789498,
+    "predict_seconds_median": 0.00048884,
+    "peak_rss_mib_median": 1.99609375,
+    "fit_seconds_min": 0.00760233,
+    "fit_seconds_max": 0.0080531,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "pima",
+    "language": "cpp",
+    "engine": "xgboost",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8046965174129354,
+        "std": 0.03378162061152941
+      },
+      "average_precision": {
+        "mean": 0.6881979780303378,
+        "std": 0.05536884726683044
+      },
+      "accuracy": {
+        "mean": 0.7517361111111112,
+        "std": 0.03182344232608223
+      },
+      "log_loss": {
+        "mean": 0.5570947717696131,
+        "std": 0.0739005662988781
+      },
+      "positive_fraction": {
+        "mean": 0.3489583432674408,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.0140186,
+    "predict_seconds_median": 0.000359134,
+    "peak_rss_mib_median": 7.265625,
+    "fit_seconds_min": 0.0134555,
+    "fit_seconds_max": 0.0180188,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "pima",
+    "language": "cpp",
+    "engine": "lightgbm",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8029850746268656,
+        "std": 0.04258938943764013
+      },
+      "average_precision": {
+        "mean": 0.6815119771761112,
+        "std": 0.05666212554929522
+      },
+      "accuracy": {
+        "mean": 0.7309027777777778,
+        "std": 0.03977930290760278
+      },
+      "log_loss": {
+        "mean": 0.559951315618517,
+        "std": 0.07548498441801406
+      },
+      "positive_fraction": {
+        "mean": 0.3489583432674408,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.0103201,
+    "predict_seconds_median": 0.000645488,
+    "peak_rss_mib_median": 7.69921875,
+    "fit_seconds_min": 0.00932972,
+    "fit_seconds_max": 0.0441199,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "pima",
+    "language": "python",
+    "engine": "libtree",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8074029850746269,
+        "std": 0.03898246888505456
+      },
+      "average_precision": {
+        "mean": 0.6716104526050828,
+        "std": 0.04516069258395845
+      },
+      "accuracy": {
+        "mean": 0.734375,
+        "std": 0.046292679256852064
+      },
+      "log_loss": {
+        "mean": 0.5494063344784561,
+        "std": 0.07123879603036976
+      },
+      "positive_fraction": {
+        "mean": 0.3489583432674408,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.008405598999161157,
+    "predict_seconds_median": 0.0005945719994997489,
+    "peak_rss_mib_median": 127.34765625,
+    "fit_seconds_min": 0.007722029999968072,
+    "fit_seconds_max": 0.010057193000648113,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "pima",
+    "language": "python",
+    "engine": "xgboost",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8046965174129354,
+        "std": 0.03378162061152941
+      },
+      "average_precision": {
+        "mean": 0.6881979780303378,
+        "std": 0.05536884726683044
+      },
+      "accuracy": {
+        "mean": 0.7517361111111112,
+        "std": 0.03182344232608223
+      },
+      "log_loss": {
+        "mean": 0.5570947717696131,
+        "std": 0.0739005662988781
+      },
+      "positive_fraction": {
+        "mean": 0.3489583432674408,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.019537701999979618,
+    "predict_seconds_median": 0.0011700180002662819,
+    "peak_rss_mib_median": 130.84765625,
+    "fit_seconds_min": 0.01838242200028617,
+    "fit_seconds_max": 0.022298150999631616,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "pima",
+    "language": "python",
+    "engine": "lightgbm",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8029850746268656,
+        "std": 0.04258938943764013
+      },
+      "average_precision": {
+        "mean": 0.6815119771761112,
+        "std": 0.05666212554929522
+      },
+      "accuracy": {
+        "mean": 0.7309027777777778,
+        "std": 0.03977930290760278
+      },
+      "log_loss": {
+        "mean": 0.559951315618517,
+        "std": 0.07548498441801406
+      },
+      "positive_fraction": {
+        "mean": 0.3489583432674408,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.02193868099948304,
+    "predict_seconds_median": 0.0013477510001393966,
+    "peak_rss_mib_median": 132.74609375,
+    "fit_seconds_min": 0.02079492000029859,
+    "fit_seconds_max": 0.027695730000232288,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "telco",
+    "language": "cpp",
+    "engine": "libtree",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8465026085364065,
+        "std": 0.0014957896529888984
+      },
+      "average_precision": {
+        "mean": 0.6575562660144768,
+        "std": 0.00906653187785697
+      },
+      "accuracy": {
+        "mean": 0.7995457126632595,
+        "std": 0.00464812763876914
+      },
+      "log_loss": {
+        "mean": 0.414955711874657,
+        "std": 0.003125176909194476
+      },
+      "positive_fraction": {
+        "mean": 0.2651902437210083,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.283595,
+    "predict_seconds_median": 0.00328321,
+    "peak_rss_mib_median": 3.625,
+    "fit_seconds_min": 0.264341,
+    "fit_seconds_max": 0.298209,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "telco",
+    "language": "cpp",
+    "engine": "xgboost",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8465260517162061,
+        "std": 0.001926880696455384
+      },
+      "average_precision": {
+        "mean": 0.6590728456442951,
+        "std": 0.008554289077062072
+      },
+      "accuracy": {
+        "mean": 0.7982207079310997,
+        "std": 0.004728372514403485
+      },
+      "log_loss": {
+        "mean": 0.41497947509495964,
+        "std": 0.0028803288145015987
+      },
+      "positive_fraction": {
+        "mean": 0.2651902437210083,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.0587059,
+    "predict_seconds_median": 0.00237025,
+    "peak_rss_mib_median": 12.25,
+    "fit_seconds_min": 0.0514147,
+    "fit_seconds_max": 0.0668744,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "telco",
+    "language": "cpp",
+    "engine": "lightgbm",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.844377277435967,
+        "std": 0.0001984585477065991
+      },
+      "average_precision": {
+        "mean": 0.6563494688530149,
+        "std": 0.007954717872774143
+      },
+      "accuracy": {
+        "mean": 0.7985992807117168,
+        "std": 0.0045546884026181995
+      },
+      "log_loss": {
+        "mean": 0.41707688642802504,
+        "std": 0.0012027856257619159
+      },
+      "positive_fraction": {
+        "mean": 0.2651902437210083,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.0635518,
+    "predict_seconds_median": 0.00521836,
+    "peak_rss_mib_median": 11.75390625,
+    "fit_seconds_min": 0.0595034,
+    "fit_seconds_max": 0.0826849,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "telco",
+    "language": "python",
+    "engine": "libtree",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8465026085364065,
+        "std": 0.0014957896529888984
+      },
+      "average_precision": {
+        "mean": 0.6575562660144768,
+        "std": 0.00906653187785697
+      },
+      "accuracy": {
+        "mean": 0.7995457126632595,
+        "std": 0.00464812763876914
+      },
+      "log_loss": {
+        "mean": 0.414955711874657,
+        "std": 0.003125176909194476
+      },
+      "positive_fraction": {
+        "mean": 0.2651902437210083,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.29298027899949375,
+    "predict_seconds_median": 0.003502254000522953,
+    "peak_rss_mib_median": 129.203125,
+    "fit_seconds_min": 0.2673583639998469,
+    "fit_seconds_max": 0.32867010300014954,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "telco",
+    "language": "python",
+    "engine": "xgboost",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.8465260517162061,
+        "std": 0.001926880696455384
+      },
+      "average_precision": {
+        "mean": 0.6590728456442951,
+        "std": 0.008554289077062072
+      },
+      "accuracy": {
+        "mean": 0.7982207079310997,
+        "std": 0.004728372514403485
+      },
+      "log_loss": {
+        "mean": 0.41497947509495964,
+        "std": 0.0028803288145015987
+      },
+      "positive_fraction": {
+        "mean": 0.2651902437210083,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.059985515999869676,
+    "predict_seconds_median": 0.0026295159996152506,
+    "peak_rss_mib_median": 133.453125,
+    "fit_seconds_min": 0.05746250499942107,
+    "fit_seconds_max": 0.06781570100065437,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "telco",
+    "language": "python",
+    "engine": "lightgbm",
+    "metrics": {
+      "roc_auc": {
+        "mean": 0.844377277435967,
+        "std": 0.0001984585477065991
+      },
+      "average_precision": {
+        "mean": 0.6563494688530149,
+        "std": 0.007954717872774143
+      },
+      "accuracy": {
+        "mean": 0.7985992807117168,
+        "std": 0.0045546884026181995
+      },
+      "log_loss": {
+        "mean": 0.41707688642802504,
+        "std": 0.0012027856257619159
+      },
+      "positive_fraction": {
+        "mean": 0.2651902437210083,
+        "std": 0.0
+      }
+    },
+    "fit_seconds_median": 0.07247229200038419,
+    "predict_seconds_median": 0.005962887000350747,
+    "peak_rss_mib_median": 136.2734375,
+    "fit_seconds_min": 0.06642773000021407,
+    "fit_seconds_max": 0.07591884399971605,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "wine",
+    "language": "cpp",
+    "engine": "libtree",
+    "metrics": {
+      "rmse": {
+        "mean": 0.6375234040109514,
+        "std": 0.011639326290269522
+      },
+      "mae": {
+        "mean": 0.5011849900086721,
+        "std": 0.013854621729084145
+      },
+      "r2": {
+        "mean": 0.39986590544382733,
+        "std": 0.037819932401215624
+      }
+    },
+    "fit_seconds_median": 0.0124199,
+    "predict_seconds_median": 0.000778921,
+    "peak_rss_mib_median": 2.03125,
+    "fit_seconds_min": 0.0112884,
+    "fit_seconds_max": 0.0148646,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "wine",
+    "language": "cpp",
+    "engine": "xgboost",
+    "metrics": {
+      "rmse": {
+        "mean": 0.6481457862772879,
+        "std": 0.023574426874485122
+      },
+      "mae": {
+        "mean": 0.5033359030882517,
+        "std": 0.016300050837000778
+      },
+      "r2": {
+        "mean": 0.3786597053209941,
+        "std": 0.06504203673604735
+      }
+    },
+    "fit_seconds_median": 0.0198075,
+    "predict_seconds_median": 0.000461299,
+    "peak_rss_mib_median": 7.40234375,
+    "fit_seconds_min": 0.0180949,
+    "fit_seconds_max": 0.0223336,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "wine",
+    "language": "cpp",
+    "engine": "lightgbm",
+    "metrics": {
+      "rmse": {
+        "mean": 0.6389468344749857,
+        "std": 0.011482172355274088
+      },
+      "mae": {
+        "mean": 0.4980082909266154,
+        "std": 0.012026153602401028
+      },
+      "r2": {
+        "mean": 0.3974079688390096,
+        "std": 0.031910024702214816
+      }
+    },
+    "fit_seconds_median": 0.0118412,
+    "predict_seconds_median": 0.00100223,
+    "peak_rss_mib_median": 9.30859375,
+    "fit_seconds_min": 0.0109351,
+    "fit_seconds_max": 0.0132599,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "wine",
+    "language": "python",
+    "engine": "libtree",
+    "metrics": {
+      "rmse": {
+        "mean": 0.6375234040109514,
+        "std": 0.011639326290269522
+      },
+      "mae": {
+        "mean": 0.5011849900086721,
+        "std": 0.013854621729084145
+      },
+      "r2": {
+        "mean": 0.39986590544382733,
+        "std": 0.037819932401215624
+      }
+    },
+    "fit_seconds_median": 0.012496209999881103,
+    "predict_seconds_median": 0.0008650709996800288,
+    "peak_rss_mib_median": 127.40625,
+    "fit_seconds_min": 0.011743388000468258,
+    "fit_seconds_max": 0.01577252300012333,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "wine",
+    "language": "python",
+    "engine": "xgboost",
+    "metrics": {
+      "rmse": {
+        "mean": 0.6481457862772879,
+        "std": 0.023574426874485122
+      },
+      "mae": {
+        "mean": 0.5033359030882517,
+        "std": 0.016300050837000778
+      },
+      "r2": {
+        "mean": 0.3786597053209941,
+        "std": 0.06504203673604735
+      }
+    },
+    "fit_seconds_median": 0.0266570909998336,
+    "predict_seconds_median": 0.0013814940002703224,
+    "peak_rss_mib_median": 130.94140625,
+    "fit_seconds_min": 0.023370213999442058,
+    "fit_seconds_max": 0.04041894100009813,
+    "all_checks_passed": true
+  },
+  {
+    "dataset": "wine",
+    "language": "python",
+    "engine": "lightgbm",
+    "metrics": {
+      "rmse": {
+        "mean": 0.6389468344749857,
+        "std": 0.011482172355274088
+      },
+      "mae": {
+        "mean": 0.4980082909266154,
+        "std": 0.012026153602401028
+      },
+      "r2": {
+        "mean": 0.3974079688390096,
+        "std": 0.031910024702214816
+      }
+    },
+    "fit_seconds_median": 0.02288289700027235,
+    "predict_seconds_median": 0.001679725000030885,
+    "peak_rss_mib_median": 134.39453125,
+    "fit_seconds_min": 0.021340080999834754,
+    "fit_seconds_max": 0.029036775999884412,
+    "all_checks_passed": true
+  }
+]

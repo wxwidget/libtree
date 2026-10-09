@@ -7,6 +7,7 @@
 #include <limits>
 #include <numeric>
 #include <random>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -190,6 +191,23 @@ void Run() {
   Check(mse < 1.5);
   dense_model.Fit({dense.data(), rows, columns}, target);
   Check(result == dense_model.Predict({dense.data(), rows, columns}));
+  std::stringstream serialized;
+  dense_model.SaveModel(serialized);
+  Gbdt loaded;
+  loaded.LoadModel(serialized);
+  Check(loaded.Predict({dense.data(), rows, columns}) == result);
+  for (const std::string text :
+       {"garbage", "LIBTREE_GBDT 99", "LIBTREE_GBDT 1\n-1"}) {
+    std::stringstream invalid(text);
+    Throws([&] { loaded.LoadModel(invalid); });
+    Check(loaded.Predict({dense.data(), rows, columns}) == result);
+  }
+  std::stringstream truncated(
+      serialized.str().substr(0, serialized.str().size() / 2));
+  Throws([&] { loaded.LoadModel(truncated); });
+  std::stringstream unfitted_output;
+  Gbdt unfitted;
+  Throws([&] { unfitted.SaveModel(unfitted_output); });
 }
 }  // namespace
 int main() {

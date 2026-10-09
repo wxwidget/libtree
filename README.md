@@ -24,7 +24,7 @@ make test
 `. /workspace/libtree-venv/bin/activate` and `cd /workspace/libtree` instead.
 For Python use alone, `python -m pip install .` builds a native wheel and installs
 NumPy. It requires a C++17 compiler. Linux is the currently validated platform;
-Windows wheels are not provided. XGBoost is needed only for comparisons.
+Windows wheels are not provided. XGBoost and LightGBM are needed only for comparisons.
 
 ```python
 import numpy as np
@@ -50,6 +50,13 @@ copies. Infinity and invalid shapes are rejected; NaN is a supported feature.
 native memory; automatic finalization also works. `get_params`, `set_params`,
 `score` and sklearn `clone` are supported. This is not a full sklearn estimator
 protocol implementation; advanced metadata routing is not supported.
+
+## Command-line training and prediction
+
+The native `xgbt` program supports train/predict, CSV inputs, model files and all
+GBDT hyperparameters. See [the command guide](docs/cli.md) and run
+`./build/xgbt --help`. [Three-way comparison](benchmarks/COMPARISON_REPORT.zh-CN.md)
+adds LightGBM alongside XGBoost for both C++ and Python.
 
 ## C++ in five minutes
 
@@ -129,7 +136,7 @@ forest/entropy branches, ad-hoc boosting weights and unvalidated binary model
 serialization. The previous `train`/`classify` CLI, headers and serialized models
 are incompatible; retrain via the new API. Original `data/` assets are retained
 as historical data, but benchmarks use source-tracked datasets. Multiclass,
-ranking, sparse input, GPU/distributed training, model persistence and sample
+ranking, sparse input, GPU/distributed training, Python model persistence and sample
 weights are outside this implementation. See [design choices and style
 exceptions](docs/design.md) before contributing.
 

@@ -12,7 +12,7 @@ dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-cov>=5", "cmake>=3.16", "gcovr>=7", "clang-format>=18", "scikit-learn>=1.4"]
-benchmark = ["xgboost==3.4.1", "scikit-learn>=1.4", "pandas>=2.0"]
+benchmark = ["xgboost==3.4.1", "lightgbm==4.7.0", "scikit-learn>=1.4", "pandas>=2.0"]
 
 [tool.setuptools]
 package-dir = {"" = "python"}
