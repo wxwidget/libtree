@@ -68,8 +68,8 @@ Python     4      1.01x±0.20     1.52x±0.58
   4 线程：训练  9/14，推理 14/14
 
 大数据集 4 线程加速示例（训练/推理）：
-  friedman_100k：C++ 1.42x / 2.22x，Python 1.38x / 2.26x
-  friedman_20k： C++ 1.20x / 2.18x，Python 1.12x / 1.95x
+  friedman_100k：C++ 1.42x / 2.36x，Python 1.42x / 2.35x
+  friedman_20k： C++ 1.10x / 2.31x，Python 1.11x / 2.15x
 
 四、测试与质量门禁
 ------------------
