@@ -103,8 +103,10 @@ def source(name):
 
 
 def datasets(suite="all"):
-    if suite in ("all", "original"):
+    if suite in ("all", "original", "builtin"):
         yield from builtin_datasets()
+    if suite == "builtin":
+        return
     for dataset in kaggle_datasets():
         if suite != "original" or dataset[0] in ("titanic", "insurance"):
             yield dataset
@@ -178,6 +180,8 @@ def main(args):
                   "--min-leaf", str(args.min_leaf), "--rate", str(args.rate), "--l2", str(args.l2),
                   "--min-gain", str(args.min_gain)]
     for name, x, y, binary, provenance in datasets(args.suite):
+        if args.datasets and name not in args.datasets:
+            continue
         provenance["rows_after_cleaning"] = len(x)
         provenance["raw_feature_count"] = x.shape[1]
         provenance["feature_missing_values"] = int(x.isna().sum().sum()) if isinstance(x, pd.DataFrame) else int(np.isnan(x).sum())
@@ -257,7 +261,7 @@ def main(args):
                              "min_leaf": args.min_leaf, "rate": args.rate, "l2": args.l2, "min_gain": args.min_gain},
               "cpu": next((line.strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown'),
               "source_sha256": {str(path): hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
-                                for path in ("src/gbdt.cc", "src/model.cc", "src/cli.cc", "include/libtree/gbdt.h", "python/libtree/__init__.py", "benchmarks/native.cc", "benchmarks/run.py")},
+                                for path in ("src/gbdt.cc", "src/c_api.cc", "src/model.cc", "src/cli.cc", "include/libtree/gbdt.h", "python/libtree/__init__.py", "benchmarks/native.cc", "benchmarks/run.py")},
               "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
               "sources": sources, "results": results}
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n")
@@ -267,8 +271,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--output", default=str(ROOT / "benchmarks/results.json"))
-    parser.add_argument("--suite", choices=["all", "kaggle", "original"], default="all")
+    parser.add_argument("--suite", choices=["all", "kaggle", "original", "builtin"], default="all")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--datasets", nargs="+", choices=["titanic", "insurance", "pima", "telco", "wine",
+                                                         "diabetes", "breast_cancer", "friedman_20k"])
     parser.add_argument("--worker")
     parser.add_argument("--engine", choices=["libtree", "xgboost", "lightgbm"])
     parser.add_argument("--engines", nargs="+", choices=["libtree", "xgboost", "lightgbm"], default=["libtree", "xgboost", "lightgbm"])

@@ -58,6 +58,14 @@ GBDT hyperparameters. See [the command guide](docs/cli.md) and run
 `./build/xgbt --help`. [Three-way comparison](benchmarks/COMPARISON_REPORT.zh-CN.md)
 adds LightGBM alongside XGBoost for both C++ and Python.
 
+The [latest optimization evidence](benchmarks/OPTIMIZATION_REPORT.zh-CN.md)
+records 450 measurements: LibTree has the lowest pooled median training and
+prediction time in all 10 dataset/interface groups of the five-dataset,
+single-thread suite. Same-split quality metrics are unchanged from the previous
+implementation. These rankings describe this recorded workload and hardware.
+`PredictInto(view, output)` writes directly into a separate caller-owned float
+buffer; allocating `Predict` remains available.
+
 ## C++ in five minutes
 
 Read [examples/train.cc](examples/train.cc), or build only the library:

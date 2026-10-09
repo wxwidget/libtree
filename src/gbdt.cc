@@ -1,9 +1,9 @@
 #include "libtree/gbdt.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
-#include <functional>
 #include <limits>
 #include <numeric>
 #include <stdexcept>
@@ -27,6 +27,10 @@ void ValidateMatrix(MatrixView matrix, bool allow_empty) {
     }
   }
 }
+struct Derivative {
+  double gradient;
+  double hessian;
+};
 struct Stats {
   double gradient = 0;
   double hessian = 0;
@@ -35,6 +39,12 @@ struct Stats {
     gradient += other.gradient;
     hessian += other.hessian;
     count += other.count;
+    return *this;
+  }
+  Stats& operator+=(const Derivative& other) {
+    gradient += other.gradient;
+    hessian += other.hessian;
+    ++count;
     return *this;
   }
 };
@@ -89,6 +99,13 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   // Quantize once per Fit. Column-major uint16 bins keep histogram scans
   // compact.
   std::vector<std::uint16_t> bins(n * d);
+  struct SparseColumn {
+    std::uint16_t default_bin = 0;
+    int single_bin = -1;
+    std::vector<std::size_t> exceptions;
+    bool enabled = false;
+  };
+  std::vector<SparseColumn> sparse_columns(d);
   std::vector<float> sorted;
   sorted.reserve(n);
   for (std::size_t f = 0; f < d; ++f) {
@@ -106,14 +123,44 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
         if (cuts[f].empty() || cut > cuts[f].back()) cuts[f].push_back(cut);
       }
     }
+    // A padded search table permits fixed-step, branch-free bin lookup while
+    // preserving the exact original cuts (including repeated-value quantiles).
+    std::size_t padded = 1;
+    while (padded < cuts[f].size()) padded *= 2;
+    sorted.resize(padded);
+    if (!cuts[f].empty()) {
+      std::copy(cuts[f].begin(), cuts[f].end(), sorted.begin());
+      std::fill(sorted.begin() + cuts[f].size(), sorted.end(), cuts[f].back());
+    }
     for (std::size_t i = 0; i < n; ++i) {
       const float value = features.data[i * d + f];
-      bins[f * n + i] =
-          std::isnan(value)
-              ? 0
-              : static_cast<std::uint16_t>(
-                    std::lower_bound(cuts[f].begin(), cuts[f].end(), value) -
-                    cuts[f].begin() + 1);
+      if (std::isnan(value)) {
+        bins[f * n + i] = 0;
+      } else {
+        std::size_t lower = 0;
+        for (std::size_t step = padded / 2; step; step /= 2)
+          lower += (sorted[lower + step - 1] < value) * step;
+        bins[f * n + i] = static_cast<std::uint16_t>(lower + 1);
+      }
+    }
+    std::vector<std::size_t> counts(cuts[f].size() + 1, 0);
+    for (std::size_t i = 0; i < n; ++i) ++counts[bins[f * n + i]];
+    auto& sparse = sparse_columns[f];
+    sparse.default_bin = static_cast<std::uint16_t>(
+        std::max_element(counts.begin(), counts.end()) - counts.begin());
+    if (n - counts[sparse.default_bin] <= n / 2) {
+      sparse.enabled = true;
+      for (std::size_t i = 0; i < n; ++i)
+        if (bins[f * n + i] != sparse.default_bin)
+          sparse.exceptions.push_back(i);
+      for (std::size_t b = 0; b < counts.size(); ++b)
+        if (b != sparse.default_bin && counts[b]) {
+          if (sparse.single_bin >= 0) {
+            sparse.single_bin = -1;
+            break;
+          }
+          sparse.single_bin = static_cast<int>(b);
+        }
     }
   }
   std::vector<Tree> trees;
@@ -121,32 +168,179 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   std::vector<double> losses;
   losses.reserve(parameters_.num_trees);
   std::vector<double> margins(n, base);
-  std::vector<Stats> derivatives(n);
+  std::vector<Derivative> derivatives(n), ordered_derivatives;
+  const double initial_prediction = binary ? Sigmoid(base) : base;
+  const double initial_hessian =
+      binary ? std::max(initial_prediction * (1 - initial_prediction), 1e-6)
+             : 1;
+  for (std::size_t i = 0; i < n; ++i)
+    derivatives[i] = {initial_prediction - labels[i], initial_hessian};
   std::vector<std::size_t> rows(n);
-  std::vector<Stats> histogram(parameters_.max_bins + 1);
-  for (int iteration = 0; iteration < parameters_.num_trees; ++iteration) {
-    for (std::size_t i = 0; i < n; ++i) {
-      const double prediction = binary ? Sigmoid(margins[i]) : margins[i];
-      derivatives[i] = {
-          prediction - labels[i],
-          binary ? std::max(prediction * (1 - prediction), 1e-6) : 1, 1};
+  std::vector<std::size_t> positions;
+  std::vector<std::size_t> offsets(d + 1, 0);
+  for (std::size_t f = 0; f < d; ++f)
+    offsets[f + 1] = offsets[f] + cuts[f].size() + 1;
+  // Wide matrices benefit from scanning a row once and reusing its gradient
+  // for all features. Store absolute histogram indices to remove offset loads
+  // in this hot loop. Larger histograms retain the column-oriented fallback.
+  std::vector<std::uint16_t> row_histogram_indices;
+  const std::size_t continuous = std::count_if(
+      cuts.begin(), cuts.end(), [](const auto& cut) { return cut.size() > 4; });
+  if (d >= 16 && continuous > d / 2 && offsets.back() <= 65536) {
+    row_histogram_indices.resize(n * d);
+    for (std::size_t f = 0; f < d; ++f)
+      for (std::size_t row = 0; row < n; ++row)
+        row_histogram_indices[row * d + f] =
+            static_cast<std::uint16_t>(offsets[f] + bins[f * n + row]);
+  }
+  if (row_histogram_indices.empty()) {
+    ordered_derivatives.resize(n);
+    positions.resize(n);
+  }
+  // Reuse only a depth-sized workspace: build the smaller child, then obtain
+  // its sibling by subtracting from the parent histogram.
+  std::vector<std::vector<Stats>> workspace(parameters_.max_depth + 1);
+  auto sum_rows = [&](std::size_t begin, std::size_t end) {
+    Stats total;
+    for (std::size_t j = begin; j < end; ++j) total += derivatives[rows[j]];
+    return total;
+  };
+  auto make_histograms = [&](std::size_t begin, std::size_t end,
+                             const Stats& total, Stats* histograms,
+                             const Stats* parent = nullptr) {
+    std::fill(histograms, histograms + offsets.back(), Stats{});
+    if (!row_histogram_indices.empty()) {
+      for (std::size_t j = begin; j < end; ++j) {
+        const std::size_t row = rows[j];
+        const auto* indices = row_histogram_indices.data() + row * d;
+        const Derivative derivative = derivatives[row];
+        for (std::size_t f = 0; f < d; ++f)
+          histograms[indices[f]] += derivative;
+      }
+      return;
     }
+    for (std::size_t j = begin; j < end; ++j)
+      ordered_derivatives[j] = derivatives[rows[j]];
+    for (std::size_t f = 0; f < d; ++f) {
+      const std::size_t num_bins = cuts[f].size();
+      if (num_bins == 0) continue;
+      auto* histogram = histograms + offsets[f];
+      if (parent && num_bins <= 4) {
+        int occupied = -1;
+        for (std::size_t b = 0; b <= num_bins; ++b)
+          if (parent[offsets[f] + b].count) {
+            if (occupied >= 0) {
+              occupied = -1;
+              break;
+            }
+            occupied = static_cast<int>(b);
+          }
+        if (occupied >= 0) {
+          histogram[occupied] = total;
+          continue;
+        }
+      }
+      const auto* column = bins.data() + f * n;
+      const auto& sparse = sparse_columns[f];
+      const bool root = begin == 0 && end == n;
+      if (sparse.enabled &&
+          (root || sparse.exceptions.size() < (end - begin) / 2)) {
+        if (sparse.single_bin >= 0 && root) {
+          std::array<Stats, 4> partial{};
+          std::size_t j = 0;
+          for (; j + 4 <= sparse.exceptions.size(); j += 4)
+            for (std::size_t lane = 0; lane < 4; ++lane)
+              partial[lane] += derivatives[sparse.exceptions[j + lane]];
+          for (; j < sparse.exceptions.size(); ++j)
+            partial[0] += derivatives[sparse.exceptions[j]];
+          for (const auto& lane : partial) histogram[sparse.single_bin] += lane;
+        } else {
+          for (std::size_t row : sparse.exceptions) {
+            if (root || (positions[row] >= begin && positions[row] < end))
+              histogram[column[row]] += derivatives[row];
+          }
+        }
+        Stats other;
+        for (std::size_t b = 0; b <= num_bins; ++b)
+          if (b != sparse.default_bin) other += histogram[b];
+        histogram[sparse.default_bin] = total - other;
+      } else if (sparse.single_bin >= 0) {
+        // Two-valued columns need only one weighted sum. Masking avoids
+        // scattered histogram writes and unpredictable per-row branches.
+        std::array<Stats, 4> partial{};
+        std::size_t j = begin;
+        for (; j + 4 <= end; j += 4)
+          for (std::size_t lane = 0; lane < 4; ++lane) {
+            const std::size_t row = rows[j + lane];
+            const std::size_t hit = column[row] == sparse.single_bin;
+            partial[lane].gradient +=
+                ordered_derivatives[j + lane].gradient * hit;
+            partial[lane].hessian +=
+                ordered_derivatives[j + lane].hessian * hit;
+            partial[lane].count += hit;
+          }
+        for (; j < end; ++j) {
+          const std::size_t row = rows[j];
+          const std::size_t hit = column[row] == sparse.single_bin;
+          partial[0].gradient += ordered_derivatives[j].gradient * hit;
+          partial[0].hessian += ordered_derivatives[j].hessian * hit;
+          partial[0].count += hit;
+        }
+        Stats other;
+        for (const auto& lane : partial) other += lane;
+        histogram[sparse.single_bin] = other;
+        histogram[sparse.default_bin] = total - other;
+      } else if (num_bins <= 4) {
+        // Independent accumulators avoid a serial dependency chain for
+        // binary/low-cardinality columns dominated by one bin.
+        std::array<std::array<Stats, 5>, 4> partial{};
+        std::size_t j = begin;
+        for (; j + 4 <= end; j += 4)
+          for (std::size_t lane = 0; lane < 4; ++lane) {
+            const std::size_t row = rows[j + lane];
+            partial[lane][column[row]] += ordered_derivatives[j + lane];
+          }
+        for (; j < end; ++j) {
+          const std::size_t row = rows[j];
+          partial[0][column[row]] += ordered_derivatives[j];
+        }
+        for (std::size_t b = 0; b <= num_bins; ++b)
+          for (const auto& lane : partial) histogram[b] += lane[b];
+      } else {
+        for (std::size_t j = begin; j < end; ++j) {
+          const std::size_t row = rows[j];
+          histogram[column[row]] += ordered_derivatives[j];
+        }
+      }
+    }
+  };
+  for (int iteration = 0; iteration < parameters_.num_trees; ++iteration) {
     std::iota(rows.begin(), rows.end(), 0);
+    std::iota(positions.begin(), positions.end(), 0);
+    if (parameters_.max_depth > 0 &&
+        n / 2 >= static_cast<std::size_t>(parameters_.min_samples_leaf)) {
+      workspace[0].resize(offsets.back());
+      make_histograms(0, n, sum_rows(0, n), workspace[0].data());
+    }
     Tree tree;
     tree.reserve(std::min<std::size_t>(
         2 * n, (std::size_t{1} << (parameters_.max_depth + 1)) - 1));
-    std::function<int(std::size_t, std::size_t, int)> build;
-    build = [&](std::size_t begin, std::size_t end, int depth) -> int {
-      Stats total;
-      for (std::size_t j = begin; j < end; ++j) total += derivatives[rows[j]];
+    auto build = [&](auto&& self, std::size_t begin, std::size_t end, int depth,
+                     Stats* histograms) -> int {
+      const Stats total = sum_rows(begin, end);
       const int node_id = static_cast<int>(tree.size());
       Node node;
       node.value = -total.gradient / (total.hessian + parameters_.l2);
       tree.push_back(node);
+      auto finish_leaf = [&] {
+        const double update = parameters_.learning_rate * node.value;
+        for (std::size_t j = begin; j < end; ++j) margins[rows[j]] += update;
+        return node_id;
+      };
       if (depth >= parameters_.max_depth ||
           total.count / 2 <
               static_cast<std::size_t>(parameters_.min_samples_leaf))
-        return node_id;
+        return finish_leaf();
       double best_gain = parameters_.min_gain;
       const double parent_score = Score(total, parameters_.l2);
       int best_feature = -1;
@@ -155,12 +349,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       for (std::size_t f = 0; f < d; ++f) {
         const std::size_t num_bins = cuts[f].size();
         if (num_bins == 0) continue;
-        std::fill(histogram.begin(), histogram.begin() + num_bins + 1, Stats{});
-        const auto* column = bins.data() + f * n;
-        for (std::size_t j = begin; j < end; ++j) {
-          const std::size_t row = rows[j];
-          histogram[column[row]] += derivatives[row];
-        }
+        const auto* histogram = histograms + offsets[f];
         Stats prefix;
         for (std::size_t k = 1; k <= num_bins; ++k) {
           prefix += histogram[k];
@@ -186,7 +375,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           }
         }
       }
-      if (best_feature < 0) return node_id;
+      if (best_feature < 0) return finish_leaf();
       const auto* column =
           bins.data() + static_cast<std::size_t>(best_feature) * n;
       auto mid = std::partition(
@@ -195,69 +384,181 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
                                     : column[row] <= best_bin;
           });
       const std::size_t middle = mid - rows.begin();
+      if (!positions.empty())
+        for (std::size_t j = begin; j < end; ++j) positions[rows[j]] = j;
       tree[node_id].feature = best_feature;
       tree[node_id].threshold = cuts[best_feature][best_bin - 1];
       tree[node_id].missing_left = best_missing_left;
-      // No reference into tree survives recursion (vector may reallocate).
-      const int left = build(begin, middle, depth + 1);
-      const int right = build(middle, end, depth + 1);
+      int left, right;
+      if (depth + 1 == parameters_.max_depth) {
+        left = self(self, begin, middle, depth + 1, nullptr);
+        right = self(self, middle, end, depth + 1, nullptr);
+      } else {
+        auto& small_histogram = workspace[depth + 1];
+        small_histogram.resize(offsets.back());
+        const bool left_small = middle - begin <= end - middle;
+        const std::size_t small_begin = left_small ? begin : middle;
+        const std::size_t small_end = left_small ? middle : end;
+        make_histograms(small_begin, small_end,
+                        sum_rows(small_begin, small_end),
+                        small_histogram.data(), histograms);
+        for (std::size_t b = 0; b < offsets.back(); ++b)
+          histograms[b] = histograms[b] - small_histogram[b];
+        // No reference into tree survives recursion (vector may reallocate).
+        const int small = self(self, small_begin, small_end, depth + 1,
+                               small_histogram.data());
+        const int large =
+            self(self, left_small ? middle : begin, left_small ? end : middle,
+                 depth + 1, histograms);
+        left = left_small ? small : large;
+        right = left_small ? large : small;
+      }
       tree[node_id].left = left;
       tree[node_id].right = right;
       return node_id;
     };
-    build(0, n, 0);
+    build(build, 0, n, 0, workspace[0].data());
     double loss = 0;
     for (std::size_t i = 0; i < n; ++i) {
-      int index = 0;
-      while (tree[index].feature >= 0) {
-        const Node& node = tree[index];
-        const float value = features.data[i * d + node.feature];
-        const bool left =
-            std::isnan(value) ? node.missing_left : value <= node.threshold;
-        index = left ? node.left : node.right;
-      }
-      margins[i] += parameters_.learning_rate * tree[index].value;
       if (binary) {
         // Stable softplus cross entropy without log(0) or exp overflow.
-        loss += std::max(margins[i], 0.0) - labels[i] * margins[i] +
-                std::log1p(std::exp(-std::abs(margins[i])));
+        // Reuse its exponential to prepare the next boosting iteration.
+        const double e = std::exp(-std::abs(margins[i]));
+        const double prediction = margins[i] >= 0 ? 1 / (1 + e) : e / (1 + e);
+        loss +=
+            std::max(margins[i], 0.0) - labels[i] * margins[i] + std::log1p(e);
+        derivatives[i] = {prediction - labels[i],
+                          std::max(prediction * (1 - prediction), 1e-6)};
       } else {
         const double residual = margins[i] - labels[i];
         loss += residual * residual;
+        derivatives[i] = {residual, 1};
       }
     }
     losses.push_back(loss / n);
     trees.push_back(std::move(tree));
   }
+  auto prediction_trees = CompilePredictionTrees(trees);
   num_features_ = d;
   base_score_ = base;
   trees_ = std::move(trees);
+  prediction_trees_ = std::move(prediction_trees);
   training_loss_ = std::move(losses);
 }
 
-std::vector<float> Gbdt::Predict(MatrixView features) const {
+std::vector<Gbdt::PredictionTree> Gbdt::CompilePredictionTrees(
+    const std::vector<Tree>& trees) const {
+  constexpr std::uint32_t kMissingLeft = std::uint32_t{1} << 31;
+  std::vector<PredictionTree> compiled;
+  compiled.reserve(trees.size());
+  for (const auto& tree : trees) {
+    std::vector<int> depths(tree.size(), 0);
+    int max_depth = 0;
+    for (std::size_t i = 0; i < tree.size(); ++i) {
+      max_depth = std::max(max_depth, depths[i]);
+      if (tree[i].feature >= 0)
+        depths[tree[i].left] = depths[tree[i].right] = depths[i] + 1;
+    }
+    PredictionTree result;
+    // Bound padding by both depth and original storage; a thin deep tree uses
+    // the compact ordinary representation rather than exponential expansion.
+    const std::size_t leaves = std::size_t{1} << max_depth;
+    if (max_depth <= 8 && (leaves * 16 - 8) <= tree.size() * sizeof(Node)) {
+      result.depth = max_depth;
+      result.splits.resize(leaves - 1);
+      result.leaves.resize(leaves);
+      auto expand = [&](auto&& self, int index, std::size_t heap,
+                        int depth) -> void {
+        const Node& node = tree[index];
+        if (node.feature < 0) {
+          const std::size_t length = std::size_t{1} << (max_depth - depth);
+          const std::size_t first =
+              (heap + 1 - (std::size_t{1} << depth)) * length;
+          std::fill_n(result.leaves.begin() + first, length,
+                      parameters_.learning_rate * node.value);
+          return;
+        }
+        result.splits[heap] = {static_cast<std::uint32_t>(node.feature) |
+                                   (node.missing_left ? kMissingLeft : 0),
+                               node.threshold};
+        self(self, node.left, heap * 2 + 1, depth + 1);
+        self(self, node.right, heap * 2 + 2, depth + 1);
+      };
+      expand(expand, 0, 0, 0);
+    }
+    compiled.push_back(std::move(result));
+  }
+  return compiled;
+}
+
+void Gbdt::ValidatePredictionInput(MatrixView features) const {
   if (trees_.empty()) throw std::logic_error("model is not fitted");
   if (features.cols != num_features_)
     throw std::invalid_argument("feature count mismatch");
   ValidateMatrix(features, true);
-  std::vector<float> prediction(features.rows, 0);
-  for (std::size_t i = 0; i < features.rows; ++i) {
-    double margin = base_score_;
-    for (const Tree& tree : trees_) {
-      int index = 0;
-      while (tree[index].feature >= 0) {
-        const Node& node = tree[index];
-        const float value = features.data[i * features.cols + node.feature];
-        const bool left =
-            std::isnan(value) ? node.missing_left : value <= node.threshold;
-        index = left ? node.left : node.right;
-      }
-      margin += parameters_.learning_rate * tree[index].value;
-    }
-    prediction[i] = static_cast<float>(
-        parameters_.objective == Objective::kBinaryLogistic ? Sigmoid(margin)
-                                                            : margin);
-  }
+}
+
+std::vector<float> Gbdt::Predict(MatrixView features) const {
+  ValidatePredictionInput(features);
+  std::vector<float> prediction(features.rows);
+  PredictUnchecked(features, prediction.data());
   return prediction;
+}
+
+void Gbdt::PredictInto(MatrixView features, float* output) const {
+  ValidatePredictionInput(features);
+  if (features.rows && output == nullptr)
+    throw std::invalid_argument("null prediction output");
+  PredictUnchecked(features, output);
+}
+
+void Gbdt::PredictUnchecked(MatrixView features, float* output) const {
+  constexpr std::size_t kBatch = 64;
+  constexpr std::uint32_t kMissingLeft = std::uint32_t{1} << 31;
+  for (std::size_t begin = 0; begin < features.rows; begin += kBatch) {
+    const std::size_t count = std::min(kBatch, features.rows - begin);
+    std::array<double, kBatch> margins;
+    std::array<const float*, kBatch> inputs;
+    std::fill_n(margins.begin(), count, base_score_);
+    for (std::size_t row = 0; row < count; ++row)
+      inputs[row] = features.data + (begin + row) * features.cols;
+    for (std::size_t t = 0; t < trees_.size(); ++t) {
+      const auto& compiled = prediction_trees_[t];
+      if (compiled.depth >= 0) {
+        std::array<std::uint32_t, kBatch> indices;
+        std::fill_n(indices.begin(), count, 0);
+        for (int depth = 0; depth < compiled.depth; ++depth)
+          for (std::size_t row = 0; row < count; ++row) {
+            const auto& split = compiled.splits[indices[row]];
+            const float value = inputs[row][split.feature & ~kMissingLeft];
+            const bool right =
+                (value > split.threshold) |
+                (std::isnan(value) && !(split.feature & kMissingLeft));
+            indices[row] = indices[row] * 2 + 1 + right;
+          }
+        for (std::size_t row = 0; row < count; ++row)
+          margins[row] +=
+              compiled.leaves[indices[row] - compiled.splits.size()];
+      } else {
+        const auto& tree = trees_[t];
+        for (std::size_t row = 0; row < count; ++row) {
+          int index = 0;
+          while (tree[index].feature >= 0) {
+            const Node& node = tree[index];
+            const float value = inputs[row][node.feature];
+            const bool left =
+                std::isnan(value) ? node.missing_left : value <= node.threshold;
+            index = left ? node.left : node.right;
+          }
+          margins[row] += parameters_.learning_rate * tree[index].value;
+        }
+      }
+    }
+    for (std::size_t row = 0; row < count; ++row)
+      output[begin + row] =
+          static_cast<float>(parameters_.objective == Objective::kBinaryLogistic
+                                 ? Sigmoid(margins[row])
+                                 : margins[row]);
+  }
 }
 }  // namespace libtree

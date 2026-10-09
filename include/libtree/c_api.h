@@ -12,6 +12,7 @@ LtModel LtCreate(int trees, int depth, int bins, int min_leaf, double rate,
 void LtFree(LtModel model);
 int LtFit(LtModel model, const float* x, size_t rows, size_t cols,
           const float* y);
+// out has capacity rows floats and must not overlap x.
 int LtPredict(LtModel model, const float* x, size_t rows, size_t cols,
               float* out);
 size_t LtLossCount(LtModel model);

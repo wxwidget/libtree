@@ -1,0 +1,229 @@
+{
+  "scope": "Pooled medians on recorded datasets, parameters, hardware and thread count",
+  "wins": 20,
+  "groups": 20,
+  "ranking": [
+    {
+      "dataset": "insurance",
+      "language": "cpp",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.00426118,
+        "lightgbm": 0.00768926,
+        "xgboost": 0.00963729
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "insurance",
+      "language": "cpp",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.000179902,
+        "lightgbm": 0.000911751,
+        "xgboost": 0.000423552
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "insurance",
+      "language": "python",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.004757694998261286,
+        "lightgbm": 0.018961940000735922,
+        "xgboost": 0.015307413999835262
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "insurance",
+      "language": "python",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.00023874199905549176,
+        "lightgbm": 0.0015759269990667235,
+        "xgboost": 0.0012146400003985036
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "pima",
+      "language": "cpp",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.00536483,
+        "lightgbm": 0.010571,
+        "xgboost": 0.0155679
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "pima",
+      "language": "cpp",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.000163047,
+        "lightgbm": 0.000669183,
+        "xgboost": 0.000426636
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "pima",
+      "language": "python",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.005632259999401867,
+        "lightgbm": 0.022408110002288595,
+        "xgboost": 0.022178380000696052
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "pima",
+      "language": "python",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.00023873199825175107,
+        "lightgbm": 0.001367340999422595,
+        "xgboost": 0.001271246001124382
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "telco",
+      "language": "cpp",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.0496589,
+        "lightgbm": 0.0599964,
+        "xgboost": 0.0531185
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "telco",
+      "language": "cpp",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.00105356,
+        "lightgbm": 0.00520051,
+        "xgboost": 0.0021932
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "telco",
+      "language": "python",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.04827254599877051,
+        "lightgbm": 0.07466002000001026,
+        "xgboost": 0.06389689900242956
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "telco",
+      "language": "python",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.0011794370002462529,
+        "lightgbm": 0.006569599998329068,
+        "xgboost": 0.0026991179984179325
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "titanic",
+      "language": "cpp",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.00398171,
+        "lightgbm": 0.00773669,
+        "xgboost": 0.00945965
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "titanic",
+      "language": "cpp",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.000150909,
+        "lightgbm": 0.000627159,
+        "xgboost": 0.000383091
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "titanic",
+      "language": "python",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.0044967800022277515,
+        "lightgbm": 0.020310181000240846,
+        "xgboost": 0.01561782399949152
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "titanic",
+      "language": "python",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.0002402440004516393,
+        "lightgbm": 0.0014505969993479084,
+        "xgboost": 0.001165744997706497
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "wine",
+      "language": "cpp",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.00732626,
+        "lightgbm": 0.012066,
+        "xgboost": 0.0202705
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "wine",
+      "language": "cpp",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.000181725,
+        "lightgbm": 0.00101448,
+        "xgboost": 0.000430192
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "wine",
+      "language": "python",
+      "measurement": "fit_seconds",
+      "median_seconds": {
+        "libtree": 0.007782486998621607,
+        "lightgbm": 0.024646628997288644,
+        "xgboost": 0.02622168000016245
+      },
+      "libtree_rank": 1
+    },
+    {
+      "dataset": "wine",
+      "language": "python",
+      "measurement": "predict_seconds",
+      "median_seconds": {
+        "libtree": 0.00024150600074790418,
+        "lightgbm": 0.0018873290027840994,
+        "xgboost": 0.0012605789997905958
+      },
+      "libtree_rank": 1
+    }
+  ],
+  "previous_quality_identical": true,
+  "source_hashes_checked": true
+}

@@ -55,6 +55,12 @@ classifier.close()
 [三方对比报告](benchmarks/COMPARISON_REPORT.zh-CN.md)增加了 LightGBM，分别对比
 C++ 与 Python 的效果、训练/预测时间及内存。
 
+[最新优化证据](benchmarks/OPTIMIZATION_REPORT.zh-CN.md)包含 450 次测量：
+五数据集、单线程基准的 10 个数据集/接口组合中，LibTree 训练和推理均为
+三者中中位耗时最低，同一划分的效果指标与优化前完全相同。排名限于本次
+工作负载和硬件。C++ `PredictInto(view, output)` 直接写入独立的调用者
+float 缓冲区；仍可使用返回 vector 的 `Predict`。
+
 ## 五分钟使用 C++
 
 先看 [examples/train.cc](examples/train.cc)。编译命令：

@@ -117,3 +117,42 @@ interface/log-scale changes, filtering, 270-row CSV and JSON downloads, and a
 
 Coverage and sanitizer diagnostics are local evidence, not a proof of all
 possible inputs or a claim that remote GitHub Actions has run.
+
+## Latest performance optimization / 最新性能优化
+
+The earlier sections describe their original implementation snapshots. Current
+source evidence: 4,642 native behavioral checks; 4/4 CTest targets; 18 Python,
+11 CLI, 2 performance/ownership and 4 benchmark preparation cases passed.
+ASan/UBSan/LSan passed all native targets and all 11 CLI cases. Source line
+coverage is 763/791 = 96.5% (core 427/429 = 99.5%, model 100%); functions
+51/51 = 100%; branches 931/1,374 = 67.8% (core 86.0%). Python is 128/134.
+
+TDD started with the new direct-output prediction contract failing to compile.
+The serialized-model traversal oracle now verifies ordinary predictions against
+the optimized representation for regression, classification, NaN, root-only,
+uneven batches, shallow padding and deep-tree fallback. Tests cover bins
+2/3/17/64/65,535, including 65,535 distinct finite values and the unseen-NaN
+route, plus both wide-matrix histogram strategies and their storage limit.
+
+The final five-dataset comparison has 450 runs: three seeds, both interfaces,
+three engines, five timing repeats. The raw-data ranking validator passed
+20/20 pooled median groups (10 training, 10 inference), checked every recorded
+source hash, and verified unchanged parameters, prepared splits and every
+same-split LibTree quality metric against the prior 937e6b4 measurements.
+An earlier candidate correctly failed the rank gate at 19/20 and was improved;
+its intermediate outputs are retained only in the ignored runs directory.
+
+Thirty additional runs on 20k-row Friedman1 passed both-interface parity,
+quality and determinism checks; all four timing groups were fastest. This is
+a single-seed supplemental test, separate from the main split-variation study.
+Randomized-order paired native measurements (9 repeats per version/input,
+108 runs on 6 inputs) verify float32 predictions are exactly equal to the
+pre-optimization executable. Baseline source SHA256 matches commit 937e6b4.
+
+The [optimization report](../benchmarks/OPTIMIZATION_REPORT.zh-CN.md) preserves
+all final results and reproduction commands. The offline HTML includes seven
+charts, before/after and supplemental tables, all raw evidence, and separate
+JSON downloads. Browser validation covers numeric axes after interface/log
+switching, filtering, a 450-row timing CSV and the mobile layout. Rankings are
+observations on this hardware, data and parameters; they do not establish a
+universal ranking or a statistically significant quality advantage.

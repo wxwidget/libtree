@@ -27,6 +27,58 @@ void Throws(Callable callable) {
   }
   Check(threw);
 }
+// Independent, ordinary traversal of the portable model format. This checks
+// optimized prediction layouts without assuming their in-memory representation.
+void CheckSerializedPrediction(const libtree::Gbdt& model,
+                               libtree::MatrixView input) {
+  std::stringstream stream;
+  model.SaveModel(stream);
+  std::string magic;
+  int version, objective, trees, depth, bins, min_leaf;
+  double rate, l2, gain, base;
+  std::size_t features, count;
+  stream >> magic >> version >> objective >> trees >> depth >> bins >>
+      min_leaf >> rate >> l2 >> gain >> features >> base >> count;
+  std::vector<double> margins(input.rows, base);
+  for (std::size_t t = 0; t < count; ++t) {
+    struct ReferenceNode {
+      int feature, left, right;
+      float threshold;
+      double value;
+      bool missing_left;
+    };
+    std::size_t nodes;
+    stream >> nodes;
+    std::vector<ReferenceNode> tree(nodes);
+    for (auto& node : tree)
+      stream >> node.feature >> node.left >> node.right >> node.threshold >>
+          node.value >> node.missing_left;
+    for (std::size_t row = 0; row < input.rows; ++row) {
+      int index = 0;
+      while (tree[index].feature >= 0) {
+        const auto& node = tree[index];
+        const float value = input.data[row * input.cols + node.feature];
+        index =
+            (std::isnan(value) ? node.missing_left : value <= node.threshold)
+                ? node.left
+                : node.right;
+      }
+      margins[row] += rate * tree[index].value;
+    }
+  }
+  auto actual = model.Predict(input);
+  std::vector<float> direct(input.rows);
+  model.PredictInto(input, direct.data());
+  Check(actual == direct);
+  for (std::size_t row = 0; row < input.rows; ++row) {
+    double expected = margins[row];
+    if (objective == 1) {
+      const double e = std::exp(-std::abs(expected));
+      expected = expected >= 0 ? 1 / (1 + e) : e / (1 + e);
+    }
+    Check(actual[row] == static_cast<float>(expected));
+  }
+}
 void Run() {
   using libtree::Gbdt;
   using libtree::Parameters;
@@ -196,6 +248,88 @@ void Run() {
   Gbdt loaded;
   loaded.LoadModel(serialized);
   Check(loaded.Predict({dense.data(), rows, columns}) == result);
+  CheckSerializedPrediction(loaded, {dense.data(), rows, columns});
+  // Mixed sparse indicators, continuous columns, missing values and uneven
+  // batches exercise histogram shortcuts and padded shallow trees.
+  constexpr int mixed_rows = 137, mixed_columns = 12;
+  std::vector<float> mixed(mixed_rows * mixed_columns), mixed_y(mixed_rows);
+  for (int i = 0; i < mixed_rows; ++i) {
+    for (int f = 0; f < mixed_columns; ++f)
+      mixed[i * mixed_columns + f] =
+          f < 9 ? static_cast<float>(i % 17 == f) : uniform(generator);
+    if (i % 11 == 0) mixed[i * mixed_columns + 1] = nan;
+    mixed_y[i] = mixed[i * mixed_columns] * 5 + mixed[i * mixed_columns + 9];
+  }
+  for (int depth : {0, 1, 4, 8, 9, 12}) {
+    Parameters varied;
+    varied.num_trees = 7;
+    varied.max_depth = depth;
+    varied.min_samples_leaf = 1;
+    varied.l2 = 0;
+    Gbdt varied_model(varied);
+    varied_model.Fit({mixed.data(), mixed_rows, mixed_columns}, mixed_y);
+    CheckSerializedPrediction(varied_model,
+                              {mixed.data(), mixed_rows, mixed_columns});
+    std::stringstream saved;
+    varied_model.SaveModel(saved);
+    Gbdt reloaded;
+    reloaded.LoadModel(saved);
+    CheckSerializedPrediction(reloaded,
+                              {mixed.data(), mixed_rows, mixed_columns});
+  }
+  for (float& value : mixed_y) value = value > 0;
+  Parameters binary_workload;
+  binary_workload.objective = libtree::Objective::kBinaryLogistic;
+  Gbdt binary_model(binary_workload);
+  binary_model.Fit({mixed.data(), mixed_rows, mixed_columns}, mixed_y);
+  CheckSerializedPrediction(binary_model,
+                            {mixed.data(), mixed_rows, mixed_columns});
+  binary_model.PredictInto({nullptr, 0, mixed_columns}, nullptr);
+  Throws([&] {
+    binary_model.PredictInto({mixed.data(), mixed_rows, mixed_columns},
+                             nullptr);
+  });
+  // Quantization boundaries and both wide-matrix histogram layouts.
+  constexpr int wide_rows = 80;
+  for (int width : {20, 820}) {
+    std::vector<float> wide(wide_rows * width), wide_y(wide_rows);
+    for (float& value : wide) value = uniform(generator);
+    for (int i = 0; i < wide_rows; ++i)
+      wide_y[i] = wide[i * width] + wide[i * width + 1] * 2;
+    for (int bin_limit : {2, 3, 17, 64, 65535}) {
+      Parameters boundary;
+      boundary.num_trees = 3;
+      boundary.max_bins = bin_limit;
+      Gbdt wide_model(boundary);
+      wide_model.Fit({wide.data(), wide_rows, static_cast<std::size_t>(width)},
+                     wide_y);
+      CheckSerializedPrediction(wide_model, {wide.data(), wide_rows,
+                                             static_cast<std::size_t>(width)});
+    }
+  }
+  // Exercise finite bin 65,535 rather than only the parameter boundary. A
+  // wrapped bin ID would masquerade as NaN and change the unseen-NaN route.
+  std::vector<float> maximum_bins(65535), maximum_targets(65535);
+  for (int i = 0; i < 65535; ++i) {
+    maximum_bins[i] = static_cast<float>(i);
+    maximum_targets[i] = i < 32768 ? 0 : 10;
+  }
+  Parameters maximum;
+  maximum.num_trees = 1;
+  maximum.max_depth = 1;
+  maximum.max_bins = 65535;
+  maximum.min_samples_leaf = 1;
+  maximum.learning_rate = 1;
+  maximum.l2 = 0;
+  Gbdt maximum_model(maximum);
+  maximum_model.Fit({maximum_bins.data(), maximum_bins.size(), 1},
+                    maximum_targets);
+  std::vector<float> probes{nan, 0, 65534};
+  auto maximum_prediction = maximum_model.Predict({probes.data(), 3, 1});
+  Check(std::abs(maximum_prediction[0]) < 1e-5 &&
+        std::abs(maximum_prediction[1]) < 1e-5 &&
+        std::abs(maximum_prediction[2] - 10) < 1e-5);
+  CheckSerializedPrediction(maximum_model, {probes.data(), 3, 1});
   for (const std::string text :
        {"garbage", "LIBTREE_GBDT 99", "LIBTREE_GBDT 1\n-1"}) {
     std::stringstream invalid(text);

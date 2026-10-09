@@ -40,11 +40,27 @@ possible on an entirely missing feature.
 * Keep gradient/Hessian accumulation in double. Stable sigmoid and softplus
   prevent exponential overflow and log-of-zero; thresholds use observed cuts
   rather than overflowing float midpoint arithmetic.
-* Partition one row-index vector in place. Never copy complete datasets into
-  child nodes. Reuse histogram storage across features and recursive nodes.
+* Partition one row-index vector in place. Build the smaller child's histogram;
+  subtract it from the parent for the larger child. Reuse a depth-sized workspace.
+* For low-cardinality columns, skip their most frequent bin and recover it from
+  node totals. Two-valued columns use masked weighted sums instead of scattered
+  writes. Four accumulators break serial dependencies. A single populated parent bin
+  stays constant in either child and needs no new scan.
+* For wide, mostly continuous matrices, scan compact row-major histogram indices
+  and reuse each derivative across features. Narrow/categorical matrices retain
+  column scans; histograms larger than 65,536 entries use the column fallback.
+* Assign bin IDs with a padded, fixed-step lookup; the actual quantile boundaries
+  and NaN bin remain unchanged. Update margins at leaves, avoiding a second
+  traversal of the new tree. Reuse the loss exponential for the next derivatives.
 * Store each tree in one node vector with integer child indices. Recursive
-  construction never keeps references across vector growth; trained models own
-  everything through vectors. There is no recursive owning-pointer graph.
+  construction never keeps references across vector growth; vectors own storage.
+* Compile shallow trees to an implicit complete-tree prediction layout: 8-byte
+  splits, contiguous weighted leaves and packed missing directions. Early leaves
+  repeat their value through padded descendants. Expanded array payload is
+  bounded by original node storage, with fixed vector metadata per tree; depths over 8 or thin trees use ordinary traversal.
+* Predict 64 rows together to expose independent work and keep each tree hot.
+  Preserve double accumulation and tree order. `PredictInto` and the C ABI write
+  directly into caller-owned outputs, removing the allocation/copy in Python.
 * Reserve bounded tree storage; reuse valid build output. No fast-math, disabled
   checks, architecture-specific instruction requirement, or global random state.
 * Keep the core independent of Python, XGBoost and OpenMP. This implementation is
@@ -53,15 +69,18 @@ possible on an entirely missing feature.
 Preparation is `O(d n log n)` for sorting. Each round costs approximately
 `O(d n depth + d B nodes)` for histogram construction and scanning, plus margin
 updates. Inference is `O(n_test * trees * depth)`. Temporary training memory is
-`O(n d + n + d B)` plus the model; there is one original borrowed dense matrix
-and a 2-byte bin matrix, not a second copied raw matrix. Worst-case node count
+`O(n d + n + d B * depth)` plus the model. The original dense matrix is borrowed;
+column bins use two bytes/value, and the wide-matrix path additionally stores
+2-byte row-major indices. Sparse exception row IDs and depth histogram buffers
+are also owned scratch storage, not copied raw feature matrices. Worst-case node count
 per tree is `min(2n−1, 2^(depth+1)−1)`; set sensible depth/rounds for available
 memory. This is not an out-of-core learner.
 
-Further optimizations should be measured: histogram subtraction, parallel
-feature scans, sparse storage, or batching inference. Changes must retain the
-independent oracle and prediction parity. Benchmark a Release build and record
-quality as well as runtime; faster incorrect predictions are not an improvement.
+Optimization decisions come from measured workloads. Preserve the independent
+stump oracle, serialized-model traversal oracle, exact before/after predictions,
+missing-value behavior and both interfaces. Benchmark a Release build and record
+quality with runtime. Rankings apply only to the recorded datasets, parameters,
+hardware and thread settings; they do not establish universal superiority.
 
 ## Google style and explicit deviations
 
@@ -101,7 +120,8 @@ and fit time below 30 seconds; the wide limit detects catastrophic regressions,
 not subtle speed differences. Actual benchmarks use unseen test rows.
 
 ABI callers must supply valid handles, capacities and buffer lifetimes; arbitrary
-pointers cannot be validated in C++. Fit and prediction allocate, so allocation
-failure can throw. A failed native Fit retains a previous fitted model. C ABI
+pointers cannot be validated in C++. Prediction output must not overlap features.
+Fit and allocating `Predict` can fail allocation; valid `PredictInto` calls use
+stack scratch storage. A failed native Fit retains a previous fitted model. C ABI
 errors return −1 or a null handle; read `LtLastError()` immediately. Do not use
 a freed handle. Python owns handles with `weakref.finalize` and idempotent close.

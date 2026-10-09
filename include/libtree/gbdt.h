@@ -2,6 +2,7 @@
 #define LIBTREE_GBDT_H_
 
 #include <cstddef>
+#include <cstdint>
 #include <iosfwd>
 #include <vector>
 
@@ -34,6 +35,9 @@ class Gbdt {
   // Replaces the fitted model. The caller retains ownership of all inputs.
   void Fit(MatrixView features, const std::vector<float>& labels);
   std::vector<float> Predict(MatrixView features) const;
+  // Writes rows predictions to caller-owned storage. output may be null only
+  // for an empty batch and must not overlap the feature matrix.
+  void PredictInto(MatrixView features, float* output) const;
   // Versioned text format; failed loads preserve any existing fitted model.
   void SaveModel(std::ostream& output) const;
   void LoadModel(std::istream& input);
@@ -50,10 +54,24 @@ class Gbdt {
     bool missing_left = true;
   };
   using Tree = std::vector<Node>;
+  struct PredictionSplit {
+    std::uint32_t feature = 0;
+    float threshold = 0;
+  };
+  struct PredictionTree {
+    int depth = -1;  // -1 selects ordinary traversal for deep/irregular trees.
+    std::vector<PredictionSplit> splits;
+    std::vector<double> leaves;
+  };
+  std::vector<PredictionTree> CompilePredictionTrees(
+      const std::vector<Tree>& trees) const;
+  void ValidatePredictionInput(MatrixView features) const;
+  void PredictUnchecked(MatrixView features, float* output) const;
   Parameters parameters_;
   std::size_t num_features_ = 0;
   double base_score_ = 0;
   std::vector<Tree> trees_;
+  std::vector<PredictionTree> prediction_trees_;
   std::vector<double> training_loss_;
 };
 }  // namespace libtree

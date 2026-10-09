@@ -62,9 +62,7 @@ int LtPredict(LtModel model, const float* x, size_t rows, size_t cols,
               float* out) {
   return Guard([&] {
     if (out == nullptr && rows != 0) throw std::invalid_argument("null output");
-    const auto prediction = Model(model).Predict({x, rows, cols});
-    if (!prediction.empty())
-      std::copy(prediction.begin(), prediction.end(), out);
+    Model(model).PredictInto({x, rows, cols}, out);
   });
 }
 size_t LtLossCount(LtModel model) {

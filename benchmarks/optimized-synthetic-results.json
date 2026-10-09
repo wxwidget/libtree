@@ -1,0 +1,374 @@
+{
+  "metadata": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "processor": "",
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "sklearn": "1.8.0",
+    "xgboost": "3.4.1",
+    "lightgbm": "4.7.0",
+    "engines": [
+      "libtree",
+      "xgboost",
+      "lightgbm"
+    ],
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "repeats": 5,
+    "seed": 42,
+    "suite": "builtin",
+    "threads": 1,
+    "memory_measurement": "Linux /proc/self/status VmHWM after prediction (KiB); current exec address space",
+    "parameters": {
+      "trees": 100,
+      "depth": 4,
+      "bins": 64,
+      "min_leaf": 5,
+      "rate": 0.1,
+      "l2": 1.0,
+      "min_gain": 0.0
+    },
+    "cpu": "model name\t: AMD EPYC 9V74 80-Core Processor",
+    "source_sha256": {
+      "src/gbdt.cc": "5240be2b78ffc90546249ded78786b0e61c99ee95c9c77162c5408c2e23dee1d",
+      "src/c_api.cc": "fcb1c1432ae5d0469fdc3c3d0d4bcbb2d0a136f6cc43f4bba8f69fbdad7362f5",
+      "src/model.cc": "2ac3adb572a468adc4637a51f561175f75085d8718c1524b5480ba101e17106e",
+      "src/cli.cc": "601b6db863b10b1f61479a645649ecb9960980aadab6a2762ba73967ec5d8e6c",
+      "include/libtree/gbdt.h": "bf193e9e79315195b7474e5836137ce882f70f4e399d74105cd5aaea3f2c8f81",
+      "python/libtree/__init__.py": "4660b5a6182c49c3c65dd239a77cb811fa6acc71fd657bc0a669bb3b1fee1e15",
+      "benchmarks/native.cc": "8453d1e525a11d13d846b5afec4758b5898b9099b3bbd235453274e833c9819d",
+      "benchmarks/run.py": "152f74a665436a12bbed1e7abfd4422fab52034663cf41cde4a8d7baf1758c99"
+    },
+    "date_utc": "2026-10-09T12:54:39Z"
+  },
+  "sources": {
+    "friedman_20k": {
+      "source": "sklearn.make_friedman1",
+      "seed": 42,
+      "rows_after_cleaning": 20000,
+      "raw_feature_count": 20,
+      "feature_missing_values": 0,
+      "target_missing_values": 0,
+      "prepared_split_sha256": "8f81560bc95ff20288fb7b87eb9c1f6c22f06c2131531fb8b3152f2926bbf220"
+    }
+  },
+  "results": [
+    {
+      "dataset": "friedman_20k",
+      "language": "cpp",
+      "engine": "libtree",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1477980617629797,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.104095,
+          "predict_seconds": 0.00287345,
+          "peak_rss_kib": 5248
+        },
+        {
+          "fit_seconds": 0.102996,
+          "predict_seconds": 0.00271596,
+          "peak_rss_kib": 5248
+        },
+        {
+          "fit_seconds": 0.100518,
+          "predict_seconds": 0.00300762,
+          "peak_rss_kib": 5248
+        },
+        {
+          "fit_seconds": 0.101577,
+          "predict_seconds": 0.00271603,
+          "peak_rss_kib": 5248
+        },
+        {
+          "fit_seconds": 0.102649,
+          "predict_seconds": 0.0028967,
+          "peak_rss_kib": 5248
+        }
+      ],
+      "seed": 42,
+      "checks": {
+        "beats_baseline": true,
+        "finite_predictions": true,
+        "deterministic_repeats": true,
+        "cpp_python_parity": true
+      },
+      "metrics": {
+        "rmse": 1.1477980617629797,
+        "mae": 0.9179445505142212,
+        "r2": 0.9466063976287842
+      },
+      "fit_seconds": 0.102649,
+      "predict_seconds": 0.00287345,
+      "peak_rss_kib": 5248.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "cpp",
+      "engine": "xgboost",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1469623147848234,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.116203,
+          "predict_seconds": 0.00444872,
+          "peak_rss_kib": 13740
+        },
+        {
+          "fit_seconds": 0.124001,
+          "predict_seconds": 0.0044716,
+          "peak_rss_kib": 13740
+        },
+        {
+          "fit_seconds": 0.116679,
+          "predict_seconds": 0.00448237,
+          "peak_rss_kib": 13740
+        },
+        {
+          "fit_seconds": 0.121669,
+          "predict_seconds": 0.00445242,
+          "peak_rss_kib": 13740
+        },
+        {
+          "fit_seconds": 0.120709,
+          "predict_seconds": 0.00470086,
+          "peak_rss_kib": 13740
+        }
+      ],
+      "seed": 42,
+      "checks": {
+        "beats_baseline": true,
+        "finite_predictions": true,
+        "deterministic_repeats": true,
+        "cpp_python_parity": true
+      },
+      "metrics": {
+        "rmse": 1.1469623147848234,
+        "mae": 0.9187585115432739,
+        "r2": 0.9466841220855713
+      },
+      "fit_seconds": 0.120709,
+      "predict_seconds": 0.0044716,
+      "peak_rss_kib": 13740.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "cpp",
+      "engine": "lightgbm",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.132562596610083,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.130013,
+          "predict_seconds": 0.0157818,
+          "peak_rss_kib": 13184
+        },
+        {
+          "fit_seconds": 0.130941,
+          "predict_seconds": 0.0170073,
+          "peak_rss_kib": 13132
+        },
+        {
+          "fit_seconds": 0.129866,
+          "predict_seconds": 0.0164913,
+          "peak_rss_kib": 13184
+        },
+        {
+          "fit_seconds": 0.131478,
+          "predict_seconds": 0.0174397,
+          "peak_rss_kib": 13064
+        },
+        {
+          "fit_seconds": 0.125833,
+          "predict_seconds": 0.0171592,
+          "peak_rss_kib": 11580
+        }
+      ],
+      "seed": 42,
+      "checks": {
+        "beats_baseline": true,
+        "finite_predictions": true,
+        "deterministic_repeats": true,
+        "cpp_python_parity": true
+      },
+      "metrics": {
+        "rmse": 1.132562596610083,
+        "mae": 0.90682053565979,
+        "r2": 0.9480144381523132
+      },
+      "fit_seconds": 0.130013,
+      "predict_seconds": 0.0170073,
+      "peak_rss_kib": 13132.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "python",
+      "engine": "libtree",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1477980617629797,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.10324272000070778,
+          "predict_seconds": 0.002836245999787934,
+          "peak_rss_kib": 133880
+        },
+        {
+          "fit_seconds": 0.10465805400235695,
+          "predict_seconds": 0.002999301999807358,
+          "peak_rss_kib": 133876
+        },
+        {
+          "fit_seconds": 0.10262152799987234,
+          "predict_seconds": 0.0028310680027061608,
+          "peak_rss_kib": 133888
+        },
+        {
+          "fit_seconds": 0.10655644799771835,
+          "predict_seconds": 0.0028149140016466845,
+          "peak_rss_kib": 133880
+        },
+        {
+          "fit_seconds": 0.10294512700056657,
+          "predict_seconds": 0.002958642002340639,
+          "peak_rss_kib": 133888
+        }
+      ],
+      "seed": 42,
+      "checks": {
+        "beats_baseline": true,
+        "finite_predictions": true,
+        "deterministic_repeats": true,
+        "cpp_python_parity": true
+      },
+      "metrics": {
+        "rmse": 1.1477980617629797,
+        "mae": 0.9179445505142212,
+        "r2": 0.9466063976287842
+      },
+      "fit_seconds": 0.10324272000070778,
+      "predict_seconds": 0.002836245999787934,
+      "peak_rss_kib": 133880.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "python",
+      "engine": "xgboost",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1469623147848234,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.12612139400152955,
+          "predict_seconds": 0.004623384000296937,
+          "peak_rss_kib": 137116
+        },
+        {
+          "fit_seconds": 0.1340522879982018,
+          "predict_seconds": 0.0047645670019846875,
+          "peak_rss_kib": 137116
+        },
+        {
+          "fit_seconds": 0.1257068060003803,
+          "predict_seconds": 0.004826831998798298,
+          "peak_rss_kib": 137124
+        },
+        {
+          "fit_seconds": 0.13020672800121247,
+          "predict_seconds": 0.005068720001872862,
+          "peak_rss_kib": 137116
+        },
+        {
+          "fit_seconds": 0.12725874499665224,
+          "predict_seconds": 0.00484130500262836,
+          "peak_rss_kib": 137120
+        }
+      ],
+      "seed": 42,
+      "checks": {
+        "beats_baseline": true,
+        "finite_predictions": true,
+        "deterministic_repeats": true,
+        "cpp_python_parity": true
+      },
+      "metrics": {
+        "rmse": 1.1469623147848234,
+        "mae": 0.9187585115432739,
+        "r2": 0.9466841220855713
+      },
+      "fit_seconds": 0.12725874499665224,
+      "predict_seconds": 0.004826831998798298,
+      "peak_rss_kib": 137116.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "python",
+      "engine": "lightgbm",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.132562596610083,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.1577808530018956,
+          "predict_seconds": 0.018029855000349926,
+          "peak_rss_kib": 139632
+        },
+        {
+          "fit_seconds": 0.13559454499772983,
+          "predict_seconds": 0.017198230998474173,
+          "peak_rss_kib": 141404
+        },
+        {
+          "fit_seconds": 0.1453146879975975,
+          "predict_seconds": 0.01909880899984273,
+          "peak_rss_kib": 139596
+        },
+        {
+          "fit_seconds": 0.13869605299987597,
+          "predict_seconds": 0.018361812999501126,
+          "peak_rss_kib": 139596
+        },
+        {
+          "fit_seconds": 0.14001561699842568,
+          "predict_seconds": 0.017444329998397734,
+          "peak_rss_kib": 139640
+        }
+      ],
+      "seed": 42,
+      "checks": {
+        "beats_baseline": true,
+        "finite_predictions": true,
+        "deterministic_repeats": true,
+        "cpp_python_parity": true
+      },
+      "metrics": {
+        "rmse": 1.132562596610083,
+        "mae": 0.90682053565979,
+        "r2": 0.9480144381523132
+      },
+      "fit_seconds": 0.14001561699842568,
+      "predict_seconds": 0.018029855000349926,
+      "peak_rss_kib": 139632.0
+    }
+  ]
+}
