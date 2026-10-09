@@ -100,6 +100,8 @@ void Gbdt::LoadModel(std::istream& input) {
   parsed.num_features_ = features;
   parsed.base_score_ = base;
   parsed.prediction_trees_ = parsed.CompilePredictionTrees(parsed.trees_);
+  // Thread count is a runtime preference, never part of model bytes.
+  parsed.SetNumThreads(parameters_.num_threads);
   *this = std::move(parsed);
 }
 }  // namespace libtree

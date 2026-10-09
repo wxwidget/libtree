@@ -51,6 +51,9 @@ LtModel LtCreate(int trees, int depth, int bins, int min_leaf, double rate,
   return model;
 }
 void LtFree(LtModel model) { delete static_cast<libtree::Gbdt*>(model); }
+int LtSetNumThreads(LtModel model, int threads) {
+  return Guard([&] { Model(model).SetNumThreads(threads); });
+}
 int LtFit(LtModel model, const float* x, size_t rows, size_t cols,
           const float* y) {
   return Guard([&] {

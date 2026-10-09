@@ -9,6 +9,8 @@ typedef void* LtModel;
 const char* LtLastError(void);
 LtModel LtCreate(int trees, int depth, int bins, int min_leaf, double rate,
                  double l2, double min_gain, int binary);
+// Configure execution without changing the legacy LtCreate signature.
+int LtSetNumThreads(LtModel model, int threads);
 void LtFree(LtModel model);
 int LtFit(LtModel model, const float* x, size_t rows, size_t cols,
           const float* y);

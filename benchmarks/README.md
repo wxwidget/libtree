@@ -2,6 +2,10 @@
 
 [English guide](../README.md) · [中文指南](../README.zh-CN.md)
 
+Latest equal-thread measurements: [parallel report](PARALLEL_REPORT.zh-CN.md)
+and [interactive HTML](PARALLEL_REPORT.html), including 1/2/4-thread CPU scaling.
+最新同线程三方比较与 1/2/4 线程扩展性见上述报告；以下为历史单线程快照。
+
 ## Reproduce / 复现
 
 ```sh

@@ -66,6 +66,32 @@ implementation. These rankings describe this recorded workload and hardware.
 `PredictInto(view, output)` writes directly into a separate caller-owned float
 buffer; allocating `Predict` remains available.
 
+## CPU parallelism
+
+Set Python `GBDTRegressor(n_jobs=4)` / `GBDTClassifier(n_jobs=4)`, C++
+`Parameters::num_threads = 4`, or CLI `--threads 4` for train and predict.
+The default is 1; the allowed range is 1–256, including the calling thread.
+The runtime reuses standard C++ worker threads, parallelizes independent feature
+histograms and prediction rows, and keeps small tasks serial. Boosting rounds
+and tree construction preserve their dependency order. Model bytes, training
+losses and predictions are identical across tested thread counts.
+
+`model.set_params(n_jobs=2)` changes Python execution on a fitted model; C++
+uses `SetNumThreads(2)`. Thread count is a runtime preference and is not saved
+in the model format. Concurrent prediction is supported; do not change threads,
+fit or close the same model concurrently. Prediction calls sharing one model
+share a bounded pool and serialize their parallel dispatch. Choose thread counts
+within your CPU quota, especially when running multiple models or outer CV jobs.
+
+See the [equal-thread benchmark](benchmarks/PARALLEL_REPORT.zh-CN.md) and
+[interactive scaling report](benchmarks/PARALLEL_REPORT.html). Reproduce:
+
+```sh
+PYTHONPATH=python python benchmarks/parallel.py --threads 1 2 4 --seeds 42 2024 2026 --repeats 3
+python benchmarks/parallel_report.py
+make thread-sanitize
+```
+
 ## C++ in five minutes
 
 Read [examples/train.cc](examples/train.cc), or build only the library:
@@ -88,7 +114,7 @@ model.Fit({x.data(), 4, 1}, y);
 auto prediction = model.Predict({x.data(), 4, 1});
 ```
 
-Link with `build/libtree.a` and add `-Iinclude -std=c++17`. `MatrixView` is a
+Link with `build/libtree.a` and add `-Iinclude -std=c++17 -pthread`. `MatrixView` is a
 non-owning row-major view: its buffer must hold at least `rows * cols` floats.
 Fit copies neither the feature matrix nor the labels into the trained model.
 Concurrent prediction is safe on an immutable fitted C++ model. Do not fit or

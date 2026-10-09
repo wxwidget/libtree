@@ -63,8 +63,8 @@ possible on an entirely missing feature.
   directly into caller-owned outputs, removing the allocation/copy in Python.
 * Reserve bounded tree storage; reuse valid build output. No fast-math, disabled
   checks, architecture-specific instruction requirement, or global random state.
-* Keep the core independent of Python, XGBoost and OpenMP. This implementation is
-  deliberately single-threaded, enabling an interpretable one-thread baseline.
+* Keep the core independent of Python, XGBoost and OpenMP. Standard C++ threads
+  provide optional parallelism; one thread remains the default baseline.
 
 Preparation is `O(d n log n)` for sorting. Each round costs approximately
 `O(d n depth + d B nodes)` for histogram construction and scanning, plus margin
@@ -81,6 +81,40 @@ stump oracle, serialized-model traversal oracle, exact before/after predictions,
 missing-value behavior and both interfaces. Benchmark a Release build and record
 quality with runtime. Rankings apply only to the recorded datasets, parameters,
 hardware and thread settings; they do not establish universal superiority.
+
+## Deterministic parallel execution
+
+`num_threads` is a runtime budget, including the caller. A reusable pool starts
+at most `num_threads - 1` workers and assigns contiguous ranges statically.
+Quantization uses private sort scratch per worker. Histogram tasks own disjoint
+feature ranges; each bin retains the original row accumulation order. Wide
+matrices assign a contiguous block of features to each worker, reusing each
+row derivative within that block; smaller nodes keep the existing serial kernel. No shared gradient reductions or atomic histogram
+updates are needed. Boosting rounds, split selection, row partitioning and
+depth-first construction remain sequential. Reusing already-computed root and
+small-child totals also removes redundant scans without changing arithmetic.
+
+Feature work below 65,536 row/feature visits stays serial. Prediction validation
+parallelizes at 65,536 values; prediction parallelizes at 512 rows and 8 trees,
+with disjoint 64-row batches. These are conservative workload heuristics, not
+portable performance guarantees. Tree-order double accumulation is unchanged.
+The coordinator waits for all workers before reading results or rethrowing a
+task exception. Stack task descriptions avoid dispatch allocation; valid
+`PredictInto` calls allocate no heap storage after pool setup.
+
+Multiple prediction callers share the pool and serialize dispatch, preventing
+an unbounded number of internal threads. Concurrent configuration, Fit or model
+destruction is unsupported. Worker threads are joined by RAII; failed Fit/load
+leaves the old model intact. Copies can share the pool, while model state stays
+independent. Portable version-1 model files omit thread count; legacy C creation
+is retained, with `LtSetNumThreads` configuring execution separately.
+
+Sorting scratch adds `O(n * threads)` temporary memory and worker stacks have
+runtime overhead. Counts should respect CPU quota and outer job parallelism.
+Small fits may slow down because startup/synchronization still cost time.
+ThreadSanitizer checks task synchronization and concurrent prediction; ASan,
+UBSan and LSan check memory and lifecycle. Coverage uses atomic GCC counters
+and fresh profiles so concurrent tests do not corrupt instrumentation.
 
 ## Google style and explicit deviations
 

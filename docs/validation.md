@@ -156,3 +156,50 @@ JSON downloads. Browser validation covers numeric axes after interface/log
 switching, filtering, a 450-row timing CSV and the mobile layout. Rankings are
 observations on this hardware, data and parameters; they do not establish a
 universal ranking or a statistically significant quality advantage.
+
+## Parallel execution validation / 多线程验证
+
+TDD first failed compilation because `num_threads` and `SetNumThreads` did not
+exist. Tests now compare serialized model bytes, every prediction and every
+round's loss across 1/2/4 threads for regression and binary classification.
+Wide continuous and mostly low-cardinality data, NaNs, empty batches, uneven
+64-row batches, old model loading, invalid thread counts and failed refits are
+covered. Invalid parallel prediction preserves caller output; the executor is
+usable after exceptions from the caller or any worker. Concurrent callers share
+one bounded pool. Fifteen Python close/refit cycles return the thread count to
+its initial value; native sanitizer tests also exercise joined worker lifetimes.
+
+Latest local results: 4,701 native checks; 5/5 CTest targets; 27 Python, 12 CLI,
+2 performance/ownership and 4 benchmark preparation tests. ASan/UBSan/LSan pass
+all native targets and all CLI cases; ThreadSanitizer passes all 5 native targets.
+Gcovr source line coverage: 1107/1142 = 96.9%, core 502/504 = 99.6%, model 100%,
+thread executor 255/259 = 98.5%; functions 106/106; branches 1116/1660 = 67.2%.
+Template instances are included in these counters. Python coverage is 141/148
+= 95.3%. Atomic profile counters and fresh gcda files fixed the initial coverage
+counter error; no negative-hit errors are suppressed. Google clang-format passes.
+
+The installed CLI and wheel were tested outside the checkout with multiple
+thread counts. Source distribution includes the new internal executor header;
+package builds use `-pthread`, while CMake exposes `Threads::Threads` transitively.
+The version-1 portable model omits runtime thread counts and the legacy C create
+signature remains supported. CI now includes ThreadSanitizer, but its remote
+execution has not been observed locally.
+
+Formal [parallel evidence](../benchmarks/PARALLEL_REPORT.zh-CN.md) compares seven
+datasets, three seeds, both interfaces, all engines, three timing repeats and
+thread budgets 1/2/4: 1,134 measurements. Three cgroup-constrained CPU budgets are
+measured with sequential processes; the available affinity is 5 CPUs and quota
+is 4 CPU-seconds/second. Ranking validates complete groups, finite measurements,
+equal parameters and prepared input hashes, current source hashes, unchanged
+LibTree metrics across threads and unchanged five-dataset metrics from the prior
+optimized snapshot. The first histogram strategy was improved after initial
+scaling measurements; intermediate incomplete runs remain ignored. The new HTML
+keeps negative speedups, timing ranges, quality, memory and all raw measurements.
+Shared-host timing noise, serial portions and different engine algorithms limit
+scaling and rankings; the old single-thread HTML remains a historical snapshot.
+
+Chromium validation of the new offline report passed: all five charts rendered,
+both interfaces and all three thread budgets displayed the raw-data timings,
+scaling dataset selection and numeric/log axes remained correct, and the 1,134-row
+CSV and complete JSON downloads matched the evidence. The 390px mobile layout
+had no horizontal overflow; no JavaScript errors were observed.

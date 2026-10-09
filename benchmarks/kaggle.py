@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--rate", type=float, default=.1)
     parser.add_argument("--l2", type=float, default=1.)
     parser.add_argument("--min-gain", type=float, default=0.)
+    parser.add_argument("--threads", type=int, default=1)
     args = parser.parse_args()
     if args.repeats < 1 or len(set(args.seeds)) != len(args.seeds):
         parser.error("positive repeats and distinct seeds required")
@@ -36,7 +37,8 @@ def main():
                         "--engines", *args.engines, "--trees", str(args.trees),
                         "--depth", str(args.depth), "--bins", str(args.bins),
                         "--min-leaf", str(args.min_leaf), "--rate", str(args.rate),
-                        "--l2", str(args.l2), "--min-gain", str(args.min_gain)], check=True)
+                        "--l2", str(args.l2), "--min-gain", str(args.min_gain),
+                        "--threads", str(args.threads)], check=True)
         reports.append(json.loads(path.read_text()))
     aggregate = {
         "download_note": "Kaggle API download denied by network proxy (HTTP tunnel 403); public mirrors used. Official Kaggle byte identity not independently verified.",

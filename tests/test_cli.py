@@ -103,3 +103,21 @@ def test_model_graph_validation_and_output_alias(tmp_path):
         assert out.read_text() == "existing output\n"
     model.write_text(valid)
     assert invoke("predict", "--model", model, "--data", data, "--output", data).returncode != 0
+
+
+def test_parallel_thread_option(tmp_path):
+    model = tmp_path / 'model.lt'
+    a, b = tmp_path / 'a.csv', tmp_path / 'b.csv'
+    train = Path('examples/csv/train.csv').resolve()
+    test = Path('examples/csv/test.csv').resolve()
+    result = invoke('train', '--train', train, '--test', test, '--header',
+                    '--model', model, '--output', a, '--threads', 4)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)['threads'] == 4
+    result = invoke('predict', '--model', model, '--data', test, '--header',
+                    '--output', b, '--threads', 2)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)['threads'] == 2
+    assert a.read_bytes() == b.read_bytes()
+    for value in ('0', '-1', '257', '2oops'):
+        assert invoke('train', '--train', train, '--header', '--threads', value).returncode != 0

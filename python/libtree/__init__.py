@@ -23,6 +23,8 @@ def _library():
         lib = ct.CDLL(str(path))
         lib.LtCreate.argtypes = [ct.c_int] * 4 + [ct.c_double] * 3 + [ct.c_int]
         lib.LtCreate.restype = ct.c_void_p
+        lib.LtSetNumThreads.argtypes = [ct.c_void_p, ct.c_int]
+        lib.LtSetNumThreads.restype = ct.c_int
         lib.LtFree.argtypes = [ct.c_void_p]
         lib.LtFree.restype = None
         lib.LtFit.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t, ct.c_size_t, _FLOAT]
@@ -61,7 +63,7 @@ class GBDTRegressor:
 
     def __init__(self, n_estimators=100, max_depth=4, max_bins=64,
                  min_samples_leaf=5, learning_rate=0.1, reg_lambda=1.0,
-                 min_gain=0.0):
+                 min_gain=0.0, n_jobs=1):
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_bins = max_bins
@@ -69,18 +71,26 @@ class GBDTRegressor:
         self.learning_rate = learning_rate
         self.reg_lambda = reg_lambda
         self.min_gain = min_gain
+        self.n_jobs = n_jobs
         self._handle = None
         self._finalizer = None
 
     def get_params(self, deep=True):
         return {name: getattr(self, name) for name in (
             "n_estimators", "max_depth", "max_bins", "min_samples_leaf",
-            "learning_rate", "reg_lambda", "min_gain")}
+            "learning_rate", "reg_lambda", "min_gain", "n_jobs")}
 
     def set_params(self, **params):
         for name in params:
             if name not in self.get_params():
                 raise ValueError(f"unknown parameter: {name}")
+        if 'n_jobs' in params and self._handle is not None:
+            threads = params['n_jobs']
+            if not isinstance(threads, (int, np.integer)) or not 1 <= threads <= 256:
+                raise ValueError('n_jobs must be an integer in 1..256')
+            lib = _library()
+            if lib.LtSetNumThreads(self._handle, threads):
+                raise ValueError(lib.LtLastError().decode())
         for name, value in params.items():
             setattr(self, name, value)
         return self
@@ -91,7 +101,7 @@ class GBDTRegressor:
         if y.ndim != 1 or len(y) != len(x):
             raise ValueError("y must be a vector matching X rows")
         lib = _library()
-        for name in ("n_estimators", "max_depth", "max_bins", "min_samples_leaf"):
+        for name in ("n_estimators", "max_depth", "max_bins", "min_samples_leaf", "n_jobs"):
             value = getattr(self, name)
             if not isinstance(value, (int, np.integer)) or not -(2**31) <= value < 2**31:
                 raise ValueError(f"{name} must be a 32-bit integer")
@@ -100,6 +110,10 @@ class GBDTRegressor:
                               self.reg_lambda, self.min_gain, self._binary)
         if not handle:
             raise ValueError(lib.LtLastError().decode())
+        if lib.LtSetNumThreads(handle, self.n_jobs):
+            error = lib.LtLastError().decode()
+            lib.LtFree(handle)
+            raise ValueError(error)
         if lib.LtFit(handle, _pointer(x), *x.shape, _pointer(y)):
             error = lib.LtLastError().decode()
             lib.LtFree(handle)

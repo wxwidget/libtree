@@ -1,4 +1,4 @@
-"""Reproducible single-thread C++ and Python comparisons; no Kaggle credentials."""
+"""Reproducible equal-thread C++ and Python comparisons; no Kaggle credentials."""
 import argparse
 import hashlib
 import json
@@ -56,18 +56,18 @@ def worker(args):
         cls = GBDTClassifier if binary else GBDTRegressor
         model = cls(n_estimators=args.trees, max_depth=args.depth, max_bins=args.bins,
                     min_samples_leaf=args.min_leaf, learning_rate=args.rate,
-                    reg_lambda=args.l2, min_gain=args.min_gain)
+                    reg_lambda=args.l2, min_gain=args.min_gain, n_jobs=args.threads)
     elif args.engine == "lightgbm":
         cls = lgb.LGBMClassifier if binary else lgb.LGBMRegressor
         model = cls(n_estimators=args.trees, max_depth=args.depth, num_leaves=1 << args.depth,
                     max_bin=args.bins, min_child_samples=args.min_leaf, min_data_in_bin=1,
                     learning_rate=args.rate, reg_lambda=args.l2, min_split_gain=args.min_gain,
-                    n_jobs=1, random_state=42, data_random_seed=42, deterministic=True,
+                    n_jobs=args.threads, random_state=42, data_random_seed=42, deterministic=True,
                     feature_pre_filter=False, force_col_wise=True, verbosity=-1)
     else:
         cls = xgb.XGBClassifier if binary else xgb.XGBRegressor
         model = cls(n_estimators=args.trees, max_depth=args.depth, max_bin=args.bins, learning_rate=args.rate,
-                    reg_lambda=args.l2, gamma=args.min_gain, tree_method="hist", n_jobs=1, random_state=42)
+                    reg_lambda=args.l2, gamma=args.min_gain, tree_method="hist", n_jobs=args.threads, random_state=42)
     start = time.perf_counter()
     model.fit(x, y)
     fit_seconds = time.perf_counter() - start
@@ -116,8 +116,9 @@ def builtin_datasets():
     for name, loader in (("diabetes", load_diabetes), ("breast_cancer", load_breast_cancer)):
         x, y = loader(return_X_y=True)
         yield name, x, y, name == "breast_cancer", {"source": f"sklearn.datasets.{loader.__name__}"}
-    x, y = make_friedman1(n_samples=20000, n_features=20, noise=1, random_state=42)
-    yield "friedman_20k", x, y, False, {"source": "sklearn.make_friedman1", "seed": 42}
+    for rows in (20000, 100000):
+        x, y = make_friedman1(n_samples=rows, n_features=20, noise=1, random_state=42)
+        yield f"friedman_{rows // 1000}k", x, y, False, {"source": "sklearn.make_friedman1", "seed": 42}
 
 
 def kaggle_datasets():
@@ -178,7 +179,7 @@ def main(args):
     engines = args.engines
     parameters = ["--trees", str(args.trees), "--depth", str(args.depth), "--bins", str(args.bins),
                   "--min-leaf", str(args.min_leaf), "--rate", str(args.rate), "--l2", str(args.l2),
-                  "--min-gain", str(args.min_gain)]
+                  "--min-gain", str(args.min_gain), "--threads", str(args.threads)]
     for name, x, y, binary, provenance in datasets(args.suite):
         if args.datasets and name not in args.datasets:
             continue
@@ -209,7 +210,7 @@ def main(args):
                     if language == "cpp":
                         command = [str(ROOT / "build/native_benchmark"), str(native), str(output),
                                    str(int(binary)), engine, libraries[engine], str(args.trees), str(args.depth),
-                                   str(args.bins), str(args.min_leaf), str(args.rate), str(args.l2), str(args.min_gain)]
+                                   str(args.bins), str(args.min_leaf), str(args.rate), str(args.l2), str(args.min_gain), str(args.threads)]
                     else:
                         command = [sys.executable, str(Path(__file__).resolve()), "--worker", str(npz),
                                    "--engine", engine, "--predictions", str(output), *parameters]
@@ -255,13 +256,15 @@ def main(args):
     report = {"metadata": {"platform": platform.platform(), "processor": platform.processor(),
               "python": platform.python_version(), "numpy": np.__version__, "sklearn": sklearn.__version__,
               "xgboost": xgb.__version__, "lightgbm": lgb.__version__, "engines": engines, "compiler": subprocess.check_output(["g++", "--version"], text=True).splitlines()[0],
-              "repeats": args.repeats, "seed": args.seed, "suite": args.suite, "threads": 1,
+              "repeats": args.repeats, "seed": args.seed, "suite": args.suite, "threads": args.threads,
+              "available_cpus": len(os.sched_getaffinity(0)),
+              "cpu_quota": Path("/sys/fs/cgroup/cpu.max").read_text().strip(),
               "memory_measurement": "Linux /proc/self/status VmHWM after prediction (KiB); current exec address space",
               "parameters": {"trees": args.trees, "depth": args.depth, "bins": args.bins,
                              "min_leaf": args.min_leaf, "rate": args.rate, "l2": args.l2, "min_gain": args.min_gain},
               "cpu": next((line.strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown'),
               "source_sha256": {str(path): hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
-                                for path in ("src/gbdt.cc", "src/c_api.cc", "src/model.cc", "src/cli.cc", "include/libtree/gbdt.h", "python/libtree/__init__.py", "benchmarks/native.cc", "benchmarks/run.py")},
+                                for path in ("src/gbdt.cc", "src/parallel.h", "src/c_api.cc", "src/model.cc", "src/cli.cc", "include/libtree/gbdt.h", "python/libtree/__init__.py", "benchmarks/native.cc", "benchmarks/run.py", "CMakeLists.txt", "setup.py")},
               "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
               "sources": sources, "results": results}
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n")
@@ -273,8 +276,9 @@ if __name__ == "__main__":
     parser.add_argument("--output", default=str(ROOT / "benchmarks/results.json"))
     parser.add_argument("--suite", choices=["all", "kaggle", "original", "builtin"], default="all")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--datasets", nargs="+", choices=["titanic", "insurance", "pima", "telco", "wine",
-                                                         "diabetes", "breast_cancer", "friedman_20k"])
+                                                         "diabetes", "breast_cancer", "friedman_20k", "friedman_100k"])
     parser.add_argument("--worker")
     parser.add_argument("--engine", choices=["libtree", "xgboost", "lightgbm"])
     parser.add_argument("--engines", nargs="+", choices=["libtree", "xgboost", "lightgbm"], default=["libtree", "xgboost", "lightgbm"])
@@ -287,6 +291,8 @@ if __name__ == "__main__":
     parser.add_argument("--min-gain", type=float, default=0.)
     parser.add_argument("--predictions")
     args = parser.parse_args()
+    if not 1 <= args.threads <= 256:
+        parser.error("threads must be 1..256")
     if args.repeats < 1:
         parser.error("repeats must be positive")
     if not 1 <= args.depth <= 20 or len(args.engines) != len(set(args.engines)):

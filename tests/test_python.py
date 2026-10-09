@@ -79,3 +79,56 @@ def test_deterministic_and_clone():
     first = GBDTRegressor(n_estimators=20).fit(x, y)
     second = clone(first).fit(x, y)
     np.testing.assert_array_equal(first.predict(x), second.predict(x))
+
+
+@pytest.mark.parametrize('cls', [GBDTRegressor, GBDTClassifier])
+@pytest.mark.parametrize('categorical', [False, True])
+def test_parallel_exact_and_concurrent(cls, categorical):
+    from concurrent.futures import ThreadPoolExecutor
+    from sklearn.base import clone
+    rng = np.random.default_rng(42)
+    x = rng.normal(size=(8193, 20)).astype(np.float32)
+    if categorical:
+        x[:, :12] = x[:, :12] > 1
+    x[::31, 1] = np.nan
+    y = x[:, 0] ** 2 + x[:, 2]
+    if cls is GBDTClassifier:
+        y = (y > 1).astype(np.float32)
+    with cls(n_estimators=12, n_jobs=1) as serial:
+        serial.fit(x, y)
+        expected = serial.predict(x)
+        for threads in (2, 4):
+            with clone(serial).set_params(n_jobs=threads) as parallel:
+                parallel.fit(x, y)
+                np.testing.assert_array_equal(parallel.training_loss_, serial.training_loss_)
+                with ThreadPoolExecutor(max_workers=4) as callers:
+                    for prediction in callers.map(parallel.predict, [x] * 8):
+                        np.testing.assert_array_equal(prediction, expected)
+                parallel.set_params(n_jobs=1)
+                np.testing.assert_array_equal(parallel.predict(x), expected)
+                with pytest.raises(ValueError):
+                    parallel.set_params(n_jobs=0)
+                assert parallel.n_jobs == 1
+
+
+@pytest.mark.parametrize('threads', [0, -1, 1.5, 257])
+def test_invalid_threads(threads):
+    with pytest.raises(ValueError):
+        GBDTRegressor(n_jobs=threads).fit([[1]], [1])
+
+
+def test_parallel_workers_released_and_failed_refit():
+    from pathlib import Path
+    def count():
+        return len(list(Path('/proc/self/task').iterdir()))
+    baseline = count()
+    x = np.arange(40000, dtype=np.float32).reshape(2000, 20)
+    y = x[:, 0] / 100
+    for _ in range(15):
+        with GBDTRegressor(n_estimators=3, n_jobs=4) as model:
+            model.fit(x, y)
+            before = model.predict(x)
+            with pytest.raises(ValueError):
+                model.fit(x, np.full(len(x), np.nan))
+            np.testing.assert_array_equal(before, model.predict(x))
+        assert count() == baseline

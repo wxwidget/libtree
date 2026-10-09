@@ -25,6 +25,7 @@ const char kHelp[] =
     "Parameters: --objective regression|binary --trees 100 --depth 4 --bins "
     "64\n"
     "  --min-leaf 5 --learning-rate 0.1 (alias --rate) --l2 1 --min-gain 0\n"
+    "  --threads 1 (1..256, train and predict; small tasks run serially)\n"
     "Long aliases: --num-trees, --max-depth, --max-bins, --min-samples-leaf\n"
     "stdout: JSON metrics; predictions: one value/probability per line.\n";
 struct Options {
@@ -71,6 +72,10 @@ Options Parse(int argc, char** argv) {
     if (flag == "--train" || flag == "--test" || flag == "--model" ||
         flag == "--output" || flag == "--data") {
       options.paths[flag] = value;
+      continue;
+    }
+    if (flag == "--threads") {
+      options.parameters.num_threads = Integer(value);
       continue;
     }
     if (options.command == "predict")
@@ -241,6 +246,7 @@ int main(int argc, char** argv) {
       });
     std::cout << "{\"trees\":" << model.num_trees()
               << ",\"rows\":" << prediction.size()
+              << ",\"threads\":" << options.parameters.num_threads
               << ",\"fit_seconds\":" << fit_seconds
               << ",\"predict_seconds\":" << predict_seconds;
     if (!model.training_loss().empty())

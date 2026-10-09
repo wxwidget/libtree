@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <future>
 #include <iostream>
 #include <limits>
 #include <numeric>
@@ -290,6 +291,79 @@ void Run() {
                              nullptr);
   });
   // Quantization boundaries and both wide-matrix histogram layouts.
+  // Parallel execution must preserve model bytes, losses and every prediction.
+  constexpr int parallel_rows = 8193, parallel_columns = 20;
+  std::vector<float> parallel_x(parallel_rows * parallel_columns);
+  std::vector<float> parallel_y(parallel_rows);
+  for (float& value : parallel_x) value = uniform(generator);
+  for (int i = 0; i < parallel_rows; ++i) {
+    parallel_y[i] = parallel_x[i * parallel_columns] * 2;
+    if (i % 31 == 0) parallel_x[i * parallel_columns + 1] = nan;
+  }
+  for (bool binary : {false, true}) {
+    std::vector<float> targets = parallel_y;
+    if (binary)
+      for (float& value : targets) value = value > 0;
+    Parameters serial_parameters;
+    serial_parameters.num_trees = 12;
+    serial_parameters.objective = binary ? libtree::Objective::kBinaryLogistic
+                                         : libtree::Objective::kSquaredError;
+    Gbdt serial(serial_parameters);
+    serial.Fit({parallel_x.data(), parallel_rows, parallel_columns}, targets);
+    std::stringstream reference;
+    serial.SaveModel(reference);
+    const auto expected =
+        serial.Predict({parallel_x.data(), parallel_rows, parallel_columns});
+    for (int threads : {2, 4}) {
+      auto p = serial_parameters;
+      p.num_threads = threads;
+      Gbdt parallel(p);
+      parallel.Fit({parallel_x.data(), parallel_rows, parallel_columns},
+                   targets);
+      std::stringstream saved;
+      parallel.SaveModel(saved);
+      Check(saved.str() == reference.str());
+      Check(parallel.training_loss() == serial.training_loss());
+      std::vector<std::future<std::vector<float>>> calls;
+      for (int i = 0; i < 4; ++i)
+        calls.push_back(std::async(std::launch::async, [&] {
+          return parallel.Predict(
+              {parallel_x.data(), parallel_rows, parallel_columns});
+        }));
+      for (auto& call : calls) Check(call.get() == expected);
+      auto invalid_x = parallel_x;
+      invalid_x.back() = std::numeric_limits<float>::infinity();
+      std::vector<float> untouched(parallel_rows, -123);
+      Throws([&] {
+        parallel.PredictInto(
+            {invalid_x.data(), parallel_rows, parallel_columns},
+            untouched.data());
+      });
+      Check(std::all_of(untouched.begin(), untouched.end(),
+                        [](float value) { return value == -123; }));
+      Throws([&] {
+        parallel.Fit({invalid_x.data(), parallel_rows, parallel_columns},
+                     targets);
+      });
+      Check(parallel.Predict({parallel_x.data(), parallel_rows,
+                              parallel_columns}) == expected);
+      Gbdt restored(p);
+      restored.LoadModel(saved);
+      Check(restored.Predict({parallel_x.data(), parallel_rows,
+                              parallel_columns}) == expected);
+      restored.SetNumThreads(1);
+      Check(restored.Predict({parallel_x.data(), parallel_rows,
+                              parallel_columns}) == expected);
+      Throws([&] { restored.SetNumThreads(0); });
+      Check(restored.Predict({parallel_x.data(), parallel_rows,
+                              parallel_columns}) == expected);
+    }
+  }
+  for (int threads : {0, -1, 257}) {
+    Parameters p;
+    p.num_threads = threads;
+    Throws([&] { Gbdt invalid(p); });
+  }
   constexpr int wide_rows = 80;
   for (int width : {20, 820}) {
     std::vector<float> wide(wide_rows * width), wide_y(wide_rows);
@@ -299,6 +373,7 @@ void Run() {
     for (int bin_limit : {2, 3, 17, 64, 65535}) {
       Parameters boundary;
       boundary.num_trees = 3;
+      boundary.num_threads = width == 820 ? 4 : 1;
       boundary.max_bins = bin_limit;
       Gbdt wide_model(boundary);
       wide_model.Fit({wide.data(), wide_rows, static_cast<std::size_t>(width)},

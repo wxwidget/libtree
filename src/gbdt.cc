@@ -8,6 +8,8 @@
 #include <numeric>
 #include <stdexcept>
 
+#include "parallel.h"
+
 namespace libtree {
 namespace {
 double Sigmoid(double value) {
@@ -15,12 +17,15 @@ double Sigmoid(double value) {
   const double exp_value = std::exp(value);
   return exp_value / (1 + exp_value);
 }
-void ValidateMatrix(MatrixView matrix, bool allow_empty) {
+void ValidateShape(MatrixView matrix, bool allow_empty) {
   if (matrix.cols == 0 || (!allow_empty && matrix.rows == 0) ||
       (matrix.rows != 0 && matrix.data == nullptr) ||
       matrix.rows > std::numeric_limits<std::size_t>::max() / matrix.cols) {
     throw std::invalid_argument("invalid matrix shape or null data");
   }
+}
+void ValidateMatrix(MatrixView matrix, bool allow_empty) {
+  ValidateShape(matrix, allow_empty);
   for (std::size_t i = 0; i < matrix.rows * matrix.cols; ++i) {
     if (std::isinf(matrix.data[i])) {
       throw std::invalid_argument("features must be finite or NaN");
@@ -61,6 +66,7 @@ Gbdt::Gbdt(Parameters parameters) : parameters_(parameters) {
   if (parameters.num_trees < 1 || parameters.max_depth < 0 ||
       parameters.max_depth > 20 || parameters.max_bins < 2 ||
       parameters.max_bins > 65535 || parameters.min_samples_leaf < 1 ||
+      parameters.num_threads < 1 || parameters.num_threads > 256 ||
       !std::isfinite(parameters.learning_rate) ||
       parameters.learning_rate <= 0 || parameters.learning_rate > 1 ||
       !std::isfinite(parameters.l2) || parameters.l2 < 0 ||
@@ -69,6 +75,17 @@ Gbdt::Gbdt(Parameters parameters) : parameters_(parameters) {
        parameters.objective != Objective::kBinaryLogistic)) {
     throw std::invalid_argument("invalid GBDT parameters");
   }
+}
+
+void Gbdt::SetNumThreads(int threads) {
+  if (threads < 1 || threads > 256)
+    throw std::invalid_argument("num_threads must be 1..256");
+  if (threads == parameters_.num_threads && (threads == 1 || executor_)) return;
+  auto executor = threads == 1
+                      ? nullptr
+                      : std::make_shared<internal::ParallelExecutor>(threads);
+  parameters_.num_threads = threads;
+  executor_ = std::move(executor);
 }
 
 void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
@@ -95,6 +112,16 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   }
   const std::size_t n = features.rows;
   const std::size_t d = features.cols;
+  auto executor = executor_;
+  if (!executor && parameters_.num_threads > 1)
+    executor =
+        std::make_shared<internal::ParallelExecutor>(parameters_.num_threads);
+  auto for_features = [&](std::size_t work, auto function) {
+    if (executor && d > 1 && work >= 65536)
+      executor->For(d, function);
+    else
+      for (std::size_t f = 0; f < d; ++f) function(0, f);
+  };
   std::vector<std::vector<float>> cuts(d);
   // Quantize once per Fit. Column-major uint16 bins keep histogram scans
   // compact.
@@ -106,9 +133,10 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
     bool enabled = false;
   };
   std::vector<SparseColumn> sparse_columns(d);
-  std::vector<float> sorted;
-  sorted.reserve(n);
-  for (std::size_t f = 0; f < d; ++f) {
+  std::vector<std::vector<float>> sort_workspace(parameters_.num_threads);
+  for_features(n * d, [&](int worker, std::size_t f) {
+    auto& sorted = sort_workspace[worker];
+    sorted.reserve(n);
     sorted.clear();
     for (std::size_t i = 0; i < n; ++i) {
       const float value = features.data[i * d + f];
@@ -162,7 +190,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           sparse.single_bin = static_cast<int>(b);
         }
     }
-  }
+  });
   std::vector<Tree> trees;
   trees.reserve(parameters_.num_trees);
   std::vector<double> losses;
@@ -188,10 +216,11 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       cuts.begin(), cuts.end(), [](const auto& cut) { return cut.size() > 4; });
   if (d >= 16 && continuous > d / 2 && offsets.back() <= 65536) {
     row_histogram_indices.resize(n * d);
-    for (std::size_t f = 0; f < d; ++f)
+    for_features(n * d, [&](int, std::size_t f) {
       for (std::size_t row = 0; row < n; ++row)
         row_histogram_indices[row * d + f] =
             static_cast<std::uint16_t>(offsets[f] + bins[f * n + row]);
+    });
   }
   if (row_histogram_indices.empty()) {
     ordered_derivatives.resize(n);
@@ -210,6 +239,23 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
                              const Stats* parent = nullptr) {
     std::fill(histograms, histograms + offsets.back(), Stats{});
     if (!row_histogram_indices.empty()) {
+      if (executor && (end - begin) * d >= 65536) {
+        // Disjoint feature histograms, with identical per-bin row order.
+        // Unlike row-wise reductions, this is bit-identical across threads.
+        const std::size_t blocks = parameters_.num_threads;
+        executor->For(blocks, [&](int, std::size_t block) {
+          const std::size_t first = d * block / blocks;
+          const std::size_t last = d * (block + 1) / blocks;
+          for (std::size_t j = begin; j < end; ++j) {
+            const std::size_t row = rows[j];
+            const auto* indices = row_histogram_indices.data() + row * d;
+            const Derivative derivative = derivatives[row];
+            for (std::size_t f = first; f < last; ++f)
+              histograms[indices[f]] += derivative;
+          }
+        });
+        return;
+      }
       for (std::size_t j = begin; j < end; ++j) {
         const std::size_t row = rows[j];
         const auto* indices = row_histogram_indices.data() + row * d;
@@ -221,9 +267,9 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
     }
     for (std::size_t j = begin; j < end; ++j)
       ordered_derivatives[j] = derivatives[rows[j]];
-    for (std::size_t f = 0; f < d; ++f) {
+    for_features((end - begin) * d, [&](int, std::size_t f) {
       const std::size_t num_bins = cuts[f].size();
-      if (num_bins == 0) continue;
+      if (num_bins == 0) return;
       auto* histogram = histograms + offsets[f];
       if (parent && num_bins <= 4) {
         int occupied = -1;
@@ -237,7 +283,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           }
         if (occupied >= 0) {
           histogram[occupied] = total;
-          continue;
+          return;
         }
       }
       const auto* column = bins.data() + f * n;
@@ -312,22 +358,22 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           histogram[column[row]] += ordered_derivatives[j];
         }
       }
-    }
+    });
   };
   for (int iteration = 0; iteration < parameters_.num_trees; ++iteration) {
     std::iota(rows.begin(), rows.end(), 0);
     std::iota(positions.begin(), positions.end(), 0);
+    const Stats root_total = sum_rows(0, n);
     if (parameters_.max_depth > 0 &&
         n / 2 >= static_cast<std::size_t>(parameters_.min_samples_leaf)) {
       workspace[0].resize(offsets.back());
-      make_histograms(0, n, sum_rows(0, n), workspace[0].data());
+      make_histograms(0, n, root_total, workspace[0].data());
     }
     Tree tree;
     tree.reserve(std::min<std::size_t>(
         2 * n, (std::size_t{1} << (parameters_.max_depth + 1)) - 1));
     auto build = [&](auto&& self, std::size_t begin, std::size_t end, int depth,
-                     Stats* histograms) -> int {
-      const Stats total = sum_rows(begin, end);
+                     Stats* histograms, const Stats& total) -> int {
       const int node_id = static_cast<int>(tree.size());
       Node node;
       node.value = -total.gradient / (total.hessian + parameters_.l2);
@@ -391,25 +437,28 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       tree[node_id].missing_left = best_missing_left;
       int left, right;
       if (depth + 1 == parameters_.max_depth) {
-        left = self(self, begin, middle, depth + 1, nullptr);
-        right = self(self, middle, end, depth + 1, nullptr);
+        left = self(self, begin, middle, depth + 1, nullptr,
+                    sum_rows(begin, middle));
+        right =
+            self(self, middle, end, depth + 1, nullptr, sum_rows(middle, end));
       } else {
         auto& small_histogram = workspace[depth + 1];
         small_histogram.resize(offsets.back());
         const bool left_small = middle - begin <= end - middle;
         const std::size_t small_begin = left_small ? begin : middle;
         const std::size_t small_end = left_small ? middle : end;
-        make_histograms(small_begin, small_end,
-                        sum_rows(small_begin, small_end),
+        const Stats small_total = sum_rows(small_begin, small_end);
+        make_histograms(small_begin, small_end, small_total,
                         small_histogram.data(), histograms);
         for (std::size_t b = 0; b < offsets.back(); ++b)
           histograms[b] = histograms[b] - small_histogram[b];
         // No reference into tree survives recursion (vector may reallocate).
         const int small = self(self, small_begin, small_end, depth + 1,
-                               small_histogram.data());
-        const int large =
-            self(self, left_small ? middle : begin, left_small ? end : middle,
-                 depth + 1, histograms);
+                               small_histogram.data(), small_total);
+        const std::size_t large_begin = left_small ? middle : begin;
+        const std::size_t large_end = left_small ? end : middle;
+        const int large = self(self, large_begin, large_end, depth + 1,
+                               histograms, sum_rows(large_begin, large_end));
         left = left_small ? small : large;
         right = left_small ? large : small;
       }
@@ -417,7 +466,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       tree[node_id].right = right;
       return node_id;
     };
-    build(build, 0, n, 0, workspace[0].data());
+    build(build, 0, n, 0, workspace[0].data(), root_total);
     double loss = 0;
     for (std::size_t i = 0; i < n; ++i) {
       if (binary) {
@@ -444,6 +493,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   trees_ = std::move(trees);
   prediction_trees_ = std::move(prediction_trees);
   training_loss_ = std::move(losses);
+  executor_ = std::move(executor);
 }
 
 std::vector<Gbdt::PredictionTree> Gbdt::CompilePredictionTrees(
@@ -495,6 +545,21 @@ void Gbdt::ValidatePredictionInput(MatrixView features) const {
   if (trees_.empty()) throw std::logic_error("model is not fitted");
   if (features.cols != num_features_)
     throw std::invalid_argument("feature count mismatch");
+  if (executor_) {
+    ValidateShape(features, true);
+    const std::size_t count = features.rows * features.cols;
+    if (count >= 65536) {
+      constexpr std::size_t kChunk = 4096;
+      executor_->For((count + kChunk - 1) / kChunk, [&](int,
+                                                        std::size_t chunk) {
+        const std::size_t begin = chunk * kChunk;
+        for (std::size_t i = begin; i < std::min(count, begin + kChunk); ++i)
+          if (std::isinf(features.data[i]))
+            throw std::invalid_argument("features must be finite or NaN");
+      });
+      return;
+    }
+  }
   ValidateMatrix(features, true);
 }
 
@@ -514,9 +579,24 @@ void Gbdt::PredictInto(MatrixView features, float* output) const {
 
 void Gbdt::PredictUnchecked(MatrixView features, float* output) const {
   constexpr std::size_t kBatch = 64;
+  if (executor_ && features.rows >= 512 && trees_.size() >= 8) {
+    executor_->For((features.rows + kBatch - 1) / kBatch,
+                   [&](int, std::size_t batch) {
+                     const std::size_t begin = batch * kBatch;
+                     PredictRange(features, output, begin,
+                                  std::min(features.rows, begin + kBatch));
+                   });
+  } else {
+    PredictRange(features, output, 0, features.rows);
+  }
+}
+
+void Gbdt::PredictRange(MatrixView features, float* output, std::size_t first,
+                        std::size_t last) const {
+  constexpr std::size_t kBatch = 64;
   constexpr std::uint32_t kMissingLeft = std::uint32_t{1} << 31;
-  for (std::size_t begin = 0; begin < features.rows; begin += kBatch) {
-    const std::size_t count = std::min(kBatch, features.rows - begin);
+  for (std::size_t begin = first; begin < last; begin += kBatch) {
+    const std::size_t count = std::min(kBatch, last - begin);
     std::array<double, kBatch> margins;
     std::array<const float*, kBatch> inputs;
     std::fill_n(margins.begin(), count, base_score_);

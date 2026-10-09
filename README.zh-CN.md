@@ -140,3 +140,25 @@ XGBoost 3.4.1 的效果、训练时间、预测时间和进程内存。
 [新增 Kaggle 五数据集、多划分测试报告](benchmarks/KAGGLE_REPORT.zh-CN.md)
 
 [交互 HTML 图表报告](benchmarks/KAGGLE_REPORT.html)（离线查看，切换 C++ / Python，导出原始数据）
+
+## CPU 多线程
+
+Python 使用 `GBDTRegressor(n_jobs=4)` 或 `GBDTClassifier(n_jobs=4)`；C++ 设置
+`Parameters::num_threads = 4`；命令行训练、预测均可加 `--threads 4`。
+默认 1，范围 1–256，包含调用线程。线程池复用工作线程，训练按特征并行，
+推理按行并行，小任务自动串行。Boosting 各轮和树节点仍按依赖顺序执行，
+已测试线程数下的模型文件、训练损失和预测值逐项一致。
+
+已拟合的 Python 模型可用 `set_params(n_jobs=2)` 修改执行线程数，C++ 使用
+`SetNumThreads(2)`。线程数是运行配置，不写入模型文件；加载模型可另外选择线程数。
+支持同一模型并发预测，共享线程池的任务分发会排队；不能同时拟合、关闭或
+修改该模型的线程数。外层交叉验证或多个模型并发时，应按 CPU 配额分配线程。
+直接链接静态库时需加 `-pthread`；CMake 和 Python 安装已自动处理。
+
+[同线程三方实测](benchmarks/PARALLEL_REPORT.zh-CN.md) · [交互扩展性图表](benchmarks/PARALLEL_REPORT.html)
+
+```sh
+PYTHONPATH=python python benchmarks/parallel.py --threads 1 2 4 --seeds 42 2024 2026 --repeats 3
+python benchmarks/parallel_report.py
+make thread-sanitize
+```

@@ -12,8 +12,9 @@ jobs:
       - run: make test
       - run: PYTHONPATH=python:. python -m pytest tests/test_benchmark.py
       - run: make sanitize
+      - run: make thread-sanitize
       - run: make coverage
-      - run: clang-format --dry-run --Werror include/libtree/*.h src/*.cc tests/*.cc examples/*.cc benchmarks/*.cc
+      - run: clang-format --dry-run --Werror include/libtree/*.h src/*.cc src/parallel.h tests/*.cc examples/*.cc benchmarks/*.cc
       - run: PYTHONPATH=python python benchmarks/run.py --repeats 1 --output benchmarks/runs/ci-results.json
       - uses: actions/upload-artifact@v4
         with:

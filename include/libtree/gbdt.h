@@ -4,9 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 namespace libtree {
+namespace internal {
+class ParallelExecutor;
+}
 enum class Objective { kSquaredError, kBinaryLogistic };
 
 struct Parameters {
@@ -18,6 +22,7 @@ struct Parameters {
   double l2 = 1.0;
   double min_gain = 0.0;
   Objective objective = Objective::kSquaredError;
+  int num_threads = 1;  // Upper bound, including the calling thread; 1..256.
 };
 
 // Non-owning, contiguous row-major float matrix. NaN denotes missing data.
@@ -41,6 +46,9 @@ class Gbdt {
   // Versioned text format; failed loads preserve any existing fitted model.
   void SaveModel(std::ostream& output) const;
   void LoadModel(std::istream& input);
+  // Runtime configuration, independent of the portable model format.
+  // Like Fit, must not run concurrently with predictions on this model.
+  void SetNumThreads(int threads);
   const std::vector<double>& training_loss() const { return training_loss_; }
   std::size_t num_trees() const { return trees_.size(); }
 
@@ -67,12 +75,15 @@ class Gbdt {
       const std::vector<Tree>& trees) const;
   void ValidatePredictionInput(MatrixView features) const;
   void PredictUnchecked(MatrixView features, float* output) const;
+  void PredictRange(MatrixView features, float* output, std::size_t begin,
+                    std::size_t end) const;
   Parameters parameters_;
   std::size_t num_features_ = 0;
   double base_score_ = 0;
   std::vector<Tree> trees_;
   std::vector<PredictionTree> prediction_trees_;
   std::vector<double> training_loss_;
+  std::shared_ptr<internal::ParallelExecutor> executor_;
 };
 }  // namespace libtree
 #endif  // LIBTREE_GBDT_H_

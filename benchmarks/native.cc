@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     libtree::Parameters p;
     p.objective = binary ? libtree::Objective::kBinaryLogistic
                          : libtree::Objective::kSquaredError;
-    if (argc == 13) {
+    if (argc == 13 || argc == 14) {
       p.num_trees = std::stoi(argv[6]);
       p.max_depth = std::stoi(argv[7]);
       p.max_bins = std::stoi(argv[8]);
@@ -113,6 +113,7 @@ int main(int argc, char** argv) {
       p.learning_rate = std::stod(argv[10]);
       p.l2 = std::stod(argv[11]);
       p.min_gain = std::stod(argv[12]);
+      if (argc == 14) p.num_threads = std::stoi(argv[13]);
     } else if (argc != 5 && argc != 6)
       throw std::runtime_error("invalid benchmark arguments");
     const libtree::Gbdt validated(p);
@@ -129,7 +130,7 @@ int main(int argc, char** argv) {
           model.Predict({data.test_x.data(), data.test_rows, data.cols});
       predict_seconds = Seconds(start);
     } else if (std::string(argv[4]) == "lightgbm") {
-      if (argc != 6 && argc != 13)
+      if (argc != 6 && argc != 13 && argc != 14)
         throw std::runtime_error("LightGBM library path required");
       NativeLibrary api(argv[5], "LGBM_GetLastError");
       using Handle = void*;
@@ -159,7 +160,8 @@ int main(int argc, char** argv) {
           << " min_data_in_leaf=" << p.min_samples_leaf
           << " learning_rate=" << p.learning_rate << " lambda_l2=" << p.l2
           << " min_gain_to_split=" << p.min_gain
-          << " num_threads=1 verbosity=-1 seed=42 data_random_seed=42 "
+          << " num_threads=" << p.num_threads
+          << " verbosity=-1 seed=42 data_random_seed=42 "
              "deterministic=true"
           << " force_col_wise=true feature_pre_filter=false min_data_in_bin=1";
       Handle train = nullptr, booster = nullptr;
@@ -184,15 +186,17 @@ int main(int argc, char** argv) {
       start = Clock::now();
       std::vector<double> output(data.test_rows);
       std::int64_t count = 0;
-      api.Check(predict(booster, data.test_x.data(), 0, data.test_rows,
-                        data.cols, 1, 0, 0, -1, "num_threads=1", &count,
-                        output.data()));
+      api.Check(predict(
+          booster, data.test_x.data(), 0, data.test_rows, data.cols, 1, 0, 0,
+          -1, ("num_threads=" + std::to_string(p.num_threads)).c_str(), &count,
+          output.data()));
       if (count != static_cast<std::int64_t>(data.test_rows))
         throw std::runtime_error("LightGBM prediction size mismatch");
       predictions.assign(output.begin(), output.end());
       predict_seconds = Seconds(start);
     } else {
-      if ((argc != 6 && argc != 13) || std::string(argv[4]) != "xgboost")
+      if ((argc != 6 && argc != 13 && argc != 14) ||
+          std::string(argv[4]) != "xgboost")
         throw std::runtime_error("invalid engine");
       NativeLibrary api(argv[5]);
       auto matrix = api.Symbol<int (*)(
@@ -228,7 +232,8 @@ int main(int argc, char** argv) {
       std::unique_ptr<int, decltype(cleanup)> guard(&sentinel, cleanup);
       auto start = Clock::now();
       api.Check(matrix(data.train_x.data(), data.train_rows, data.cols,
-                       std::numeric_limits<float>::quiet_NaN(), &train, 1));
+                       std::numeric_limits<float>::quiet_NaN(), &train,
+                       p.num_threads));
       api.Check(set_info(train, "label", data.train_y.data(), data.train_rows));
       api.Check(create(&train, 1, &booster));
       api.Check(param(booster, "objective",
@@ -240,7 +245,7 @@ int main(int argc, char** argv) {
                {"eta", Precise(p.learning_rate)},
                {"lambda", Precise(p.l2)},
                {"gamma", Precise(p.min_gain)},
-               {"nthread", "1"},
+               {"nthread", std::to_string(p.num_threads)},
                {"seed", "42"}}) {
         api.Check(param(booster, pair.first.c_str(), pair.second.c_str()));
       }
@@ -249,7 +254,8 @@ int main(int argc, char** argv) {
       fit_seconds = Seconds(start);
       start = Clock::now();
       api.Check(matrix(data.test_x.data(), data.test_rows, data.cols,
-                       std::numeric_limits<float>::quiet_NaN(), &test, 1));
+                       std::numeric_limits<float>::quiet_NaN(), &test,
+                       p.num_threads));
       NativeLibrary::Size count;
       const float* output;
       api.Check(predict(booster, test, 0, 0, 0, &count, &output));

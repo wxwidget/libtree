@@ -35,6 +35,7 @@ inconsistent columns and non-binary labels when using the binary objective.
 | `--learning-rate` / `--rate` | 0.1 | Shrinkage in (0,1] |
 | `--l2` | 1 | Nonnegative leaf regularization |
 | `--min-gain` | 0 | Nonnegative required split gain |
+| `--threads` | 1 | CPU thread budget including caller, 1–256; train and predict |
 
 `train` requires `--train`; `--test`, `--model` and `--output` are optional.
 Without `--test`, predictions use the training features. Without `--model`,
@@ -45,7 +46,9 @@ are outside those timers. Training loss is in-sample, not a test metric.
 
 `predict` requires `--model`, `--data` and `--output`. Hyperparameters and objective
 come from the saved model; reject training options rather than silently ignoring
-them. Invalid commands return a nonzero status and a message on stderr. Explicit
+them. `--threads` is a runtime option and can be set independently when loading;
+small tasks use fewer workers. JSON stdout includes the configured thread budget.
+Invalid commands return a nonzero status and a message on stderr. Explicit
 output paths are replaced atomically after successful validation; input/output
 paths must differ. Existing outputs survive malformed data/models.
 
