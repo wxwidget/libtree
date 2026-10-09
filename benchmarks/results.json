@@ -1,0 +1,672 @@
+{
+  "metadata": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "processor": "",
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "sklearn": "1.8.0",
+    "xgboost": "3.4.1",
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "repeats": 3,
+    "seed": 42,
+    "threads": 1,
+    "parameters": {
+      "trees": 100,
+      "depth": 4,
+      "bins": 64,
+      "rate": 0.1,
+      "l2": 1
+    },
+    "cpu": "model name\t: AMD EPYC 9V74 80-Core Processor",
+    "date_utc": "2026-10-09T03:54:53Z",
+    "source_sha256": {
+      "src/gbdt.cc": "a8c8c7d194bc93683e269c0510cc3dc485eb09578991c1f2be75c2445469e263",
+      "include/libtree/gbdt.h": "edb688b3f2b70bfa1537ab9a3164a3cbe01943394ffd14248a0812d4a68cc437",
+      "python/libtree/__init__.py": "4660b5a6182c49c3c65dd239a77cb811fa6acc71fd657bc0a669bb3b1fee1e15",
+      "benchmarks/native.cc": "0c2bccdd077321f49d6779b8fed96aabe12d19766ab0bd40d36bec0886cd7671"
+    },
+    "source_hashes_recorded_after_run": true
+  },
+  "sources": {
+    "diabetes": {
+      "source": "sklearn.datasets.load_diabetes"
+    },
+    "breast_cancer": {
+      "source": "sklearn.datasets.load_breast_cancer"
+    },
+    "titanic": {
+      "url": "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/titanic/train.csv",
+      "sha256": "14769fb1850e2d26d8e6db0ee49c213878040432827e39b13caaa15603c6598f"
+    },
+    "insurance": {
+      "url": "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv",
+      "sha256": "505c1cbc2e63d0363bac59501563df2530aadf4cdb9cfee226f4ef32f5468281"
+    },
+    "friedman_20k": {
+      "source": "sklearn.make_friedman1",
+      "seed": 42
+    }
+  },
+  "results": [
+    {
+      "dataset": "diabetes",
+      "language": "cpp",
+      "engine": "libtree",
+      "train_rows": 331,
+      "test_rows": 111,
+      "features": 10,
+      "metric_name": "rmse",
+      "metric": 58.74577777381111,
+      "baseline": 74.881227568647,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.00450158,
+          "predict_seconds": 0.000260613,
+          "peak_rss_kib": 137484
+        },
+        {
+          "fit_seconds": 0.00457097,
+          "predict_seconds": 0.000261384,
+          "peak_rss_kib": 137484
+        },
+        {
+          "fit_seconds": 0.00453666,
+          "predict_seconds": 0.000260703,
+          "peak_rss_kib": 137484
+        }
+      ],
+      "fit_seconds": 0.00453666,
+      "predict_seconds": 0.000260703,
+      "peak_rss_kib": 137484.0
+    },
+    {
+      "dataset": "diabetes",
+      "language": "cpp",
+      "engine": "xgboost",
+      "train_rows": 331,
+      "test_rows": 111,
+      "features": 10,
+      "metric_name": "rmse",
+      "metric": 57.18809767447244,
+      "baseline": 74.881227568647,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.013136,
+          "predict_seconds": 0.000170537,
+          "peak_rss_kib": 137612
+        },
+        {
+          "fit_seconds": 0.0127449,
+          "predict_seconds": 0.000172941,
+          "peak_rss_kib": 137612
+        },
+        {
+          "fit_seconds": 0.0125989,
+          "predict_seconds": 0.000170377,
+          "peak_rss_kib": 137612
+        }
+      ],
+      "fit_seconds": 0.0127449,
+      "predict_seconds": 0.000170537,
+      "peak_rss_kib": 137612.0
+    },
+    {
+      "dataset": "diabetes",
+      "language": "python",
+      "engine": "libtree",
+      "train_rows": 331,
+      "test_rows": 111,
+      "features": 10,
+      "metric_name": "rmse",
+      "metric": 58.74577777381111,
+      "baseline": 74.881227568647,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.005267376000119839,
+          "predict_seconds": 0.0003520110001318244,
+          "peak_rss_kib": 137612
+        },
+        {
+          "fit_seconds": 0.005258933000050092,
+          "predict_seconds": 0.00030663200004710234,
+          "peak_rss_kib": 137612
+        },
+        {
+          "fit_seconds": 0.005110018999857857,
+          "predict_seconds": 0.00028838499997618783,
+          "peak_rss_kib": 137612
+        }
+      ],
+      "fit_seconds": 0.005258933000050092,
+      "predict_seconds": 0.00030663200004710234,
+      "peak_rss_kib": 137612.0
+    },
+    {
+      "dataset": "diabetes",
+      "language": "python",
+      "engine": "xgboost",
+      "train_rows": 331,
+      "test_rows": 111,
+      "features": 10,
+      "metric_name": "rmse",
+      "metric": 57.18809767447244,
+      "baseline": 74.881227568647,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.017748593999840523,
+          "predict_seconds": 0.0006838609999704204,
+          "peak_rss_kib": 145188
+        },
+        {
+          "fit_seconds": 0.018364041999802794,
+          "predict_seconds": 0.0006451130000186822,
+          "peak_rss_kib": 145180
+        },
+        {
+          "fit_seconds": 0.01730358199984039,
+          "predict_seconds": 0.0008408879998569319,
+          "peak_rss_kib": 145176
+        }
+      ],
+      "fit_seconds": 0.017748593999840523,
+      "predict_seconds": 0.0006838609999704204,
+      "peak_rss_kib": 145180.0
+    },
+    {
+      "dataset": "breast_cancer",
+      "language": "cpp",
+      "engine": "libtree",
+      "train_rows": 426,
+      "test_rows": 143,
+      "features": 30,
+      "metric_name": "roc_auc",
+      "metric": 0.9970649895178197,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.02235,
+          "predict_seconds": 0.000236977,
+          "peak_rss_kib": 137868
+        },
+        {
+          "fit_seconds": 0.0155115,
+          "predict_seconds": 0.00022501,
+          "peak_rss_kib": 137868
+        },
+        {
+          "fit_seconds": 0.0139939,
+          "predict_seconds": 0.000222055,
+          "peak_rss_kib": 137996
+        }
+      ],
+      "fit_seconds": 0.0155115,
+      "predict_seconds": 0.00022501,
+      "peak_rss_kib": 137868.0
+    },
+    {
+      "dataset": "breast_cancer",
+      "language": "cpp",
+      "engine": "xgboost",
+      "train_rows": 426,
+      "test_rows": 143,
+      "features": 30,
+      "metric_name": "roc_auc",
+      "metric": 0.9985324947589098,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.0192565,
+          "predict_seconds": 0.000231129,
+          "peak_rss_kib": 138124
+        },
+        {
+          "fit_seconds": 0.0252002,
+          "predict_seconds": 0.000262897,
+          "peak_rss_kib": 138124
+        },
+        {
+          "fit_seconds": 0.0206984,
+          "predict_seconds": 0.000323308,
+          "peak_rss_kib": 138124
+        }
+      ],
+      "fit_seconds": 0.0206984,
+      "predict_seconds": 0.000262897,
+      "peak_rss_kib": 138124.0
+    },
+    {
+      "dataset": "breast_cancer",
+      "language": "python",
+      "engine": "libtree",
+      "train_rows": 426,
+      "test_rows": 143,
+      "features": 30,
+      "metric_name": "roc_auc",
+      "metric": 0.9970649895178197,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.014632591999998112,
+          "predict_seconds": 0.00029859999995096587,
+          "peak_rss_kib": 138124
+        },
+        {
+          "fit_seconds": 0.016376904000026116,
+          "predict_seconds": 0.0004039689999899565,
+          "peak_rss_kib": 138124
+        },
+        {
+          "fit_seconds": 0.01459939200003646,
+          "predict_seconds": 0.00035415399997873465,
+          "peak_rss_kib": 138124
+        }
+      ],
+      "fit_seconds": 0.014632591999998112,
+      "predict_seconds": 0.00035415399997873465,
+      "peak_rss_kib": 138124.0
+    },
+    {
+      "dataset": "breast_cancer",
+      "language": "python",
+      "engine": "xgboost",
+      "train_rows": 426,
+      "test_rows": 143,
+      "features": 30,
+      "metric_name": "roc_auc",
+      "metric": 0.9985324947589098,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.02807075300006545,
+          "predict_seconds": 0.0011942020000788034,
+          "peak_rss_kib": 145496
+        },
+        {
+          "fit_seconds": 0.02749530500000219,
+          "predict_seconds": 0.000885225000047285,
+          "peak_rss_kib": 145484
+        },
+        {
+          "fit_seconds": 0.025710483000011664,
+          "predict_seconds": 0.0008773029999247228,
+          "peak_rss_kib": 145500
+        }
+      ],
+      "fit_seconds": 0.02749530500000219,
+      "predict_seconds": 0.000885225000047285,
+      "peak_rss_kib": 145496.0
+    },
+    {
+      "dataset": "titanic",
+      "language": "cpp",
+      "engine": "libtree",
+      "train_rows": 668,
+      "test_rows": 223,
+      "features": 11,
+      "metric_name": "roc_auc",
+      "metric": 0.841453063995926,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.0138,
+          "predict_seconds": 0.000458061,
+          "peak_rss_kib": 139660
+        },
+        {
+          "fit_seconds": 0.0119149,
+          "predict_seconds": 0.000406923,
+          "peak_rss_kib": 139660
+        },
+        {
+          "fit_seconds": 0.014249,
+          "predict_seconds": 0.000454316,
+          "peak_rss_kib": 139660
+        }
+      ],
+      "fit_seconds": 0.0138,
+      "predict_seconds": 0.000454316,
+      "peak_rss_kib": 139660.0
+    },
+    {
+      "dataset": "titanic",
+      "language": "cpp",
+      "engine": "xgboost",
+      "train_rows": 668,
+      "test_rows": 223,
+      "features": 11,
+      "metric_name": "roc_auc",
+      "metric": 0.826896961466644,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.00930675,
+          "predict_seconds": 0.000466664,
+          "peak_rss_kib": 139660
+        },
+        {
+          "fit_seconds": 0.0081211,
+          "predict_seconds": 0.000374175,
+          "peak_rss_kib": 139660
+        },
+        {
+          "fit_seconds": 0.00972742,
+          "predict_seconds": 0.00032507,
+          "peak_rss_kib": 139660
+        }
+      ],
+      "fit_seconds": 0.00930675,
+      "predict_seconds": 0.000374175,
+      "peak_rss_kib": 139660.0
+    },
+    {
+      "dataset": "titanic",
+      "language": "python",
+      "engine": "libtree",
+      "train_rows": 668,
+      "test_rows": 223,
+      "features": 11,
+      "metric_name": "roc_auc",
+      "metric": 0.841453063995926,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.01159783499997502,
+          "predict_seconds": 0.0004626679999546468,
+          "peak_rss_kib": 139660
+        },
+        {
+          "fit_seconds": 0.01192898499994044,
+          "predict_seconds": 0.000542287999905966,
+          "peak_rss_kib": 139660
+        },
+        {
+          "fit_seconds": 0.012734730000147465,
+          "predict_seconds": 0.0004942049999954179,
+          "peak_rss_kib": 139660
+        }
+      ],
+      "fit_seconds": 0.01192898499994044,
+      "predict_seconds": 0.0004942049999954179,
+      "peak_rss_kib": 139660.0
+    },
+    {
+      "dataset": "titanic",
+      "language": "python",
+      "engine": "xgboost",
+      "train_rows": 668,
+      "test_rows": 223,
+      "features": 11,
+      "metric_name": "roc_auc",
+      "metric": 0.826896961466644,
+      "baseline": 0.5,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.012542570000050546,
+          "predict_seconds": 0.0008710839999821474,
+          "peak_rss_kib": 145144
+        },
+        {
+          "fit_seconds": 0.014285099000062473,
+          "predict_seconds": 0.0008087399999112677,
+          "peak_rss_kib": 145148
+        },
+        {
+          "fit_seconds": 0.012767148000193629,
+          "predict_seconds": 0.0009795880000638135,
+          "peak_rss_kib": 145268
+        }
+      ],
+      "fit_seconds": 0.012767148000193629,
+      "predict_seconds": 0.0008710839999821474,
+      "peak_rss_kib": 145148.0
+    },
+    {
+      "dataset": "insurance",
+      "language": "cpp",
+      "engine": "libtree",
+      "train_rows": 1003,
+      "test_rows": 335,
+      "features": 11,
+      "metric_name": "rmse",
+      "metric": 4576.734425329921,
+      "baseline": 12283.77922302416,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.0147681,
+          "predict_seconds": 0.000619244,
+          "peak_rss_kib": 140684
+        },
+        {
+          "fit_seconds": 0.015772,
+          "predict_seconds": 0.000619124,
+          "peak_rss_kib": 140684
+        },
+        {
+          "fit_seconds": 0.0141339,
+          "predict_seconds": 0.000613896,
+          "peak_rss_kib": 140684
+        }
+      ],
+      "fit_seconds": 0.0147681,
+      "predict_seconds": 0.000619124,
+      "peak_rss_kib": 140684.0
+    },
+    {
+      "dataset": "insurance",
+      "language": "cpp",
+      "engine": "xgboost",
+      "train_rows": 1003,
+      "test_rows": 335,
+      "features": 11,
+      "metric_name": "rmse",
+      "metric": 4576.454522881223,
+      "baseline": 12283.77922302416,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.00810555,
+          "predict_seconds": 0.000330849,
+          "peak_rss_kib": 140684
+        },
+        {
+          "fit_seconds": 0.00824994,
+          "predict_seconds": 0.000347515,
+          "peak_rss_kib": 140684
+        },
+        {
+          "fit_seconds": 0.00798616,
+          "predict_seconds": 0.000326071,
+          "peak_rss_kib": 140684
+        }
+      ],
+      "fit_seconds": 0.00810555,
+      "predict_seconds": 0.000330849,
+      "peak_rss_kib": 140684.0
+    },
+    {
+      "dataset": "insurance",
+      "language": "python",
+      "engine": "libtree",
+      "train_rows": 1003,
+      "test_rows": 335,
+      "features": 11,
+      "metric_name": "rmse",
+      "metric": 4576.734425329921,
+      "baseline": 12283.77922302416,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.01524391399993874,
+          "predict_seconds": 0.0006310709998160746,
+          "peak_rss_kib": 140684
+        },
+        {
+          "fit_seconds": 0.01631686299992907,
+          "predict_seconds": 0.0006832809999650635,
+          "peak_rss_kib": 140684
+        },
+        {
+          "fit_seconds": 0.01666138299992781,
+          "predict_seconds": 0.0006732750000537635,
+          "peak_rss_kib": 140684
+        }
+      ],
+      "fit_seconds": 0.01631686299992907,
+      "predict_seconds": 0.0006732750000537635,
+      "peak_rss_kib": 140684.0
+    },
+    {
+      "dataset": "insurance",
+      "language": "python",
+      "engine": "xgboost",
+      "train_rows": 1003,
+      "test_rows": 335,
+      "features": 11,
+      "metric_name": "rmse",
+      "metric": 4576.454522881223,
+      "baseline": 12283.77922302416,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.013484551000146894,
+          "predict_seconds": 0.0007686190001550131,
+          "peak_rss_kib": 145304
+        },
+        {
+          "fit_seconds": 0.012339702999952351,
+          "predict_seconds": 0.0008077979998688534,
+          "peak_rss_kib": 145180
+        },
+        {
+          "fit_seconds": 0.01303113700009817,
+          "predict_seconds": 0.0008082689998900605,
+          "peak_rss_kib": 145184
+        }
+      ],
+      "fit_seconds": 0.01303113700009817,
+      "predict_seconds": 0.0008077979998688534,
+      "peak_rss_kib": 145184.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "cpp",
+      "engine": "libtree",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1477980617629797,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.26122,
+          "predict_seconds": 0.0122837,
+          "peak_rss_kib": 148108
+        },
+        {
+          "fit_seconds": 0.252111,
+          "predict_seconds": 0.0121637,
+          "peak_rss_kib": 148108
+        },
+        {
+          "fit_seconds": 0.270307,
+          "predict_seconds": 0.0127181,
+          "peak_rss_kib": 148108
+        }
+      ],
+      "fit_seconds": 0.26122,
+      "predict_seconds": 0.0122837,
+      "peak_rss_kib": 148108.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "cpp",
+      "engine": "xgboost",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1469623147848234,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.125748,
+          "predict_seconds": 0.00480701,
+          "peak_rss_kib": 148108
+        },
+        {
+          "fit_seconds": 0.124451,
+          "predict_seconds": 0.00513237,
+          "peak_rss_kib": 148108
+        },
+        {
+          "fit_seconds": 0.116438,
+          "predict_seconds": 0.00444888,
+          "peak_rss_kib": 148108
+        }
+      ],
+      "fit_seconds": 0.124451,
+      "predict_seconds": 0.00480701,
+      "peak_rss_kib": 148108.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "python",
+      "engine": "libtree",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1477980617629797,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.2525908200000231,
+          "predict_seconds": 0.012379403000068123,
+          "peak_rss_kib": 148108
+        },
+        {
+          "fit_seconds": 0.2473243110000567,
+          "predict_seconds": 0.012621819000059986,
+          "peak_rss_kib": 148108
+        },
+        {
+          "fit_seconds": 0.2600195759998769,
+          "predict_seconds": 0.012958255999819812,
+          "peak_rss_kib": 148108
+        }
+      ],
+      "fit_seconds": 0.2525908200000231,
+      "predict_seconds": 0.012621819000059986,
+      "peak_rss_kib": 148108.0
+    },
+    {
+      "dataset": "friedman_20k",
+      "language": "python",
+      "engine": "xgboost",
+      "train_rows": 15000,
+      "test_rows": 5000,
+      "features": 20,
+      "metric_name": "rmse",
+      "metric": 1.1469623147848234,
+      "baseline": 4.969252650909323,
+      "raw_runs": [
+        {
+          "fit_seconds": 0.13408745899982932,
+          "predict_seconds": 0.004284852999944633,
+          "peak_rss_kib": 148380
+        },
+        {
+          "fit_seconds": 0.13371761700000206,
+          "predict_seconds": 0.004740860000083558,
+          "peak_rss_kib": 148376
+        },
+        {
+          "fit_seconds": 0.13476483399995232,
+          "predict_seconds": 0.004328548999865234,
+          "peak_rss_kib": 148380
+        }
+      ],
+      "fit_seconds": 0.13408745899982932,
+      "predict_seconds": 0.004328548999865234,
+      "peak_rss_kib": 148380.0
+    }
+  ]
+}

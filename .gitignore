@@ -1,0 +1,67 @@
+# C++ / CMake build directories and compiled artifacts.
+/build*/
+/cmake-build*/
+/out/
+CMakeFiles/
+CMakeCache.txt
+CMakeUserPresets.json
+Testing/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.pdb
+
+# Python environments, package outputs and interpreter caches.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+/dist/
+/wheelhouse/
+pip-wheel-metadata/
+.tox/
+.nox/
+.ipynb_checkpoints/
+
+# Test, coverage and analysis caches. Keep the tests themselves tracked.
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+/htmlcov/
+/coverage.xml
+/junit.xml
+*.gcda
+*.gcno
+*.gcov
+
+# Downloaded datasets, prepared inputs/predictions and browser screenshots.
+# Keep benchmark scripts, pinned requirements, result JSON and HTML/Markdown
+# reports tracked so published measurements remain inspectable and reproducible.
+/benchmarks/cache/
+/benchmarks/runs/
+/benchmarks/report-assets/
+
+# Local environment settings may contain credentials; examples are shareable.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Editor/OS scratch files.
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

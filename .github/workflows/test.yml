@@ -1,0 +1,21 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install '.[dev,benchmark]'
+      - run: make test
+      - run: PYTHONPATH=python:. python -m pytest tests/test_benchmark.py
+      - run: make sanitize
+      - run: make coverage
+      - run: clang-format --dry-run --Werror include/libtree/*.h src/*.cc tests/*.cc examples/*.cc benchmarks/*.cc
+      - run: PYTHONPATH=python python benchmarks/run.py --repeats 1 --output benchmarks/runs/ci-results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: build-coverage/coverage*.html

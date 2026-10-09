@@ -1,0 +1,8 @@
+* text=auto
+
+# Generated report embeds Plotly and reviewed data; keep authored code visible
+# in language statistics and default pull-request diffs.
+benchmarks/KAGGLE_REPORT.html linguist-generated=true
+benchmarks/kaggle-results.json linguist-generated=true
+benchmarks/kaggle-summary.json linguist-generated=true
+benchmarks/results.json linguist-generated=true

@@ -1,0 +1,2 @@
+# Standalone HTML rendering only; does not change the benchmark environment.
+plotly==7.1.0

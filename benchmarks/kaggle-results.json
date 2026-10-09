@@ -1,0 +1,2981 @@
+{
+  "download_note": "Kaggle API download denied by network proxy (HTTP tunnel 403); public mirrors used. Official Kaggle byte identity not independently verified.",
+  "seeds": [
+    42,
+    2024,
+    2026
+  ],
+  "timing_repeats_per_split": 3,
+  "split_reports": [
+    {
+      "metadata": {
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "processor": "",
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0",
+        "xgboost": "3.4.1",
+        "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+        "repeats": 3,
+        "seed": 42,
+        "suite": "kaggle",
+        "threads": 1,
+        "memory_measurement": "Linux /proc/self/status VmHWM after prediction (KiB); current exec address space",
+        "parameters": {
+          "trees": 100,
+          "depth": 4,
+          "bins": 64,
+          "rate": 0.1,
+          "l2": 1
+        },
+        "cpu": "model name\t: AMD EPYC 9V74 80-Core Processor",
+        "source_sha256": {
+          "src/gbdt.cc": "a8c8c7d194bc93683e269c0510cc3dc485eb09578991c1f2be75c2445469e263",
+          "include/libtree/gbdt.h": "edb688b3f2b70bfa1537ab9a3164a3cbe01943394ffd14248a0812d4a68cc437",
+          "python/libtree/__init__.py": "4660b5a6182c49c3c65dd239a77cb811fa6acc71fd657bc0a669bb3b1fee1e15",
+          "benchmarks/native.cc": "7f62ae69ab8b8c92e04a7c711fde4b259be74d23490f6fbe16dcc5693c1b92aa",
+          "benchmarks/run.py": "df3870ee63b3eba1098ba655aeeeb53453ef9ba61ec70728adbb2efb3cd441ed"
+        },
+        "date_utc": "2026-10-09T05:18:00Z"
+      },
+      "sources": {
+        "titanic": {
+          "url": "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/titanic/train.csv",
+          "sha256": "14769fb1850e2d26d8e6db0ee49c213878040432827e39b13caaa15603c6598f",
+          "bytes": 61904,
+          "kaggle_url": "https://www.kaggle.com/competitions/titanic",
+          "download_route": "public_mirror",
+          "preprocessing": "7 selected features; remove ID/name/ticket/cabin",
+          "rows_after_cleaning": 891,
+          "raw_feature_count": 7,
+          "feature_missing_values": 179,
+          "target_missing_values": 0,
+          "positive_fraction": 0.3838383838383838,
+          "prepared_split_sha256": "1bc6bc4c2f22ea9924d51da0e0712cf9116fe6954247407b4eb326e4e5c06d07"
+        },
+        "insurance": {
+          "url": "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv",
+          "sha256": "505c1cbc2e63d0363bac59501563df2530aadf4cdb9cfee226f4ef32f5468281",
+          "bytes": 54288,
+          "kaggle_url": "https://www.kaggle.com/datasets/mirichoi0218/insurance",
+          "download_route": "public_mirror",
+          "preprocessing": "all 6 non-target features; target charges unchanged",
+          "rows_after_cleaning": 1338,
+          "raw_feature_count": 6,
+          "feature_missing_values": 0,
+          "target_missing_values": 0,
+          "prepared_split_sha256": "40d9bc495ba003b63a44908f62f67befdbe9a401de12b9a67b8611d9849b5da5"
+        },
+        "pima": {
+          "url": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv",
+          "sha256": "6bfe5d0f379d17a0e0819b996407e3c09bf80febd4287f2ed212190dfff154af",
+          "bytes": 23278,
+          "kaggle_url": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
+          "download_route": "public_mirror",
+          "preprocessing": "physiologically invalid zero in glucose/BP/skin/insulin/BMI mapped to NaN; pregnancies zero retained",
+          "rows_after_cleaning": 768,
+          "raw_feature_count": 8,
+          "feature_missing_values": 652,
+          "target_missing_values": 0,
+          "positive_fraction": 0.3489583333333333,
+          "prepared_split_sha256": "f9a6b1fb17c495559da35bc26dd02ac98bc691997a04c1567c62269760b49ce5"
+        },
+        "telco": {
+          "url": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
+          "sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+          "bytes": 970457,
+          "kaggle_url": "https://www.kaggle.com/datasets/blastchar/telco-customer-churn",
+          "download_route": "public_mirror",
+          "preprocessing": "remove customerID; 11 blank TotalCharges mapped to NaN; churn Yes=1",
+          "rows_after_cleaning": 7043,
+          "raw_feature_count": 19,
+          "feature_missing_values": 11,
+          "target_missing_values": 0,
+          "positive_fraction": 0.26536986231803894,
+          "prepared_split_sha256": "1814cc24e00351ff667b872ea368d7ca62b26d2c2a6d405a4547c28247ada113"
+        },
+        "wine": {
+          "url": "https://raw.githubusercontent.com/plotly/datasets/master/winequality-red.csv",
+          "sha256": "4678927bac9ff54ac7431a10979a3a9b5ba014d20e14196b047073f2ceb75f4c",
+          "bytes": 85746,
+          "kaggle_url": "https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009",
+          "download_route": "public_mirror",
+          "preprocessing": "drop 240 identical rows before splitting to avoid duplicate train/test leakage; quality regression",
+          "original_rows": 1599,
+          "duplicates_removed": 240,
+          "rows_after_cleaning": 1359,
+          "raw_feature_count": 11,
+          "feature_missing_values": 0,
+          "target_missing_values": 0,
+          "prepared_split_sha256": "167a88ee1bbe92a4be0fbc223ad5fc4b2740c3b417f890344c78a7f4faa529d7"
+        }
+      },
+      "results": [
+        {
+          "dataset": "titanic",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.841453063995926,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0121448,
+              "predict_seconds": 0.00041751,
+              "peak_rss_kib": 2036
+            },
+            {
+              "fit_seconds": 0.013543,
+              "predict_seconds": 0.000402527,
+              "peak_rss_kib": 2032
+            },
+            {
+              "fit_seconds": 0.0128549,
+              "predict_seconds": 0.000426002,
+              "peak_rss_kib": 2036
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.841453063995926,
+            "average_precision": 0.7867132457338464,
+            "accuracy": 0.7713004484304933,
+            "log_loss": 0.49613573097637653,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.0128549,
+          "predict_seconds": 0.00041751,
+          "peak_rss_kib": 2036.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.826896961466644,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00920155,
+              "predict_seconds": 0.000333253,
+              "peak_rss_kib": 26216
+            },
+            {
+              "fit_seconds": 0.0083428,
+              "predict_seconds": 0.000313143,
+              "peak_rss_kib": 26220
+            },
+            {
+              "fit_seconds": 0.00900179,
+              "predict_seconds": 0.000313433,
+              "peak_rss_kib": 26220
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.826896961466644,
+            "average_precision": 0.7647154447361326,
+            "accuracy": 0.7937219730941704,
+            "log_loss": 0.49638124187341703,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.00900179,
+          "predict_seconds": 0.000313433,
+          "peak_rss_kib": 26220.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.841453063995926,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.012409732999913103,
+              "predict_seconds": 0.00047184199956973316,
+              "peak_rss_kib": 137832
+            },
+            {
+              "fit_seconds": 0.01210590500068065,
+              "predict_seconds": 0.0005005249995519989,
+              "peak_rss_kib": 137832
+            },
+            {
+              "fit_seconds": 0.011590547000196239,
+              "predict_seconds": 0.0004943059993820498,
+              "peak_rss_kib": 137824
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.841453063995926,
+            "average_precision": 0.7867132457338464,
+            "accuracy": 0.7713004484304933,
+            "log_loss": 0.49613573097637653,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.01210590500068065,
+          "predict_seconds": 0.0004943059993820498,
+          "peak_rss_kib": 137832.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.826896961466644,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.01455451899983018,
+              "predict_seconds": 0.0010692329997255001,
+              "peak_rss_kib": 145640
+            },
+            {
+              "fit_seconds": 0.014633427999797277,
+              "predict_seconds": 0.000923323000279197,
+              "peak_rss_kib": 145628
+            },
+            {
+              "fit_seconds": 0.013698628000383906,
+              "predict_seconds": 0.000878386000294995,
+              "peak_rss_kib": 145628
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.826896961466644,
+            "average_precision": 0.7647154447361326,
+            "accuracy": 0.7937219730941704,
+            "log_loss": 0.49638124187341703,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.01455451899983018,
+          "predict_seconds": 0.000923323000279197,
+          "peak_rss_kib": 145628.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4576.734425329921,
+          "baseline": 12283.77922302416,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0154198,
+              "predict_seconds": 0.00066924,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0154286,
+              "predict_seconds": 0.000661398,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0146475,
+              "predict_seconds": 0.000582639,
+              "peak_rss_kib": 2040
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4576.734425329921,
+            "mae": 2520.944091796875,
+            "r2": 0.861181378364563
+          },
+          "fit_seconds": 0.0154198,
+          "predict_seconds": 0.000661398,
+          "peak_rss_kib": 2040.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4576.454522881223,
+          "baseline": 12283.77922302416,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00840482,
+              "predict_seconds": 0.000361576,
+              "peak_rss_kib": 26344
+            },
+            {
+              "fit_seconds": 0.00943795,
+              "predict_seconds": 0.000335466,
+              "peak_rss_kib": 26344
+            },
+            {
+              "fit_seconds": 0.00813409,
+              "predict_seconds": 0.000336928,
+              "peak_rss_kib": 26344
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4576.454522881223,
+            "mae": 2520.368408203125,
+            "r2": 0.861198365688324
+          },
+          "fit_seconds": 0.00840482,
+          "predict_seconds": 0.000336928,
+          "peak_rss_kib": 26344.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4576.734425329921,
+          "baseline": 12283.77922302416,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.017691448999357817,
+              "predict_seconds": 0.0006687089999104501,
+              "peak_rss_kib": 137836
+            },
+            {
+              "fit_seconds": 0.015107018999515276,
+              "predict_seconds": 0.0006094500004110159,
+              "peak_rss_kib": 137828
+            },
+            {
+              "fit_seconds": 0.015403430000333174,
+              "predict_seconds": 0.0006241920000320533,
+              "peak_rss_kib": 137828
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4576.734425329921,
+            "mae": 2520.944091796875,
+            "r2": 0.861181378364563
+          },
+          "fit_seconds": 0.015403430000333174,
+          "predict_seconds": 0.0006241920000320533,
+          "peak_rss_kib": 137828.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4576.454522881223,
+          "baseline": 12283.77922302416,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.012992682999538374,
+              "predict_seconds": 0.0010833140004251618,
+              "peak_rss_kib": 145672
+            },
+            {
+              "fit_seconds": 0.0142723830003888,
+              "predict_seconds": 0.0008193559997380362,
+              "peak_rss_kib": 145656
+            },
+            {
+              "fit_seconds": 0.014561478999894462,
+              "predict_seconds": 0.0009481110000706394,
+              "peak_rss_kib": 145704
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4576.454522881223,
+            "mae": 2520.368408203125,
+            "r2": 0.861198365688324
+          },
+          "fit_seconds": 0.0142723830003888,
+          "predict_seconds": 0.0009481110000706394,
+          "peak_rss_kib": 145672.0
+        },
+        {
+          "dataset": "pima",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8248358208955224,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00785769,
+              "predict_seconds": 0.000492293,
+              "peak_rss_kib": 2012
+            },
+            {
+              "fit_seconds": 0.00789164,
+              "predict_seconds": 0.000507546,
+              "peak_rss_kib": 2012
+            },
+            {
+              "fit_seconds": 0.00778122,
+              "predict_seconds": 0.000483119,
+              "peak_rss_kib": 2012
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8248358208955224,
+            "average_precision": 0.665131391703948,
+            "accuracy": 0.75,
+            "log_loss": 0.5285028012566224,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.00785769,
+          "predict_seconds": 0.000492293,
+          "peak_rss_kib": 2012.0
+        },
+        {
+          "dataset": "pima",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8119402985074627,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0157063,
+              "predict_seconds": 0.0003448,
+              "peak_rss_kib": 26220
+            },
+            {
+              "fit_seconds": 0.0139833,
+              "predict_seconds": 0.000420494,
+              "peak_rss_kib": 26220
+            },
+            {
+              "fit_seconds": 0.0134195,
+              "predict_seconds": 0.000357209,
+              "peak_rss_kib": 26220
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8119402985074627,
+            "average_precision": 0.6948820224350498,
+            "accuracy": 0.7447916666666666,
+            "log_loss": 0.548414225700382,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.0139833,
+          "predict_seconds": 0.000357209,
+          "peak_rss_kib": 26220.0
+        },
+        {
+          "dataset": "pima",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8248358208955224,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.009267852999983006,
+              "predict_seconds": 0.0005985030002193525,
+              "peak_rss_kib": 137836
+            },
+            {
+              "fit_seconds": 0.008941411000705557,
+              "predict_seconds": 0.00058507300036581,
+              "peak_rss_kib": 137828
+            },
+            {
+              "fit_seconds": 0.009943433000444202,
+              "predict_seconds": 0.0007532769996032584,
+              "peak_rss_kib": 137824
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8248358208955224,
+            "average_precision": 0.665131391703948,
+            "accuracy": 0.75,
+            "log_loss": 0.5285028012566224,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.009267852999983006,
+          "predict_seconds": 0.0005985030002193525,
+          "peak_rss_kib": 137828.0
+        },
+        {
+          "dataset": "pima",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8119402985074627,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.020320489999903657,
+              "predict_seconds": 0.000968061000094167,
+              "peak_rss_kib": 145648
+            },
+            {
+              "fit_seconds": 0.01965811100035353,
+              "predict_seconds": 0.0011221129998375545,
+              "peak_rss_kib": 145664
+            },
+            {
+              "fit_seconds": 0.018401223000182654,
+              "predict_seconds": 0.0008780150001257425,
+              "peak_rss_kib": 145660
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8119402985074627,
+            "average_precision": 0.6948820224350498,
+            "accuracy": 0.7447916666666666,
+            "log_loss": 0.548414225700382,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.01965811100035353,
+          "predict_seconds": 0.000968061000094167,
+          "peak_rss_kib": 145660.0
+        },
+        {
+          "dataset": "telco",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8453734746764014,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.282168,
+              "predict_seconds": 0.00316692,
+              "peak_rss_kib": 3712
+            },
+            {
+              "fit_seconds": 0.287719,
+              "predict_seconds": 0.00357206,
+              "peak_rss_kib": 3712
+            },
+            {
+              "fit_seconds": 0.29431,
+              "predict_seconds": 0.00317243,
+              "peak_rss_kib": 3712
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8453734746764014,
+            "average_precision": 0.6486271055488346,
+            "accuracy": 0.8035207268597387,
+            "log_loss": 0.4181095252599353,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.287719,
+          "predict_seconds": 0.00317243,
+          "peak_rss_kib": 3712.0
+        },
+        {
+          "dataset": "telco",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8449539796590422,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0646624,
+              "predict_seconds": 0.00332291,
+              "peak_rss_kib": 31208
+            },
+            {
+              "fit_seconds": 0.0617407,
+              "predict_seconds": 0.00242334,
+              "peak_rss_kib": 31212
+            },
+            {
+              "fit_seconds": 0.0604292,
+              "predict_seconds": 0.0027805,
+              "peak_rss_kib": 31212
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8449539796590422,
+            "average_precision": 0.65019168444293,
+            "accuracy": 0.8035207268597387,
+            "log_loss": 0.4175051672364694,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.0617407,
+          "predict_seconds": 0.0027805,
+          "peak_rss_kib": 31212.0
+        },
+        {
+          "dataset": "telco",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8453734746764014,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.27598787500028266,
+              "predict_seconds": 0.0037475139997695806,
+              "peak_rss_kib": 139668
+            },
+            {
+              "fit_seconds": 0.30147109299923613,
+              "predict_seconds": 0.0035491949993229355,
+              "peak_rss_kib": 139672
+            },
+            {
+              "fit_seconds": 0.2998177579993353,
+              "predict_seconds": 0.0036978090001866804,
+              "peak_rss_kib": 139672
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8453734746764014,
+            "average_precision": 0.6486271055488346,
+            "accuracy": 0.8035207268597387,
+            "log_loss": 0.4181095252599353,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.2998177579993353,
+          "predict_seconds": 0.0036978090001866804,
+          "peak_rss_kib": 139672.0
+        },
+        {
+          "dataset": "telco",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8449539796590422,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.06357821599976887,
+              "predict_seconds": 0.002351497999370622,
+              "peak_rss_kib": 148324
+            },
+            {
+              "fit_seconds": 0.06063372300013725,
+              "predict_seconds": 0.00227942899982736,
+              "peak_rss_kib": 148320
+            },
+            {
+              "fit_seconds": 0.05716202500025247,
+              "predict_seconds": 0.002446370000143361,
+              "peak_rss_kib": 148340
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8449539796590422,
+            "average_precision": 0.65019168444293,
+            "accuracy": 0.8035207268597387,
+            "log_loss": 0.4175051672364694,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.06063372300013725,
+          "predict_seconds": 0.002351497999370622,
+          "peak_rss_kib": 148324.0
+        },
+        {
+          "dataset": "wine",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6278826041834815,
+          "baseline": 0.8228572429657395,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0118194,
+              "predict_seconds": 0.000764594,
+              "peak_rss_kib": 2044
+            },
+            {
+              "fit_seconds": 0.0122367,
+              "predict_seconds": 0.000770833,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0115967,
+              "predict_seconds": 0.000777253,
+              "peak_rss_kib": 2044
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6278826041834815,
+            "mae": 0.4863296449184418,
+            "r2": 0.4167008399963379
+          },
+          "fit_seconds": 0.0118194,
+          "predict_seconds": 0.000770833,
+          "peak_rss_kib": 2044.0
+        },
+        {
+          "dataset": "wine",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6441327799544303,
+          "baseline": 0.8228572429657395,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0181678,
+              "predict_seconds": 0.000446594,
+              "peak_rss_kib": 26352
+            },
+            {
+              "fit_seconds": 0.0190309,
+              "predict_seconds": 0.000356618,
+              "peak_rss_kib": 26348
+            },
+            {
+              "fit_seconds": 0.0196542,
+              "predict_seconds": 0.000394035,
+              "peak_rss_kib": 26352
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6441327799544303,
+            "mae": 0.4968726634979248,
+            "r2": 0.38611751794815063
+          },
+          "fit_seconds": 0.0190309,
+          "predict_seconds": 0.000394035,
+          "peak_rss_kib": 26352.0
+        },
+        {
+          "dataset": "wine",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6278826041834815,
+          "baseline": 0.8228572429657395,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.011782861000028788,
+              "predict_seconds": 0.0007810679999238346,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.011945608000132779,
+              "predict_seconds": 0.0008838640005706111,
+              "peak_rss_kib": 137828
+            },
+            {
+              "fit_seconds": 0.012781208999513183,
+              "predict_seconds": 0.0008494720004819101,
+              "peak_rss_kib": 137832
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6278826041834815,
+            "mae": 0.4863296449184418,
+            "r2": 0.4167008399963379
+          },
+          "fit_seconds": 0.011945608000132779,
+          "predict_seconds": 0.0008494720004819101,
+          "peak_rss_kib": 137828.0
+        },
+        {
+          "dataset": "wine",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6441327799544303,
+          "baseline": 0.8228572429657395,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.023556619999908435,
+              "predict_seconds": 0.0010064090001833392,
+              "peak_rss_kib": 145800
+            },
+            {
+              "fit_seconds": 0.022575438999410835,
+              "predict_seconds": 0.0009377750002386165,
+              "peak_rss_kib": 145804
+            },
+            {
+              "fit_seconds": 0.02318781400026637,
+              "predict_seconds": 0.0008862569993652869,
+              "peak_rss_kib": 145832
+            }
+          ],
+          "seed": 42,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6441327799544303,
+            "mae": 0.4968726634979248,
+            "r2": 0.38611751794815063
+          },
+          "fit_seconds": 0.02318781400026637,
+          "predict_seconds": 0.0009377750002386165,
+          "peak_rss_kib": 145804.0
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "processor": "",
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0",
+        "xgboost": "3.4.1",
+        "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+        "repeats": 3,
+        "seed": 2024,
+        "suite": "kaggle",
+        "threads": 1,
+        "memory_measurement": "Linux /proc/self/status VmHWM after prediction (KiB); current exec address space",
+        "parameters": {
+          "trees": 100,
+          "depth": 4,
+          "bins": 64,
+          "rate": 0.1,
+          "l2": 1
+        },
+        "cpu": "model name\t: AMD EPYC 9V74 80-Core Processor",
+        "source_sha256": {
+          "src/gbdt.cc": "a8c8c7d194bc93683e269c0510cc3dc485eb09578991c1f2be75c2445469e263",
+          "include/libtree/gbdt.h": "edb688b3f2b70bfa1537ab9a3164a3cbe01943394ffd14248a0812d4a68cc437",
+          "python/libtree/__init__.py": "4660b5a6182c49c3c65dd239a77cb811fa6acc71fd657bc0a669bb3b1fee1e15",
+          "benchmarks/native.cc": "7f62ae69ab8b8c92e04a7c711fde4b259be74d23490f6fbe16dcc5693c1b92aa",
+          "benchmarks/run.py": "df3870ee63b3eba1098ba655aeeeb53453ef9ba61ec70728adbb2efb3cd441ed"
+        },
+        "date_utc": "2026-10-09T05:18:37Z"
+      },
+      "sources": {
+        "titanic": {
+          "url": "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/titanic/train.csv",
+          "sha256": "14769fb1850e2d26d8e6db0ee49c213878040432827e39b13caaa15603c6598f",
+          "bytes": 61904,
+          "kaggle_url": "https://www.kaggle.com/competitions/titanic",
+          "download_route": "public_mirror",
+          "preprocessing": "7 selected features; remove ID/name/ticket/cabin",
+          "rows_after_cleaning": 891,
+          "raw_feature_count": 7,
+          "feature_missing_values": 179,
+          "target_missing_values": 0,
+          "positive_fraction": 0.3838383838383838,
+          "prepared_split_sha256": "b651426e2e4ebc894c77711bd74a2aaec4418ef66414f362919a1c89a5940582"
+        },
+        "insurance": {
+          "url": "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv",
+          "sha256": "505c1cbc2e63d0363bac59501563df2530aadf4cdb9cfee226f4ef32f5468281",
+          "bytes": 54288,
+          "kaggle_url": "https://www.kaggle.com/datasets/mirichoi0218/insurance",
+          "download_route": "public_mirror",
+          "preprocessing": "all 6 non-target features; target charges unchanged",
+          "rows_after_cleaning": 1338,
+          "raw_feature_count": 6,
+          "feature_missing_values": 0,
+          "target_missing_values": 0,
+          "prepared_split_sha256": "7f7cfc762d0e49dc9c1cad1b2d4bc5853cca15ea57eb5bc92d1927b85d690bf5"
+        },
+        "pima": {
+          "url": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv",
+          "sha256": "6bfe5d0f379d17a0e0819b996407e3c09bf80febd4287f2ed212190dfff154af",
+          "bytes": 23278,
+          "kaggle_url": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
+          "download_route": "public_mirror",
+          "preprocessing": "physiologically invalid zero in glucose/BP/skin/insulin/BMI mapped to NaN; pregnancies zero retained",
+          "rows_after_cleaning": 768,
+          "raw_feature_count": 8,
+          "feature_missing_values": 652,
+          "target_missing_values": 0,
+          "positive_fraction": 0.3489583333333333,
+          "prepared_split_sha256": "99b7ce26d207a619ad907c3d909b774da4c0003e5f59aec571788f5aad7a1d84"
+        },
+        "telco": {
+          "url": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
+          "sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+          "bytes": 970457,
+          "kaggle_url": "https://www.kaggle.com/datasets/blastchar/telco-customer-churn",
+          "download_route": "public_mirror",
+          "preprocessing": "remove customerID; 11 blank TotalCharges mapped to NaN; churn Yes=1",
+          "rows_after_cleaning": 7043,
+          "raw_feature_count": 19,
+          "feature_missing_values": 11,
+          "target_missing_values": 0,
+          "positive_fraction": 0.26536986231803894,
+          "prepared_split_sha256": "7959a6752aa89288d2d9b47b95f46dae51a0ca6ee58c80df2dee36105f22e002"
+        },
+        "wine": {
+          "url": "https://raw.githubusercontent.com/plotly/datasets/master/winequality-red.csv",
+          "sha256": "4678927bac9ff54ac7431a10979a3a9b5ba014d20e14196b047073f2ceb75f4c",
+          "bytes": 85746,
+          "kaggle_url": "https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009",
+          "download_route": "public_mirror",
+          "preprocessing": "drop 240 identical rows before splitting to avoid duplicate train/test leakage; quality regression",
+          "original_rows": 1599,
+          "duplicates_removed": 240,
+          "rows_after_cleaning": 1359,
+          "raw_feature_count": 11,
+          "feature_missing_values": 0,
+          "target_missing_values": 0,
+          "prepared_split_sha256": "8aa59768489378ec0cc43597e9c1ee37665094741376e481118b6e6563f7193e"
+        }
+      },
+      "results": [
+        {
+          "dataset": "titanic",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8524868443388219,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0122014,
+              "predict_seconds": 0.000398181,
+              "peak_rss_kib": 2032
+            },
+            {
+              "fit_seconds": 0.0121209,
+              "predict_seconds": 0.000396188,
+              "peak_rss_kib": 2036
+            },
+            {
+              "fit_seconds": 0.0123445,
+              "predict_seconds": 0.000487495,
+              "peak_rss_kib": 2036
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8524868443388219,
+            "average_precision": 0.8049133097213333,
+            "accuracy": 0.820627802690583,
+            "log_loss": 0.46084250339482036,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.0122014,
+          "predict_seconds": 0.000398181,
+          "peak_rss_kib": 2036.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8490069597691393,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00910711,
+              "predict_seconds": 0.000322607,
+              "peak_rss_kib": 26216
+            },
+            {
+              "fit_seconds": 0.00905627,
+              "predict_seconds": 0.000513185,
+              "peak_rss_kib": 26220
+            },
+            {
+              "fit_seconds": 0.00817631,
+              "predict_seconds": 0.000346793,
+              "peak_rss_kib": 26220
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8490069597691393,
+            "average_precision": 0.8071673684989346,
+            "accuracy": 0.820627802690583,
+            "log_loss": 0.46682937223251897,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.00905627,
+          "predict_seconds": 0.000346793,
+          "peak_rss_kib": 26220.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8524868443388219,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.011424025999986043,
+              "predict_seconds": 0.00048358899948652834,
+              "peak_rss_kib": 137816
+            },
+            {
+              "fit_seconds": 0.011877538000589993,
+              "predict_seconds": 0.0005306610000843648,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.012496362999627308,
+              "predict_seconds": 0.000486203999571444,
+              "peak_rss_kib": 137832
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8524868443388219,
+            "average_precision": 0.8049133097213333,
+            "accuracy": 0.820627802690583,
+            "log_loss": 0.46084250339482036,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.011877538000589993,
+          "predict_seconds": 0.000486203999571444,
+          "peak_rss_kib": 137824.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8490069597691393,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.012863707000178692,
+              "predict_seconds": 0.0008465069995509111,
+              "peak_rss_kib": 145624
+            },
+            {
+              "fit_seconds": 0.014279734999945504,
+              "predict_seconds": 0.0009049359996424755,
+              "peak_rss_kib": 145640
+            },
+            {
+              "fit_seconds": 0.013543715000196244,
+              "predict_seconds": 0.001019258000269474,
+              "peak_rss_kib": 145656
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8490069597691393,
+            "average_precision": 0.8071673684989346,
+            "accuracy": 0.820627802690583,
+            "log_loss": 0.46682937223251897,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.013543715000196244,
+          "predict_seconds": 0.0009049359996424755,
+          "peak_rss_kib": 145640.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4812.411038138783,
+          "baseline": 12016.514636116413,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.015472,
+              "predict_seconds": 0.000756271,
+              "peak_rss_kib": 2036
+            },
+            {
+              "fit_seconds": 0.0161529,
+              "predict_seconds": 0.00080874,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0152609,
+              "predict_seconds": 0.000631042,
+              "peak_rss_kib": 2040
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4812.411038138783,
+            "mae": 2564.249755859375,
+            "r2": 0.8392201066017151
+          },
+          "fit_seconds": 0.015472,
+          "predict_seconds": 0.000756271,
+          "peak_rss_kib": 2040.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4764.185554740705,
+          "baseline": 12016.514636116413,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00976092,
+              "predict_seconds": 0.000393033,
+              "peak_rss_kib": 26300
+            },
+            {
+              "fit_seconds": 0.00908771,
+              "predict_seconds": 0.000362807,
+              "peak_rss_kib": 26292
+            },
+            {
+              "fit_seconds": 0.00849003,
+              "predict_seconds": 0.000380474,
+              "peak_rss_kib": 26300
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4764.185554740705,
+            "mae": 2560.76611328125,
+            "r2": 0.8424263000488281
+          },
+          "fit_seconds": 0.00908771,
+          "predict_seconds": 0.000380474,
+          "peak_rss_kib": 26300.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4812.411038138783,
+          "baseline": 12016.514636116413,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.016626897000605823,
+              "predict_seconds": 0.0012708069998552673,
+              "peak_rss_kib": 137820
+            },
+            {
+              "fit_seconds": 0.017988521000006585,
+              "predict_seconds": 0.0006773620007152203,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.015387539000585093,
+              "predict_seconds": 0.0009062380004252191,
+              "peak_rss_kib": 137824
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4812.411038138783,
+            "mae": 2564.249755859375,
+            "r2": 0.8392201066017151
+          },
+          "fit_seconds": 0.016626897000605823,
+          "predict_seconds": 0.0009062380004252191,
+          "peak_rss_kib": 137824.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4764.185554740705,
+          "baseline": 12016.514636116413,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.015115629000320041,
+              "predict_seconds": 0.0008540790004190058,
+              "peak_rss_kib": 145652
+            },
+            {
+              "fit_seconds": 0.013677107999683358,
+              "predict_seconds": 0.0009099330000026384,
+              "peak_rss_kib": 145676
+            },
+            {
+              "fit_seconds": 0.015708052999798383,
+              "predict_seconds": 0.000909262000277522,
+              "peak_rss_kib": 145676
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4764.185554740705,
+            "mae": 2560.76611328125,
+            "r2": 0.8424263000488281
+          },
+          "fit_seconds": 0.015115629000320041,
+          "predict_seconds": 0.000909262000277522,
+          "peak_rss_kib": 145676.0
+        },
+        {
+          "dataset": "pima",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8346268656716418,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00819311,
+              "predict_seconds": 0.000506555,
+              "peak_rss_kib": 2012
+            },
+            {
+              "fit_seconds": 0.00905882,
+              "predict_seconds": 0.000479885,
+              "peak_rss_kib": 2008
+            },
+            {
+              "fit_seconds": 0.00749981,
+              "predict_seconds": 0.000519083,
+              "peak_rss_kib": 2012
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8346268656716418,
+            "average_precision": 0.7196607460712734,
+            "accuracy": 0.7708333333333334,
+            "log_loss": 0.49095782689551076,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.00819311,
+          "predict_seconds": 0.000506555,
+          "peak_rss_kib": 2012.0
+        },
+        {
+          "dataset": "pima",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8342686567164179,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0138695,
+              "predict_seconds": 0.000489679,
+              "peak_rss_kib": 26232
+            },
+            {
+              "fit_seconds": 0.0136134,
+              "predict_seconds": 0.000309186,
+              "peak_rss_kib": 26232
+            },
+            {
+              "fit_seconds": 0.0148763,
+              "predict_seconds": 0.000311029,
+              "peak_rss_kib": 26228
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8342686567164179,
+            "average_precision": 0.7399213888186927,
+            "accuracy": 0.7864583333333334,
+            "log_loss": 0.487917837367807,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.0138695,
+          "predict_seconds": 0.000311029,
+          "peak_rss_kib": 26232.0
+        },
+        {
+          "dataset": "pima",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8346268656716418,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.008937405999859038,
+              "predict_seconds": 0.0005153379997864249,
+              "peak_rss_kib": 137840
+            },
+            {
+              "fit_seconds": 0.009182606999274867,
+              "predict_seconds": 0.0005239900001470232,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.00820710500011046,
+              "predict_seconds": 0.0006960199998502503,
+              "peak_rss_kib": 137820
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8346268656716418,
+            "average_precision": 0.7196607460712734,
+            "accuracy": 0.7708333333333334,
+            "log_loss": 0.49095782689551076,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.008937405999859038,
+          "predict_seconds": 0.0005239900001470232,
+          "peak_rss_kib": 137824.0
+        },
+        {
+          "dataset": "pima",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.8342686567164179,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.017953969999325636,
+              "predict_seconds": 0.0009487810002610786,
+              "peak_rss_kib": 145664
+            },
+            {
+              "fit_seconds": 0.019958633999522135,
+              "predict_seconds": 0.0010018619996117195,
+              "peak_rss_kib": 145660
+            },
+            {
+              "fit_seconds": 0.02432100699934381,
+              "predict_seconds": 0.0009832430005189963,
+              "peak_rss_kib": 145672
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8342686567164179,
+            "average_precision": 0.7399213888186927,
+            "accuracy": 0.7864583333333334,
+            "log_loss": 0.487917837367807,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.019958633999522135,
+          "predict_seconds": 0.0009832430005189963,
+          "peak_rss_kib": 145664.0
+        },
+        {
+          "dataset": "telco",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8481990673475669,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.303771,
+              "predict_seconds": 0.00324666,
+              "peak_rss_kib": 3712
+            },
+            {
+              "fit_seconds": 0.322374,
+              "predict_seconds": 0.00354595,
+              "peak_rss_kib": 3712
+            },
+            {
+              "fit_seconds": 0.312314,
+              "predict_seconds": 0.00327477,
+              "peak_rss_kib": 3712
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8481990673475669,
+            "average_precision": 0.6572874996166035,
+            "accuracy": 0.8006814310051107,
+            "log_loss": 0.41185998110995026,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.312314,
+          "predict_seconds": 0.00327477,
+          "peak_rss_kib": 3712.0
+        },
+        {
+          "dataset": "telco",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8486756534027913,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0553353,
+              "predict_seconds": 0.00205968,
+              "peak_rss_kib": 31184
+            },
+            {
+              "fit_seconds": 0.0581871,
+              "predict_seconds": 0.00212335,
+              "peak_rss_kib": 31184
+            },
+            {
+              "fit_seconds": 0.0536277,
+              "predict_seconds": 0.00200327,
+              "peak_rss_kib": 31184
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8486756534027913,
+            "average_precision": 0.659769151495381,
+            "accuracy": 0.7967064168086314,
+            "log_loss": 0.41184260835079023,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.0553353,
+          "predict_seconds": 0.00205968,
+          "peak_rss_kib": 31184.0
+        },
+        {
+          "dataset": "telco",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8481990673475669,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.2903053500003807,
+              "predict_seconds": 0.004298815999391081,
+              "peak_rss_kib": 139668
+            },
+            {
+              "fit_seconds": 0.30555142400044133,
+              "predict_seconds": 0.0037567790004686685,
+              "peak_rss_kib": 139668
+            },
+            {
+              "fit_seconds": 0.29803625400018063,
+              "predict_seconds": 0.0033097430005000206,
+              "peak_rss_kib": 139660
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8481990673475669,
+            "average_precision": 0.6572874996166035,
+            "accuracy": 0.8006814310051107,
+            "log_loss": 0.41185998110995026,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.29803625400018063,
+          "predict_seconds": 0.0037567790004686685,
+          "peak_rss_kib": 139668.0
+        },
+        {
+          "dataset": "telco",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8486756534027913,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.06210087499948713,
+              "predict_seconds": 0.0026347150005676667,
+              "peak_rss_kib": 148328
+            },
+            {
+              "fit_seconds": 0.0672131890005403,
+              "predict_seconds": 0.0023829760002627154,
+              "peak_rss_kib": 148332
+            },
+            {
+              "fit_seconds": 0.06992422799976339,
+              "predict_seconds": 0.0025557760000083363,
+              "peak_rss_kib": 148328
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8486756534027913,
+            "average_precision": 0.659769151495381,
+            "accuracy": 0.7967064168086314,
+            "log_loss": 0.41184260835079023,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.0672131890005403,
+          "predict_seconds": 0.0025557760000083363,
+          "peak_rss_kib": 148328.0
+        },
+        {
+          "dataset": "wine",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6342342323881408,
+          "baseline": 0.8403859716876849,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0136438,
+              "predict_seconds": 0.000749131,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0138384,
+              "predict_seconds": 0.000929192,
+              "peak_rss_kib": 2044
+            },
+            {
+              "fit_seconds": 0.0156723,
+              "predict_seconds": 0.000763952,
+              "peak_rss_kib": 2044
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6342342323881408,
+            "mae": 0.5034707188606262,
+            "r2": 0.42634522914886475
+          },
+          "fit_seconds": 0.0138384,
+          "predict_seconds": 0.000763952,
+          "peak_rss_kib": 2044.0
+        },
+        {
+          "dataset": "wine",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6268354406454091,
+          "baseline": 0.8403859716876849,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0314263,
+              "predict_seconds": 0.000561807,
+              "peak_rss_kib": 26336
+            },
+            {
+              "fit_seconds": 0.0194581,
+              "predict_seconds": 0.000377038,
+              "peak_rss_kib": 26336
+            },
+            {
+              "fit_seconds": 0.0187093,
+              "predict_seconds": 0.000370079,
+              "peak_rss_kib": 26336
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6268354406454091,
+            "mae": 0.4912586510181427,
+            "r2": 0.43965137004852295
+          },
+          "fit_seconds": 0.0194581,
+          "predict_seconds": 0.000377038,
+          "peak_rss_kib": 26336.0
+        },
+        {
+          "dataset": "wine",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6342342323881408,
+          "baseline": 0.8403859716876849,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.01260283499959769,
+              "predict_seconds": 0.0009986069999285974,
+              "peak_rss_kib": 137832
+            },
+            {
+              "fit_seconds": 0.012395882000419078,
+              "predict_seconds": 0.0007890900005804724,
+              "peak_rss_kib": 137836
+            },
+            {
+              "fit_seconds": 0.012926523000714951,
+              "predict_seconds": 0.0007968529998834128,
+              "peak_rss_kib": 137816
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6342342323881408,
+            "mae": 0.5034707188606262,
+            "r2": 0.42634522914886475
+          },
+          "fit_seconds": 0.01260283499959769,
+          "predict_seconds": 0.0007968529998834128,
+          "peak_rss_kib": 137832.0
+        },
+        {
+          "dataset": "wine",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6268354406454091,
+          "baseline": 0.8403859716876849,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.02353718399990612,
+              "predict_seconds": 0.0009398270003657672,
+              "peak_rss_kib": 145796
+            },
+            {
+              "fit_seconds": 0.024036524000621284,
+              "predict_seconds": 0.0008809589999145828,
+              "peak_rss_kib": 145788
+            },
+            {
+              "fit_seconds": 0.02456667499973264,
+              "predict_seconds": 0.0009016599997266894,
+              "peak_rss_kib": 145780
+            }
+          ],
+          "seed": 2024,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6268354406454091,
+            "mae": 0.4912586510181427,
+            "r2": 0.43965137004852295
+          },
+          "fit_seconds": 0.024036524000621284,
+          "predict_seconds": 0.0009016599997266894,
+          "peak_rss_kib": 145788.0
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "processor": "",
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0",
+        "xgboost": "3.4.1",
+        "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+        "repeats": 3,
+        "seed": 2026,
+        "suite": "kaggle",
+        "threads": 1,
+        "memory_measurement": "Linux /proc/self/status VmHWM after prediction (KiB); current exec address space",
+        "parameters": {
+          "trees": 100,
+          "depth": 4,
+          "bins": 64,
+          "rate": 0.1,
+          "l2": 1
+        },
+        "cpu": "model name\t: AMD EPYC 9V74 80-Core Processor",
+        "source_sha256": {
+          "src/gbdt.cc": "a8c8c7d194bc93683e269c0510cc3dc485eb09578991c1f2be75c2445469e263",
+          "include/libtree/gbdt.h": "edb688b3f2b70bfa1537ab9a3164a3cbe01943394ffd14248a0812d4a68cc437",
+          "python/libtree/__init__.py": "4660b5a6182c49c3c65dd239a77cb811fa6acc71fd657bc0a669bb3b1fee1e15",
+          "benchmarks/native.cc": "7f62ae69ab8b8c92e04a7c711fde4b259be74d23490f6fbe16dcc5693c1b92aa",
+          "benchmarks/run.py": "df3870ee63b3eba1098ba655aeeeb53453ef9ba61ec70728adbb2efb3cd441ed"
+        },
+        "date_utc": "2026-10-09T05:19:14Z"
+      },
+      "sources": {
+        "titanic": {
+          "url": "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/titanic/train.csv",
+          "sha256": "14769fb1850e2d26d8e6db0ee49c213878040432827e39b13caaa15603c6598f",
+          "bytes": 61904,
+          "kaggle_url": "https://www.kaggle.com/competitions/titanic",
+          "download_route": "public_mirror",
+          "preprocessing": "7 selected features; remove ID/name/ticket/cabin",
+          "rows_after_cleaning": 891,
+          "raw_feature_count": 7,
+          "feature_missing_values": 179,
+          "target_missing_values": 0,
+          "positive_fraction": 0.3838383838383838,
+          "prepared_split_sha256": "cba771cd6d9fbb2dd2c224fcd3e1b83d945e8989e60d4f9db340da75d31a6da5"
+        },
+        "insurance": {
+          "url": "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv",
+          "sha256": "505c1cbc2e63d0363bac59501563df2530aadf4cdb9cfee226f4ef32f5468281",
+          "bytes": 54288,
+          "kaggle_url": "https://www.kaggle.com/datasets/mirichoi0218/insurance",
+          "download_route": "public_mirror",
+          "preprocessing": "all 6 non-target features; target charges unchanged",
+          "rows_after_cleaning": 1338,
+          "raw_feature_count": 6,
+          "feature_missing_values": 0,
+          "target_missing_values": 0,
+          "prepared_split_sha256": "ac32b0ed03eb5c869e3d79201b63d361d1674909a71090974b11132c32b3abe9"
+        },
+        "pima": {
+          "url": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv",
+          "sha256": "6bfe5d0f379d17a0e0819b996407e3c09bf80febd4287f2ed212190dfff154af",
+          "bytes": 23278,
+          "kaggle_url": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
+          "download_route": "public_mirror",
+          "preprocessing": "physiologically invalid zero in glucose/BP/skin/insulin/BMI mapped to NaN; pregnancies zero retained",
+          "rows_after_cleaning": 768,
+          "raw_feature_count": 8,
+          "feature_missing_values": 652,
+          "target_missing_values": 0,
+          "positive_fraction": 0.3489583333333333,
+          "prepared_split_sha256": "f323cc0d598658b60cf00f4703b3c5e352771e5e8ca86f3cd3cd206e261752a2"
+        },
+        "telco": {
+          "url": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
+          "sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+          "bytes": 970457,
+          "kaggle_url": "https://www.kaggle.com/datasets/blastchar/telco-customer-churn",
+          "download_route": "public_mirror",
+          "preprocessing": "remove customerID; 11 blank TotalCharges mapped to NaN; churn Yes=1",
+          "rows_after_cleaning": 7043,
+          "raw_feature_count": 19,
+          "feature_missing_values": 11,
+          "target_missing_values": 0,
+          "positive_fraction": 0.26536986231803894,
+          "prepared_split_sha256": "c38c6970249fa986e3f18e04341428fe6e7673a9cf3cf37f3250c6ce971375ac"
+        },
+        "wine": {
+          "url": "https://raw.githubusercontent.com/plotly/datasets/master/winequality-red.csv",
+          "sha256": "4678927bac9ff54ac7431a10979a3a9b5ba014d20e14196b047073f2ceb75f4c",
+          "bytes": 85746,
+          "kaggle_url": "https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009",
+          "download_route": "public_mirror",
+          "preprocessing": "drop 240 identical rows before splitting to avoid duplicate train/test leakage; quality regression",
+          "original_rows": 1599,
+          "duplicates_removed": 240,
+          "rows_after_cleaning": 1359,
+          "raw_feature_count": 11,
+          "feature_missing_values": 0,
+          "target_missing_values": 0,
+          "prepared_split_sha256": "b354382dc80f80d3866f19de58e18988c08d2a0ba2a8c8981c61c32ada6513fc"
+        }
+      },
+      "results": [
+        {
+          "dataset": "titanic",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8239263282974028,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0130731,
+              "predict_seconds": 0.000382197,
+              "peak_rss_kib": 2036
+            },
+            {
+              "fit_seconds": 0.0140096,
+              "predict_seconds": 0.000447265,
+              "peak_rss_kib": 2036
+            },
+            {
+              "fit_seconds": 0.0127675,
+              "predict_seconds": 0.000428026,
+              "peak_rss_kib": 2036
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8239263282974028,
+            "average_precision": 0.8000525245903454,
+            "accuracy": 0.8026905829596412,
+            "log_loss": 0.5218067814571373,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.0130731,
+          "predict_seconds": 0.000428026,
+          "peak_rss_kib": 2036.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8216346969954166,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00853087,
+              "predict_seconds": 0.00034449,
+              "peak_rss_kib": 26188
+            },
+            {
+              "fit_seconds": 0.00887158,
+              "predict_seconds": 0.000321725,
+              "peak_rss_kib": 26192
+            },
+            {
+              "fit_seconds": 0.00959568,
+              "predict_seconds": 0.000365561,
+              "peak_rss_kib": 26192
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8216346969954166,
+            "average_precision": 0.7903306904800121,
+            "accuracy": 0.8071748878923767,
+            "log_loss": 0.5081474016279693,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.00887158,
+          "predict_seconds": 0.00034449,
+          "peak_rss_kib": 26192.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8239263282974028,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.012475311999878613,
+              "predict_seconds": 0.00045340399992710445,
+              "peak_rss_kib": 137828
+            },
+            {
+              "fit_seconds": 0.01226138899983198,
+              "predict_seconds": 0.0004514010006460012,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.012202800000522984,
+              "predict_seconds": 0.0004525619997366448,
+              "peak_rss_kib": 137820
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8239263282974028,
+            "average_precision": 0.8000525245903454,
+            "accuracy": 0.8026905829596412,
+            "log_loss": 0.5218067814571373,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.01226138899983198,
+          "predict_seconds": 0.0004525619997366448,
+          "peak_rss_kib": 137824.0
+        },
+        {
+          "dataset": "titanic",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 668,
+          "test_rows": 223,
+          "features": 11,
+          "metric_name": "roc_auc",
+          "metric": 0.8216346969954166,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.013357482999708736,
+              "predict_seconds": 0.0008763019995967625,
+              "peak_rss_kib": 145628
+            },
+            {
+              "fit_seconds": 0.012877408000349533,
+              "predict_seconds": 0.0008575239999117912,
+              "peak_rss_kib": 145624
+            },
+            {
+              "fit_seconds": 0.014128245999927458,
+              "predict_seconds": 0.0011141609993501334,
+              "peak_rss_kib": 145612
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8216346969954166,
+            "average_precision": 0.7903306904800121,
+            "accuracy": 0.8071748878923767,
+            "log_loss": 0.5081474016279693,
+            "positive_fraction": 0.3856502175331116
+          },
+          "fit_seconds": 0.013357482999708736,
+          "predict_seconds": 0.0008763019995967625,
+          "peak_rss_kib": 145624.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4536.909741222543,
+          "baseline": 12563.922317493052,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0166368,
+              "predict_seconds": 0.000754468,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0160608,
+              "predict_seconds": 0.000612293,
+              "peak_rss_kib": 2040
+            },
+            {
+              "fit_seconds": 0.0144244,
+              "predict_seconds": 0.000729651,
+              "peak_rss_kib": 2040
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4536.909741222543,
+            "mae": 2541.57470703125,
+            "r2": 0.869458019733429
+          },
+          "fit_seconds": 0.0160608,
+          "predict_seconds": 0.000729651,
+          "peak_rss_kib": 2040.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4553.462418863254,
+          "baseline": 12563.922317493052,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00946929,
+              "predict_seconds": 0.000348636,
+              "peak_rss_kib": 26324
+            },
+            {
+              "fit_seconds": 0.00821922,
+              "predict_seconds": 0.000348175,
+              "peak_rss_kib": 26324
+            },
+            {
+              "fit_seconds": 0.00912223,
+              "predict_seconds": 0.000405292,
+              "peak_rss_kib": 26324
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4553.462418863254,
+            "mae": 2565.39306640625,
+            "r2": 0.8685036897659302
+          },
+          "fit_seconds": 0.00912223,
+          "predict_seconds": 0.000348636,
+          "peak_rss_kib": 26324.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4536.909741222543,
+          "baseline": 12563.922317493052,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.015339352999944822,
+              "predict_seconds": 0.0007248430001709494,
+              "peak_rss_kib": 137832
+            },
+            {
+              "fit_seconds": 0.01728918499975407,
+              "predict_seconds": 0.0008081189998847549,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.015587627999593678,
+              "predict_seconds": 0.0006362200001603924,
+              "peak_rss_kib": 137828
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4536.909741222543,
+            "mae": 2541.57470703125,
+            "r2": 0.869458019733429
+          },
+          "fit_seconds": 0.015587627999593678,
+          "predict_seconds": 0.0007248430001709494,
+          "peak_rss_kib": 137828.0
+        },
+        {
+          "dataset": "insurance",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 1003,
+          "test_rows": 335,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 4553.462418863254,
+          "baseline": 12563.922317493052,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.013703585999792267,
+              "predict_seconds": 0.0009307639993494377,
+              "peak_rss_kib": 145668
+            },
+            {
+              "fit_seconds": 0.015306825000152458,
+              "predict_seconds": 0.0010676410001906333,
+              "peak_rss_kib": 145656
+            },
+            {
+              "fit_seconds": 0.013843026000358805,
+              "predict_seconds": 0.0008726770001885598,
+              "peak_rss_kib": 145660
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 4553.462418863254,
+            "mae": 2565.39306640625,
+            "r2": 0.8685036897659302
+          },
+          "fit_seconds": 0.013843026000358805,
+          "predict_seconds": 0.0009307639993494377,
+          "peak_rss_kib": 145660.0
+        },
+        {
+          "dataset": "pima",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.7627462686567165,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.00942719,
+              "predict_seconds": 0.000503329,
+              "peak_rss_kib": 2012
+            },
+            {
+              "fit_seconds": 0.00871384,
+              "predict_seconds": 0.000480244,
+              "peak_rss_kib": 2008
+            },
+            {
+              "fit_seconds": 0.0090016,
+              "predict_seconds": 0.000530761,
+              "peak_rss_kib": 2008
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.7627462686567165,
+            "average_precision": 0.6300392200400271,
+            "accuracy": 0.6822916666666666,
+            "log_loss": 0.6287583752832352,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.0090016,
+          "predict_seconds": 0.000503329,
+          "peak_rss_kib": 2008.0
+        },
+        {
+          "dataset": "pima",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.7678805970149254,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0151282,
+              "predict_seconds": 0.000325542,
+              "peak_rss_kib": 26212
+            },
+            {
+              "fit_seconds": 0.0150258,
+              "predict_seconds": 0.0004044,
+              "peak_rss_kib": 26212
+            },
+            {
+              "fit_seconds": 0.0142312,
+              "predict_seconds": 0.000333182,
+              "peak_rss_kib": 26212
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.7678805970149254,
+            "average_precision": 0.6297905228372709,
+            "accuracy": 0.7239583333333334,
+            "log_loss": 0.6349522522406502,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.0150258,
+          "predict_seconds": 0.000333182,
+          "peak_rss_kib": 26212.0
+        },
+        {
+          "dataset": "pima",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.7627462686567165,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.008399682999879587,
+              "predict_seconds": 0.0006678569998257444,
+              "peak_rss_kib": 137832
+            },
+            {
+              "fit_seconds": 0.00907023499985371,
+              "predict_seconds": 0.0006203960001585074,
+              "peak_rss_kib": 137812
+            },
+            {
+              "fit_seconds": 0.008367205000467948,
+              "predict_seconds": 0.0005472450002343976,
+              "peak_rss_kib": 137844
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.7627462686567165,
+            "average_precision": 0.6300392200400271,
+            "accuracy": 0.6822916666666666,
+            "log_loss": 0.6287583752832352,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.008399682999879587,
+          "predict_seconds": 0.0006203960001585074,
+          "peak_rss_kib": 137832.0
+        },
+        {
+          "dataset": "pima",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 576,
+          "test_rows": 192,
+          "features": 8,
+          "metric_name": "roc_auc",
+          "metric": 0.7678805970149254,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.01968491899970104,
+              "predict_seconds": 0.0014203419996192679,
+              "peak_rss_kib": 145688
+            },
+            {
+              "fit_seconds": 0.018871070999921358,
+              "predict_seconds": 0.0009526469993943465,
+              "peak_rss_kib": 145644
+            },
+            {
+              "fit_seconds": 0.019397105999814812,
+              "predict_seconds": 0.0011391580001145485,
+              "peak_rss_kib": 145684
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.7678805970149254,
+            "average_precision": 0.6297905228372709,
+            "accuracy": 0.7239583333333334,
+            "log_loss": 0.6349522522406502,
+            "positive_fraction": 0.3489583432674408
+          },
+          "fit_seconds": 0.019397105999814812,
+          "predict_seconds": 0.0011391580001145485,
+          "peak_rss_kib": 145684.0
+        },
+        {
+          "dataset": "telco",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8459352835852509,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.28285,
+              "predict_seconds": 0.00408835,
+              "peak_rss_kib": 3712
+            },
+            {
+              "fit_seconds": 0.295021,
+              "predict_seconds": 0.00415496,
+              "peak_rss_kib": 3712
+            },
+            {
+              "fit_seconds": 0.297599,
+              "predict_seconds": 0.00389315,
+              "peak_rss_kib": 3712
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8459352835852509,
+            "average_precision": 0.6667541928779923,
+            "accuracy": 0.794434980124929,
+            "log_loss": 0.41489762925408546,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.295021,
+          "predict_seconds": 0.00408835,
+          "peak_rss_kib": 3712.0
+        },
+        {
+          "dataset": "telco",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.845948522086785,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0549723,
+              "predict_seconds": 0.00244319,
+              "peak_rss_kib": 31184
+            },
+            {
+              "fit_seconds": 0.0568864,
+              "predict_seconds": 0.00275397,
+              "peak_rss_kib": 31184
+            },
+            {
+              "fit_seconds": 0.0514637,
+              "predict_seconds": 0.00263718,
+              "peak_rss_kib": 31180
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.845948522086785,
+            "average_precision": 0.6672577009945745,
+            "accuracy": 0.794434980124929,
+            "log_loss": 0.4155906496976193,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.0549723,
+          "predict_seconds": 0.00263718,
+          "peak_rss_kib": 31184.0
+        },
+        {
+          "dataset": "telco",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.8459352835852509,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.2969137170002796,
+              "predict_seconds": 0.0043421310001576785,
+              "peak_rss_kib": 139672
+            },
+            {
+              "fit_seconds": 0.2758079839995844,
+              "predict_seconds": 0.0037653110002793255,
+              "peak_rss_kib": 139680
+            },
+            {
+              "fit_seconds": 0.29631064900058846,
+              "predict_seconds": 0.0035541830002330244,
+              "peak_rss_kib": 139676
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.8459352835852509,
+            "average_precision": 0.6667541928779923,
+            "accuracy": 0.794434980124929,
+            "log_loss": 0.41489762925408546,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.29631064900058846,
+          "predict_seconds": 0.0037653110002793255,
+          "peak_rss_kib": 139676.0
+        },
+        {
+          "dataset": "telco",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 5282,
+          "test_rows": 1761,
+          "features": 45,
+          "metric_name": "roc_auc",
+          "metric": 0.845948522086785,
+          "baseline": 0.5,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.062136216999533644,
+              "predict_seconds": 0.0025195010002789786,
+              "peak_rss_kib": 148336
+            },
+            {
+              "fit_seconds": 0.057910171000003174,
+              "predict_seconds": 0.0022229739997783327,
+              "peak_rss_kib": 148324
+            },
+            {
+              "fit_seconds": 0.07260592400052701,
+              "predict_seconds": 0.002603076999548648,
+              "peak_rss_kib": 148328
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "roc_auc": 0.845948522086785,
+            "average_precision": 0.6672577009945745,
+            "accuracy": 0.794434980124929,
+            "log_loss": 0.4155906496976193,
+            "positive_fraction": 0.2651902437210083
+          },
+          "fit_seconds": 0.062136216999533644,
+          "predict_seconds": 0.0025195010002789786,
+          "peak_rss_kib": 148328.0
+        },
+        {
+          "dataset": "wine",
+          "language": "cpp",
+          "engine": "libtree",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.650453375461232,
+          "baseline": 0.8108964281210238,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0126274,
+              "predict_seconds": 0.000799036,
+              "peak_rss_kib": 2044
+            },
+            {
+              "fit_seconds": 0.0121049,
+              "predict_seconds": 0.000884525,
+              "peak_rss_kib": 2044
+            },
+            {
+              "fit_seconds": 0.0130376,
+              "predict_seconds": 0.00106238,
+              "peak_rss_kib": 2040
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.650453375461232,
+            "mae": 0.5137546062469482,
+            "r2": 0.3565516471862793
+          },
+          "fit_seconds": 0.0126274,
+          "predict_seconds": 0.000884525,
+          "peak_rss_kib": 2044.0
+        },
+        {
+          "dataset": "wine",
+          "language": "cpp",
+          "engine": "xgboost",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6734691382320245,
+          "baseline": 0.8108964281210238,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.0214543,
+              "predict_seconds": 0.000493635,
+              "peak_rss_kib": 26348
+            },
+            {
+              "fit_seconds": 0.0182266,
+              "predict_seconds": 0.000477781,
+              "peak_rss_kib": 26352
+            },
+            {
+              "fit_seconds": 0.0189772,
+              "predict_seconds": 0.000728189,
+              "peak_rss_kib": 26352
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6734691382320245,
+            "mae": 0.5218763947486877,
+            "r2": 0.3102102279663086
+          },
+          "fit_seconds": 0.0189772,
+          "predict_seconds": 0.000493635,
+          "peak_rss_kib": 26352.0
+        },
+        {
+          "dataset": "wine",
+          "language": "python",
+          "engine": "libtree",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.650453375461232,
+          "baseline": 0.8108964281210238,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.012147907999860763,
+              "predict_seconds": 0.0008016290003070026,
+              "peak_rss_kib": 137824
+            },
+            {
+              "fit_seconds": 0.012919021000016073,
+              "predict_seconds": 0.0008009379998838995,
+              "peak_rss_kib": 137828
+            },
+            {
+              "fit_seconds": 0.013632578000397189,
+              "predict_seconds": 0.0010577059993011062,
+              "peak_rss_kib": 137828
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.650453375461232,
+            "mae": 0.5137546062469482,
+            "r2": 0.3565516471862793
+          },
+          "fit_seconds": 0.012919021000016073,
+          "predict_seconds": 0.0008016290003070026,
+          "peak_rss_kib": 137828.0
+        },
+        {
+          "dataset": "wine",
+          "language": "python",
+          "engine": "xgboost",
+          "train_rows": 1019,
+          "test_rows": 340,
+          "features": 11,
+          "metric_name": "rmse",
+          "metric": 0.6734691382320245,
+          "baseline": 0.8108964281210238,
+          "raw_runs": [
+            {
+              "fit_seconds": 0.02591616100016836,
+              "predict_seconds": 0.0010755129997050972,
+              "peak_rss_kib": 145800
+            },
+            {
+              "fit_seconds": 0.022766629999750876,
+              "predict_seconds": 0.0008586649992139428,
+              "peak_rss_kib": 145796
+            },
+            {
+              "fit_seconds": 0.023468407999644114,
+              "predict_seconds": 0.0008571830003347714,
+              "peak_rss_kib": 145800
+            }
+          ],
+          "seed": 2026,
+          "checks": {
+            "beats_baseline": true,
+            "finite_predictions": true,
+            "deterministic_repeats": true,
+            "cpp_python_parity": true
+          },
+          "metrics": {
+            "rmse": 0.6734691382320245,
+            "mae": 0.5218763947486877,
+            "r2": 0.3102102279663086
+          },
+          "fit_seconds": 0.023468407999644114,
+          "predict_seconds": 0.0008586649992139428,
+          "peak_rss_kib": 145800.0
+        }
+      ]
+    }
+  ]
+}
