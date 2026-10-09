@@ -24,6 +24,6 @@ coverage:
 	$(PYTHON) -c "from pathlib import Path; [p.unlink() for p in Path('build-coverage').rglob('*.gcda')]"
 	ctest --test-dir build-coverage --output-on-failure
 	LIBTREE_LIBRARY=$(CURDIR)/build-coverage/libtree.so LIBTREE_CLI=$(CURDIR)/build-coverage/xgbt PYTHONPATH=python $(PYTHON) -m pytest --cov=libtree --cov-report=term-missing tests/test_python.py tests/test_cli.py
-	gcovr --root . --filter src/ --txt --html-details build-coverage/coverage.html --json-summary build-coverage/summary.json --fail-under-line 90
+	gcovr --root . --filter src/ --txt --html-details build-coverage/coverage.html --json-summary build-coverage/summary.json --fail-under-line 100
 clean:
 	$(CMAKE) --build build --target clean

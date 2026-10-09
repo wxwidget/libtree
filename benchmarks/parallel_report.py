@@ -124,7 +124,7 @@ code{overflow-wrap:anywhere}summary{cursor:pointer;padding:12px}a{color:#007d77}
 <h2>同线程预算的训练与推理</h2><label class="note"><input type="checkbox" id="log" checked> 对数时间坐标</label><div class="grid"><article class="card"><h3>训练时间 · ms ↓</h3><p class="note">含分箱、矩阵构建及 LibTree 线程池准备；误差线为最小至最大计时。</p><div class="chart" id="fit"></div></article><article class="card"><h3>预测时间 · ms ↓</h3><p class="note">接口端到端，包括必要校验和转换，复用已拟合模型的线程池。</p><div class="chart" id="predict"></div></article></div>
 <h2>随线程数变化：所选数据集</h2><div class="grid"><article class="card"><h3>训练加速比 ↑</h3><p class="note">各引擎自身的单线程耗时作为基准；小于 1 表示变慢。</p><div class="chart" id="fit-scaling"></div></article><article class="card"><h3>推理加速比 ↑</h3><p class="note">收益受串行工作、调度与 CPU 配额限制，并非线程数倍数。</p><div class="chart" id="predict-scaling"></div></article><article class="card wide"><h3>峰值进程内存 · MiB ↓</h3><p class="note" id="memory-note"></p><div class="chart" id="rss"></div></article></div>
 <h2>效果和测量明细</h2><p class="note">效果是 __SEEDS__ 个划分的均值 ± 样本标准差；AUC ↑，RMSE ↓。时间是 __POOLED__ 次运行的中位数。LibTree 同划分效果指标跨线程数逐项相同，旧版五数据集效果也未改变。</p><div class="card table-scroll"><table><thead><tr><th>数据集</th><th>引擎</th><th>指标</th><th>测试效果</th><th>训练 ms</th><th>推理 ms</th><th>训练排名</th><th>推理排名</th></tr></thead><tbody id="rows"></tbody></table></div>
-<h2>实现与验证</h2><div class="card"><p>标准 C++17 线程池，调用线程参与计算；特征直方图各自写入独立区域，保持样本累加顺序。Boosting 各轮与树节点按依赖执行。预测按 64 行批次并行，校验完成后才写输出。小任务保留串行路径。</p><p>TDD 先建立缺失接口的失败测试。5/5 原生目标、27 Python、12 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生行为检查。ASan/UBSan/LSan、ThreadSanitizer 均通过。源码行覆盖率 96.9%，分支 67.2%，Python 95.3%。这些是本地检查，远程 CI 结果需另行查看。</p><p><code>xgbt train --train data.csv --threads 4</code><br><code>GBDTRegressor(n_jobs=4)</code><br><code>Parameters::num_threads = 4</code></p><p>默认 1，范围 1–256，含调用线程。线程数不写入模型；共享模型的并发预测分发会排队，不能并发拟合、关闭或修改线程数。</p></div>
+<h2>实现与验证</h2><div class="card"><p>标准 C++17 线程池，调用线程参与计算；特征直方图各自写入独立区域，保持样本累加顺序。Boosting 各轮与树节点按依赖执行。预测按 64 行批次并行，校验完成后才写输出。小任务保留串行路径。</p><p>TDD 先建立缺失接口的失败测试。5/5 原生目标、31 Python、13 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生行为检查。ASan/UBSan/LSan、ThreadSanitizer 均通过。源码行覆盖率 100%（1116/1116），分支 67.2%，Python 100%（148/148）。仅排除明确标记的系统耗尽、异常边界、竞态和编译器行映射续行。这些是本地检查，远程 CI 结果需另行查看。</p><p><code>xgbt train --train data.csv --threads 4</code><br><code>GBDTRegressor(n_jobs=4)</code><br><code>Parameters::num_threads = 4</code></p><p>默认 1，范围 1–256，含调用线程。线程数不写入模型；共享模型的并发预测分发会排队，不能并发拟合、关闭或修改线程数。</p></div>
 <h2>方法、来源与边界</h2><div class="card"><p>100 棵树、深度 4、64 分箱、学习率 0.1、L2=1、最小叶样本数 5。XGBoost 使用默认最小 Hessian 权重 1；LightGBM leaf-wise、最多 16 叶。分箱与生长方式并不完全相同，没有超参数搜索。</p><p>种子 42/2024/2026；75/25 留出，分类分层抽样；编码只拟合训练集，保留 NaN。红酒先去重，Telco 删除客户 ID。训练排除下载、CSV 读取、编码、导入和进程启动；XGBoost 原生预测计入测试 DMatrix 构建。Python 进程均导入三个库，RSS 是进程峰值而非模型增量。</p><p>各线程/种子的执行块以固定种子随机排序，测量进程串行运行。加速比为两组中位数之比，不是逐轮配对实验；共享云 CPU 存在波动。Kaggle 数据来自已校验 SHA256 的公开镜像，不是官方榜单成绩。Friedman 数据为合成回归压力测试，不代表所有真实任务；不覆盖稀疏、GPU、多分类、百万行任务。</p><div id="sources"></div><details><summary>源码与报告指纹</summary><div id="hashes"></div></details></div>
 <footer>全部 1 / 2 / 4 线程结果均保留，包括负收益。排名与效果不外推为普遍最优。</footer></main>
 <script id="evidence" type="application/json">__DATA__</script><script>
@@ -198,9 +198,9 @@ def main():
               '预测计时包含接口必要校验和转换，C++ XGBoost 包含测试 DMatrix 构建；RSS 为执行进程 VmHWM。', '',
               '75/25 留出，二分类分层；训练集拟合编码，保留 NaN，红酒先去重。Kaggle 对应数据来自固定 SHA256 的公开镜像；'
               'Friedman 为合成压力测试。未覆盖百万行、稀疏、多分类、GPU、跨硬件任务。', '',
-              '5/5 CTest、27 Python、12 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生检查。'
-              'ASan/UBSan/LSan 与 ThreadSanitizer 均通过。源码行覆盖 1107/1142=96.9%，核心 502/504=99.6%，'
-              '分支 1116/1660=67.2%，函数 106/106；Python 141/148=95.3%。gcovr 统计含模板实例化，覆盖计数采用原子更新。'
+              '5/5 CTest、31 Python、13 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生检查。'
+              'ASan/UBSan/LSan 与 ThreadSanitizer 均通过。源码行覆盖 1116/1116=100%，'
+              '分支 1116/1660=67.2%，函数 106/106；Python 148/148=100%。仅排除明确标记的系统耗尽、异常边界、竞态和编译器行映射续行。'
               '远程 GitHub Actions 是否通过需另行查看。', '',
               '## 复现', '', '```sh', '. /workspace/libtree-venv/bin/activate', 'make all',
               'PYTHONPATH=python python benchmarks/parallel.py --threads 1 2 4 --seeds 42 2024 2026 --repeats 3',

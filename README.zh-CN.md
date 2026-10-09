@@ -110,7 +110,7 @@ C++ 输入错误抛出标准异常，C ABI 将异常转换为返回码和线程�
 ```sh
 make test       # 原生和 Python 行为测试、性能与内存增长保护
 make sanitize   # 独立 Debug 构建，ASan + UBSan + LSan
-make coverage   # C++ 行覆盖率至少 90%，Python 报告和 HTML
+make coverage   # C++ 与 Python 行覆盖率达到 100%，并生成 HTML
 clang-format --dry-run --Werror include/libtree/*.h src/*.cc tests/*.cc examples/*.cc benchmarks/*.cc
 PYTHONPATH=python python benchmarks/run.py --repeats 3
 ```

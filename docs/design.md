@@ -141,7 +141,7 @@ is the documented exception with an opaque handle and matching release function.
    100 C-ABI allocation/release cycles and randomized dense training. Python
    tests alternate explicit release/finalization across 300 cycles and check an
    RSS plateau (16 MiB tolerance). RSS is a coarse guard, not a substitute for LSan.
-4. Run `make coverage`: source-only C++ line coverage has a 90% gate. Python
+4. Run `make coverage`: source-only C++ line coverage has a 100% gate. Python
    behavior is instrumented separately. Generic exception handlers can produce
    duplicated gcov template lines; the report includes them, not just the core.
 5. Run comparisons after algorithm or performance changes. Preserve raw repeats,

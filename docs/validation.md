@@ -169,14 +169,16 @@ usable after exceptions from the caller or any worker. Concurrent callers share
 one bounded pool. Fifteen Python close/refit cycles return the thread count to
 its initial value; native sanitizer tests also exercise joined worker lifetimes.
 
-Latest local results: 4,701 native checks; 5/5 CTest targets; 27 Python, 12 CLI,
+Latest local results: 4,701 native checks; 5/5 CTest targets; 31 Python, 13 CLI,
 2 performance/ownership and 4 benchmark preparation tests. ASan/UBSan/LSan pass
 all native targets and all CLI cases; ThreadSanitizer passes all 5 native targets.
-Gcovr source line coverage: 1107/1142 = 96.9%, core 502/504 = 99.6%, model 100%,
-thread executor 255/259 = 98.5%; functions 106/106; branches 1116/1660 = 67.2%.
-Template instances are included in these counters. Python coverage is 141/148
-= 95.3%. Atomic profile counters and fresh gcda files fixed the initial coverage
-counter error; no negative-hit errors are suppressed. Google clang-format passes.
+Gcovr source line coverage is 1116/1116 = 100% (core, model and thread executor
+also 100%); functions are 106/106 and branches are 1116/1660 = 67.2%.
+Python coverage is 148/148 = 100%. Coverage counters use atomic updates and fresh
+gcda files. The only excluded lines are the arbitrary C++ exception boundary,
+system thread-creation exhaustion, a timestamp collision race, and a compiler
+mapping continuation line; each is documented beside its `GCOVR_EXCL` marker.
+Google clang-format passes.
 
 The installed CLI and wheel were tested outside the checkout with multiple
 thread counts. Source distribution includes the new internal executor header;

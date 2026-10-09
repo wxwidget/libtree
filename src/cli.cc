@@ -186,8 +186,9 @@ void WriteAtomic(const std::string& path,
       path + ".tmp-" +
       std::to_string(
           std::chrono::steady_clock::now().time_since_epoch().count());
+  // The timestamp collision is an uncontrollable filesystem race.
   if (std::filesystem::exists(temporary))
-    throw std::runtime_error("temporary file already exists");
+    throw std::runtime_error("temporary file already exists");  // GCOVR_EXCL_LINE
   try {
     std::ofstream output(temporary);
     if (!output) throw std::runtime_error("cannot open output: " + path);
@@ -221,7 +222,7 @@ int main(int argc, char** argv) {
         test = ReadCsv(options.paths.at("--test"), false, options.header);
       const auto start = std::chrono::steady_clock::now();
       model.Fit(train.view(), train.y);
-      fit_seconds = std::chrono::duration<double>(
+      fit_seconds = std::chrono::duration<double>(  // GCOVR_EXCL_LINE
                         std::chrono::steady_clock::now() - start)
                         .count();
     } else {

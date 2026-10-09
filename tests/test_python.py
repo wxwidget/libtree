@@ -1,6 +1,7 @@
 import gc
 import numpy as np
 import pytest
+import libtree as libtree_module
 from libtree import GBDTRegressor, GBDTClassifier
 
 
@@ -132,3 +133,49 @@ def test_parallel_workers_released_and_failed_refit():
                 model.fit(x, np.full(len(x), np.nan))
             np.testing.assert_array_equal(before, model.predict(x))
         assert count() == baseline
+
+
+def test_library_fallback_path(monkeypatch):
+    monkeypatch.delenv("LIBTREE_LIBRARY", raising=False)
+    monkeypatch.setattr(libtree_module, "_LIB", None)
+    assert libtree_module._library() is not None
+
+
+def test_set_threads_and_loss_error_paths(monkeypatch):
+    model = GBDTRegressor(n_estimators=2).fit([[0], [1]], [0, 1])
+    real_library = libtree_module._library()
+
+    class FailingThreads:
+        def LtSetNumThreads(self, handle, threads):
+            return 1
+
+        def LtLastError(self):
+            return b"thread update failed"
+
+    monkeypatch.setattr(libtree_module, "_library", lambda: FailingThreads())
+    with pytest.raises(ValueError, match="thread update failed"):
+        model.set_params(n_jobs=2)
+
+    class FailingLoss:
+        def LtLossCount(self, handle):
+            return 2
+
+        def LtLoss(self, handle, output, count):
+            return 1
+
+        def LtLastError(self):
+            return b"loss read failed"
+
+    monkeypatch.setattr(libtree_module, "_library", lambda: FailingLoss())
+    with pytest.raises(RuntimeError, match="loss read failed"):
+        _ = model.training_loss_
+    model.close()
+    monkeypatch.setattr(libtree_module, "_library", lambda: real_library)
+
+
+@pytest.mark.parametrize("cls", [GBDTRegressor, GBDTClassifier])
+def test_invalid_score_labels(cls):
+    model = cls(n_estimators=2).fit([[0], [1]], [0, 1])
+    with pytest.raises(ValueError, match="invalid score labels"):
+        model.score([[0], [1]], [[0], [1]])
+    model.close()

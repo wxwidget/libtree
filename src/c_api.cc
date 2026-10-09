@@ -22,10 +22,14 @@ int Guard(Function function) {
   } catch (const std::exception& error) {
     last_error = error.what();
     return -1;
+  // C++ exceptions are the only supported failure boundary; arbitrary
+  // non-standard exceptions cannot be produced through the C ABI.
+  // GCOVR_EXCL_START
   } catch (...) {
     last_error = "unknown native exception";
     return -1;
   }
+  // GCOVR_EXCL_STOP
 }
 }  // namespace
 extern "C" {

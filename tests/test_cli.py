@@ -77,6 +77,8 @@ def test_help_and_missing_file():
     assert invoke("--help").returncode == 0
     assert "--learning-rate" in invoke("--help").stdout
     assert invoke("train", "--train", "/nonexistent/libtree.csv").returncode != 0
+    assert invoke().returncode == 2
+    assert invoke("unknown").returncode != 0
 
 
 def test_model_graph_validation_and_output_alias(tmp_path):
@@ -121,3 +123,19 @@ def test_parallel_thread_option(tmp_path):
     assert a.read_bytes() == b.read_bytes()
     for value in ('0', '-1', '257', '2oops'):
         assert invoke('train', '--train', train, '--header', '--threads', value).returncode != 0
+
+
+def test_cli_parse_and_atomic_error_paths(tmp_path):
+    train = tmp_path / 'train.csv'
+    train.write_text('label,value\n0,0\n1,1\n')
+    # Parse validation branches.
+    assert invoke('train', '--train', train, '--data', train).returncode != 0
+    assert invoke('predict', '--model', train, '--data', train, '--output', train,
+                  '--trees', 2).returncode != 0
+    assert invoke('predict').returncode != 0
+    assert invoke('train', '--train', train, '--train', train).returncode != 0
+    # WriteAtomic's temporary-file cleanup runs when the output parent is absent.
+    missing_parent = tmp_path / 'missing' / 'out.csv'
+    result = invoke('train', '--train', train, '--header', '--output', missing_parent)
+    assert result.returncode != 0
+    assert not missing_parent.exists()

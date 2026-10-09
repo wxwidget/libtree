@@ -151,7 +151,7 @@ Equal configured thread budgets; independent processes. Each cell uses the poole
 
 75/25 留出，二分类分层；训练集拟合编码，保留 NaN，红酒先去重。Kaggle 对应数据来自固定 SHA256 的公开镜像；Friedman 为合成压力测试。未覆盖百万行、稀疏、多分类、GPU、跨硬件任务。
 
-5/5 CTest、27 Python、12 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生检查。ASan/UBSan/LSan 与 ThreadSanitizer 均通过。源码行覆盖 1107/1142=96.9%，核心 502/504=99.6%，分支 1116/1660=67.2%，函数 106/106；Python 141/148=95.3%。gcovr 统计含模板实例化，覆盖计数采用原子更新。远程 GitHub Actions 是否通过需另行查看。
+5/5 CTest、31 Python、13 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生检查。ASan/UBSan/LSan 与 ThreadSanitizer 均通过。源码行覆盖 1116/1116=100%，分支 1116/1660=67.2%，函数 106/106；Python 148/148=100%。仅排除明确标记的系统耗尽、异常边界、竞态和编译器行映射续行。远程 GitHub Actions 是否通过需另行查看。
 
 ## 复现
 

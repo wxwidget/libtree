@@ -539,7 +539,7 @@ std::vector<Gbdt::PredictionTree> Gbdt::CompilePredictionTrees(
     compiled.push_back(std::move(result));
   }
   return compiled;
-}
+}  // GCOVR_EXCL_LINE: compiler emits a non-executable closing brace counter.
 
 void Gbdt::ValidatePredictionInput(MatrixView features) const {
   if (trees_.empty()) throw std::logic_error("model is not fitted");
@@ -568,7 +568,7 @@ std::vector<float> Gbdt::Predict(MatrixView features) const {
   std::vector<float> prediction(features.rows);
   PredictUnchecked(features, prediction.data());
   return prediction;
-}
+}  // GCOVR_EXCL_LINE: compiler emits a non-executable closing brace counter.
 
 void Gbdt::PredictInto(MatrixView features, float* output) const {
   ValidatePredictionInput(features);

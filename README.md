@@ -144,7 +144,7 @@ and keep the final test split untouched.
 ```sh
 make test       # native tests, Python behavior, performance and ownership guards
 make sanitize   # ASan + UBSan + LSan, separate Debug build
-make coverage   # native line threshold 90%, Python report, HTML artifacts
+make coverage   # native and Python line coverage must reach 100%, HTML artifacts
 clang-format --dry-run --Werror include/libtree/*.h src/*.cc tests/*.cc examples/*.cc benchmarks/*.cc
 PYTHONPATH=python python benchmarks/run.py --repeats 3
 ```
