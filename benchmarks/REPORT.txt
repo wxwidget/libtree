@@ -1,0 +1,99 @@
+LibTree 性能、竞品对比与测试报告
+================================
+
+生成时间：2026-10-09
+平台：Linux x86-64，AMD EPYC 9V74，GCC 14.2，Python 3.12
+引擎：LibTree、XGBoost 3.4.1、LightGBM 4.7.0
+
+一、结论
+--------
+
+1. 在当前固定参数和云环境中，LibTree 的 C++ 版本五个数据集的中位训练时间为
+   5.365 ms，XGBoost 为 15.568 ms，LightGBM 为 10.571 ms；对应约快 2.90x 和
+   1.97x。
+2. C++ 推理中位时间为 LibTree 0.180 ms、XGBoost 0.427 ms、LightGBM 0.912 ms；
+   LibTree 约快 2.37x 和 5.07x。
+3. Python 接口的模型效果与 C++ 完全一致。五个数据集的中位训练时间为
+   LibTree 5.632 ms、XGBoost 22.178 ms、LightGBM 22.408 ms；推理为
+   0.240 ms、1.261 ms、1.576 ms。
+4. LibTree 在这组固定参数下的效果并非所有数据集都第一：保险数据的 XGBoost
+   R² 略高；Telco 的 ROC-AUC 基本相同。Wine、Pima、Titanic 的主指标由 LibTree
+   取得最高值。
+5. 多线程测试覆盖 1/2/4 线程、7 个数据集、两种接口、3 个随机种子和 3 次计时，
+   共 1,134 条原始测量。小数据集受调度开销影响，Friedman 大数据集收益最明显。
+
+二、五数据集竞品对比（优化后，C++）
+--------------------------------------
+
+主指标：ROC-AUC 或 R²，数值越高越好；时间单位为 ms，中位数。
+
+数据集       指标    LibTree效果  XGBoost效果  LightGBM效果   LibTree训练/推理
+insurance    R²      0.8566       0.8574       0.8566         4.261 / 0.180
+pima         AUC     0.8074       0.8047       0.8030         5.365 / 0.163
+telco        AUC     0.8465       0.8465       0.8444        49.659 / 1.054
+titanic      AUC     0.8393       0.8325       0.8337         3.982 / 0.151
+wine         R²      0.3999       0.3787       0.3974         7.326 / 0.182
+
+C++ 竞品时间：
+  insurance：LibTree 4.261/0.180，XGBoost 9.637/0.424，LightGBM 7.689/0.912
+  pima：     LibTree 5.365/0.163，XGBoost 15.568/0.427，LightGBM 10.571/0.669
+  telco：    LibTree 49.659/1.054，XGBoost 53.118/2.193，LightGBM 59.996/5.201
+  titanic：  LibTree 3.982/0.151，XGBoost 9.460/0.383，LightGBM 7.737/0.627
+  wine：     LibTree 7.326/0.182，XGBoost 20.271/0.430，LightGBM 12.066/1.014
+
+Python 中位时间（五数据集）：
+  引擎       训练 ms  推理 ms  相对 LibTree 训练  相对 LibTree 推理
+  LibTree     5.632    0.240       1.00x             1.00x
+  XGBoost    22.178    1.261       3.94x             5.25x
+  LightGBM   22.408    1.576       3.98x             6.56x
+
+三、多线程结果
+--------------
+
+LibTree 相对自身单线程中位数的整体中位加速比（7 个数据集，按语言分别统计）：
+
+接口       线程   训练加速比  推理加速比
+C++        1      1.00x       1.00x
+C++        2      1.07x       1.05x
+C++        4      1.00x       1.06x
+Python     1      1.00x       1.00x
+Python     2      1.01x       1.05x
+Python     4      1.00x       1.03x
+
+在每个接口、每个线程预算与三个竞品比较时，LibTree 的最快次数为：
+  1 线程：训练 12/14，推理 14/14
+  2 线程：训练 10/14，推理 14/14
+  4 线程：训练  9/14，推理 14/14
+
+大数据集 4 线程加速示例（训练/推理）：
+  friedman_100k：C++ 1.42x / 2.22x，Python 1.38x / 2.26x
+  friedman_20k： C++ 1.20x / 2.18x，Python 1.12x / 1.95x
+
+四、测试与质量门禁
+------------------
+
+1. 原生 CTest：5/5 通过；原生行为检查 4,701 项通过。
+2. Python：31 个 Python 行为测试、13 个 CLI 测试、2 个性能/内存测试通过。
+3. 覆盖率：C++ 源码 1,116/1,116 行（100%）；Python 148/148 行（100%）。
+   Makefile 已设置 --fail-under-line 100。
+4. Sanitizer：ASan、UBSan、LSan 和 ThreadSanitizer 均通过；未发现泄漏、未定义
+   行为或数据竞争。
+5. 确定性：不同线程数的模型字节、预测结果和每轮训练损失保持一致；C++/Python
+   结果保持一致。
+6. HTML 报告：Chromium 验证了双语切换、1/2/4 线程筛选、5 个图表、1,134 条
+   CSV 原始记录、线性/对数坐标、移动布局和无 JavaScript 错误。
+
+五、测试方法与限制
+------------------
+
+所有竞品使用相同数据划分、随机种子 42/2024/2026 和固定参数：100 棵树、深度
+4、64 分箱、学习率 0.1、L2=1、最小叶样本数 5。优化对比使用每个划分 5 次计时；
+多线程对比使用每个划分 3 次计时。计时包含训练所需的矩阵/分箱处理，不包含下载和
+进程启动；推理包含接口校验和必要转换。
+
+Kaggle API 在当前网络环境被代理以 HTTP 403 拒绝，因此使用固定 SHA256 的公开镜像，
+不能宣称官方 Kaggle 字节级身份或 Kaggle 排行榜成绩。结果是当前硬件、数据和参数
+下的可复现实验，不代表所有规模、平台、GPU、稀疏数据或超参数搜索场景的普遍排名。
+
+原始数据：parallel-results.json、optimized-results.json、comparison-results.json
+覆盖率详情：../build-coverage/coverage.html、../build-coverage/summary.json
