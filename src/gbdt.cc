@@ -60,6 +60,53 @@ Stats operator-(const Stats& a, const Stats& b) {
 double Score(const Stats& stats, double l2) {
   return stats.gradient * stats.gradient / (stats.hessian + l2);
 }
+struct SplitCandidate {
+  int feature = -1;
+  std::size_t bin = 0;
+  bool missing_left = true;
+};
+struct SplitSearchConfig {
+  std::size_t min_samples_leaf;
+  double l2;
+  double min_gain;
+};
+SplitCandidate FindBestSplit(
+    const Stats& total, const Stats* histograms,
+    const std::vector<std::size_t>& offsets,
+    const std::vector<std::vector<float>>& cuts,
+    const SplitSearchConfig& config) {
+  SplitCandidate best;
+  double best_gain = config.min_gain;
+  const double parent_score = Score(total, config.l2);
+  for (std::size_t feature = 0; feature < cuts.size(); ++feature) {
+    const std::size_t num_bins = cuts[feature].size();
+    if (num_bins == 0) continue;
+    const auto* histogram = histograms + offsets[feature];
+    Stats prefix;
+    for (std::size_t bin = 1; bin <= num_bins; ++bin) {
+      prefix += histogram[bin];
+      for (bool missing_left : {true, false}) {
+        // Without missing rows both directions describe the same partition.
+        if (!missing_left && histogram[0].count == 0) continue;
+        const Stats left = missing_left ? prefix + histogram[0] : prefix;
+        const Stats right = total - left;
+        if (left.count < config.min_samples_leaf ||
+            right.count < config.min_samples_leaf)
+          continue;
+        const double gain =
+            0.5 * (Score(left, config.l2) + Score(right, config.l2) -
+                   parent_score);
+        if (gain > best_gain + 1e-12) {
+          best_gain = gain;
+          best.feature = static_cast<int>(feature);
+          best.bin = bin;
+          best.missing_left = missing_left;
+        }
+      }
+    }
+  }
+  return best;
+}
 }  // namespace
 
 Gbdt::Gbdt(Parameters parameters) : parameters_(parameters) {
@@ -116,8 +163,9 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   if (!executor && parameters_.num_threads > 1)
     executor =
         std::make_shared<internal::ParallelExecutor>(parameters_.num_threads);
-  auto for_features = [&](std::size_t work, auto function) {
-    if (executor && d > 1 && work >= 65536)
+  auto for_features = [&](std::size_t work, auto function,
+                          bool allow_parallel = true) {
+    if (allow_parallel && executor && d > 1 && work >= 65536)
       executor->For(d, function);
     else
       for (std::size_t f = 0; f < d; ++f) function(0, f);
@@ -229,6 +277,9 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   // Reuse only a depth-sized workspace: build the smaller child, then obtain
   // its sibling by subtracting from the parent histogram.
   std::vector<std::vector<Stats>> workspace(parameters_.max_depth + 1);
+  const SplitSearchConfig split_config{
+      static_cast<std::size_t>(parameters_.min_samples_leaf), parameters_.l2,
+      parameters_.min_gain};
   auto sum_rows = [&](std::size_t begin, std::size_t end) {
     Stats total;
     for (std::size_t j = begin; j < end; ++j) total += derivatives[rows[j]];
@@ -236,10 +287,11 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   };
   auto make_histograms = [&](std::size_t begin, std::size_t end,
                              const Stats& total, Stats* histograms,
-                             const Stats* parent = nullptr) {
+                             const Stats* parent = nullptr,
+                             bool allow_parallel = true) {
     std::fill(histograms, histograms + offsets.back(), Stats{});
     if (!row_histogram_indices.empty()) {
-      if (executor && (end - begin) * d >= 65536) {
+      if (allow_parallel && executor && (end - begin) * d >= 65536) {
         // Disjoint feature histograms, with identical per-bin row order.
         // Unlike row-wise reductions, this is bit-identical across threads.
         const std::size_t blocks = parameters_.num_threads;
@@ -358,7 +410,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           histogram[column[row]] += ordered_derivatives[j];
         }
       }
-    });
+    }, allow_parallel);
   };
   for (int iteration = 0; iteration < parameters_.num_trees; ++iteration) {
     std::iota(rows.begin(), rows.end(), 0);
@@ -387,54 +439,22 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           total.count / 2 <
               static_cast<std::size_t>(parameters_.min_samples_leaf))
         return finish_leaf();
-      double best_gain = parameters_.min_gain;
-      const double parent_score = Score(total, parameters_.l2);
-      int best_feature = -1;
-      std::size_t best_bin = 0;
-      bool best_missing_left = true;
-      for (std::size_t f = 0; f < d; ++f) {
-        const std::size_t num_bins = cuts[f].size();
-        if (num_bins == 0) continue;
-        const auto* histogram = histograms + offsets[f];
-        Stats prefix;
-        for (std::size_t k = 1; k <= num_bins; ++k) {
-          prefix += histogram[k];
-          for (bool missing_left : {true, false}) {
-            // Without missing rows both directions describe the same partition.
-            if (!missing_left && histogram[0].count == 0) continue;
-            const Stats left = missing_left ? prefix + histogram[0] : prefix;
-            const Stats right = total - left;
-            if (left.count <
-                    static_cast<std::size_t>(parameters_.min_samples_leaf) ||
-                right.count <
-                    static_cast<std::size_t>(parameters_.min_samples_leaf))
-              continue;
-            const double gain =
-                0.5 * (Score(left, parameters_.l2) +
-                       Score(right, parameters_.l2) - parent_score);
-            if (gain > best_gain + 1e-12) {
-              best_gain = gain;
-              best_feature = static_cast<int>(f);
-              best_bin = k;
-              best_missing_left = missing_left;
-            }
-          }
-        }
-      }
-      if (best_feature < 0) return finish_leaf();
+      const SplitCandidate split =
+          FindBestSplit(total, histograms, offsets, cuts, split_config);
+      if (split.feature < 0) return finish_leaf();
       const auto* column =
-          bins.data() + static_cast<std::size_t>(best_feature) * n;
+          bins.data() + static_cast<std::size_t>(split.feature) * n;
       auto mid = std::partition(
           rows.begin() + begin, rows.begin() + end, [&](std::size_t row) {
-            return column[row] == 0 ? best_missing_left
-                                    : column[row] <= best_bin;
+            return column[row] == 0 ? split.missing_left
+                                    : column[row] <= split.bin;
           });
       const std::size_t middle = mid - rows.begin();
       if (!positions.empty())
         for (std::size_t j = begin; j < end; ++j) positions[rows[j]] = j;
-      tree[node_id].feature = best_feature;
-      tree[node_id].threshold = cuts[best_feature][best_bin - 1];
-      tree[node_id].missing_left = best_missing_left;
+      tree[node_id].feature = split.feature;
+      tree[node_id].threshold = cuts[split.feature][split.bin - 1];
+      tree[node_id].missing_left = split.missing_left;
       int left, right;
       if (depth + 1 == parameters_.max_depth) {
         left = self(self, begin, middle, depth + 1, nullptr,
@@ -466,7 +486,191 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       tree[node_id].right = right;
       return node_id;
     };
-    build(build, 0, n, 0, workspace[0].data(), root_total);
+    const std::size_t kLayerMemoryLimit = 64 * 1024 * 1024;
+    const bool layer_parallel =
+        executor && parameters_.max_depth <= 12 && n * d >= 262144 &&
+        offsets.back() <=
+            kLayerMemoryLimit /
+                (sizeof(Stats) * (std::size_t{1} << parameters_.max_depth));
+    if (!layer_parallel) {
+      build(build, 0, n, 0, workspace[0].data(), root_total);
+    } else {
+      struct LayerNode {
+        std::size_t begin = 0, end = 0, middle = 0;
+        Stats total;
+        int tree_index = -1, feature = -1;
+        std::size_t bin = 0;
+        bool missing_left = true;
+        std::vector<Stats> histograms;
+      };
+      const std::size_t no_child = std::numeric_limits<std::size_t>::max();
+      std::vector<LayerNode> level;
+      std::vector<std::uint8_t> right_child_first(1, 0);
+      level.push_back({0, n, 0, root_total, 0, -1, 0, true,
+                       std::move(workspace[0])});
+      tree.resize(1);
+      for (int depth = 0; depth < parameters_.max_depth && !level.empty();
+           ++depth) {
+        auto evaluate = [&](std::size_t index) {
+          auto& current = level[index];
+          Node& output = tree[current.tree_index];
+          output.value =
+              -current.total.gradient / (current.total.hessian + parameters_.l2);
+          if (current.total.count / 2 <
+              static_cast<std::size_t>(parameters_.min_samples_leaf)) {
+            for (std::size_t j = current.begin; j < current.end; ++j)
+              margins[rows[j]] += parameters_.learning_rate * output.value;
+            return;
+          }
+          const SplitCandidate split = FindBestSplit(
+              current.total, current.histograms.data(), offsets, cuts,
+              split_config);
+          current.feature = split.feature;
+          if (split.feature < 0) {
+            for (std::size_t j = current.begin; j < current.end; ++j)
+              margins[rows[j]] += parameters_.learning_rate * output.value;
+            return;
+          }
+          current.bin = split.bin;
+          current.missing_left = split.missing_left;
+          const auto* column =
+              bins.data() + static_cast<std::size_t>(split.feature) * n;
+          const auto middle = std::partition(
+              rows.begin() + current.begin, rows.begin() + current.end,
+              [&](std::size_t row) {
+                return column[row] == 0 ? split.missing_left
+                                        : column[row] <= split.bin;
+              });
+          current.middle = static_cast<std::size_t>(middle - rows.begin());
+          if (!positions.empty())
+            for (std::size_t j = current.begin; j < current.end; ++j)
+              positions[rows[j]] = j;
+          output.feature = split.feature;
+          output.threshold = cuts[split.feature][split.bin - 1];
+          output.missing_left = split.missing_left;
+        };
+        if (level.size() > 1) {
+          executor->For(level.size(), [&](int, std::size_t index) {
+            evaluate(index);
+          });
+        } else {
+          evaluate(0);
+        }
+
+        std::vector<std::array<std::size_t, 2>> child_indices(
+            level.size(), {no_child, no_child});
+        std::size_t child_count = 0;
+        for (std::size_t i = 0; i < level.size(); ++i) {
+          if (level[i].feature >= 0) {
+            child_indices[i] = {child_count, child_count + 1};
+            child_count += 2;
+          }
+        }
+        if (child_count == 0) break;
+        const std::size_t first_tree_child = tree.size();
+        tree.resize(first_tree_child + child_count);
+        right_child_first.resize(tree.size(), 0);
+        const bool has_next_histograms = depth + 1 < parameters_.max_depth;
+        std::vector<LayerNode> next(has_next_histograms ? child_count : 0);
+        for (std::size_t i = 0; i < level.size(); ++i) {
+          const auto child = child_indices[i];
+          if (child[0] == no_child) continue;
+          auto& parent = level[i];
+          auto& output = tree[parent.tree_index];
+          const std::size_t left_index = first_tree_child + child[0];
+          const std::size_t right_index = first_tree_child + child[1];
+          output.left = static_cast<int>(left_index);
+          output.right = static_cast<int>(right_index);
+          const std::size_t left_begin = parent.begin;
+          const std::size_t left_end = parent.middle;
+          const std::size_t right_begin = parent.middle;
+          const std::size_t right_end = parent.end;
+          const Stats left_total = sum_rows(left_begin, left_end);
+          const Stats right_total = sum_rows(right_begin, right_end);
+          const bool left_small = left_end - left_begin <=
+                                  right_end - right_begin;
+          right_child_first[parent.tree_index] =
+              has_next_histograms && !left_small;
+          if (!has_next_histograms) {
+            tree[left_index].value =
+                -left_total.gradient / (left_total.hessian + parameters_.l2);
+            tree[right_index].value =
+                -right_total.gradient / (right_total.hessian + parameters_.l2);
+            for (std::size_t j = left_begin; j < left_end; ++j)
+              margins[rows[j]] +=
+                  parameters_.learning_rate * tree[left_index].value;
+            for (std::size_t j = right_begin; j < right_end; ++j)
+              margins[rows[j]] +=
+                  parameters_.learning_rate * tree[right_index].value;
+            continue;
+          }
+          auto& left_node = next[child[0]];
+          auto& right_node = next[child[1]];
+          left_node.begin = left_begin;
+          left_node.end = left_end;
+          left_node.total = left_total;
+          left_node.tree_index = static_cast<int>(left_index);
+          right_node.begin = right_begin;
+          right_node.end = right_end;
+          right_node.total = right_total;
+          right_node.tree_index = static_cast<int>(right_index);
+        }
+        if (has_next_histograms) {
+          auto prepare_children = [&](std::size_t index,
+                                     bool allow_inner_parallel) {
+            const auto child = child_indices[index];
+            if (child[0] == no_child) return;
+            auto& parent = level[index];
+            auto& left_node = next[child[0]];
+            auto& right_node = next[child[1]];
+            const bool left_small = left_node.end - left_node.begin <=
+                                    right_node.end - right_node.begin;
+            auto& small = left_small ? left_node : right_node;
+            auto& large = left_small ? right_node : left_node;
+            small.histograms.resize(offsets.back());
+            make_histograms(small.begin, small.end, small.total,
+                            small.histograms.data(), parent.histograms.data(),
+                            allow_inner_parallel);
+            for (std::size_t b = 0; b < offsets.back(); ++b)
+              parent.histograms[b] =
+                  parent.histograms[b] - small.histograms[b];
+            large.histograms = std::move(parent.histograms);
+          };
+          if (level.size() > 1) {
+            executor->For(level.size(), [&](int, std::size_t index) {
+              prepare_children(index, false);
+            });
+          } else {
+            prepare_children(0, true);
+          }
+          level = std::move(next);
+        }
+      }
+
+      // Restore the established depth-first node order so serialized models
+      // remain byte-identical to the recursive builder.
+      Tree depth_first;
+      depth_first.reserve(tree.size());
+      auto append_depth_first = [&](auto&& self, int old_index) -> int {
+        const int new_index = static_cast<int>(depth_first.size());
+        depth_first.push_back(tree[old_index]);
+        if (tree[old_index].feature >= 0) {
+          int left, right;
+          if (right_child_first[old_index]) {
+            right = self(self, tree[old_index].right);
+            left = self(self, tree[old_index].left);
+          } else {
+            left = self(self, tree[old_index].left);
+            right = self(self, tree[old_index].right);
+          }
+          depth_first[new_index].left = left;
+          depth_first[new_index].right = right;
+        }
+        return new_index;
+      };
+      append_depth_first(append_depth_first, 0);
+      tree = std::move(depth_first);
+    }
     double loss = 0;
     for (std::size_t i = 0; i < n; ++i) {
       if (binary) {

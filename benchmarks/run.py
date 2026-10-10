@@ -36,6 +36,7 @@ SOURCES = {
     "wine": ("https://raw.githubusercontent.com/plotly/datasets/master/winequality-red.csv", "4678927bac9ff54ac7431a10979a3a9b5ba014d20e14196b047073f2ceb75f4c"),
     "titanic": ("https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/titanic/train.csv", "14769fb1850e2d26d8e6db0ee49c213878040432827e39b13caaa15603c6598f"),
     "insurance": ("https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv", "505c1cbc2e63d0363bac59501563df2530aadf4cdb9cfee226f4ef32f5468281"),
+    "bank_marketing": ("https://raw.githubusercontent.com/selva86/datasets/master/bank-full.csv", "74adfc578bf77a7ff4bb1ba4a9f8709d9e3c6907342959c2c8416847e0afb4d8"),
 }
 
 
@@ -74,7 +75,9 @@ def worker(args):
     start = time.perf_counter()
     pred = model.predict_proba(test)[:, 1] if binary else model.predict(test)
     predict_seconds = time.perf_counter() - start
+    train_pred = model.predict_proba(x)[:, 1] if binary else model.predict(x)
     np.asarray(pred, dtype=np.float32).tofile(args.predictions)
+    np.asarray(train_pred, dtype=np.float32).tofile(str(args.predictions) + ".train")
     print(json.dumps({"fit_seconds": fit_seconds, "predict_seconds": predict_seconds,
                       "peak_rss_kib": peak_rss_kib()}))
 
@@ -90,7 +93,8 @@ def source(name):
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     if expected is not None and digest != expected:
         raise RuntimeError(f"checksum mismatch: {name}")
-    return pd.read_csv(path, header=None if name == "pima" else "infer"), {
+    return pd.read_csv(path, header=None if name == "pima" else "infer",
+                       sep=";" if name == "bank_marketing" else ","), {
         "url": url, "sha256": digest, "bytes": path.stat().st_size,
         "kaggle_url": {
             "pima": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
@@ -98,6 +102,7 @@ def source(name):
             "wine": "https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009",
             "titanic": "https://www.kaggle.com/competitions/titanic",
             "insurance": "https://www.kaggle.com/datasets/mirichoi0218/insurance",
+            "bank_marketing": "https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing",
         }[name], "download_route": "public_mirror",
     }
 
@@ -122,6 +127,13 @@ def builtin_datasets():
 
 
 def kaggle_datasets():
+    frame, provenance = source("bank_marketing")
+    provenance["preprocessing"] = (
+        "bank subscription target; drop call duration because it is only known "
+        "after the outcome; remaining categoricals encoded from training fold only"
+    )
+    yield "bank_marketing", frame.drop(columns=["y", "duration"]), (
+        frame["y"] == "yes").to_numpy(dtype=np.float32), True, provenance
     frame, provenance = source("titanic")
     x = frame[["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]]
     provenance["preprocessing"] = "7 selected features; remove ID/name/ticket/cabin"
@@ -202,6 +214,7 @@ def main(args):
             for array in (x, y, test):
                 stream.write(array.astype("<f4").tobytes())
         predictions = {}
+        training_predictions = {}
         for language in ("cpp", "python"):
             for engine in engines:
                 runs = []
@@ -217,11 +230,17 @@ def main(args):
                     completed = subprocess.run(command, check=True, capture_output=True, text=True, timeout=120)
                     runs.append(json.loads(completed.stdout.strip().splitlines()[-1]))
                     pred = np.fromfile(output, dtype=np.float32)
+                    train_pred = np.fromfile(str(output) + ".train", dtype=np.float32)
                     if pred.shape != truth.shape or not np.isfinite(pred).all():
                         raise RuntimeError("invalid benchmark predictions")
+                    if train_pred.shape != y.shape or not np.isfinite(train_pred).all():
+                        raise RuntimeError("invalid training predictions")
                     if repetition:
                         np.testing.assert_allclose(pred, predictions[(language, engine)], atol=1e-6, rtol=1e-6)
+                        np.testing.assert_allclose(train_pred, training_predictions[(language, engine)],
+                                                   atol=1e-6, rtol=1e-6)
                     predictions[(language, engine)] = pred
+                    training_predictions[(language, engine)] = train_pred
                 metric = float(roc_auc_score(truth, pred) if binary else
                                np.sqrt(mean_squared_error(truth, pred)))
                 baseline = .5 if binary else float(np.sqrt(mean_squared_error(truth, np.full_like(truth, y.mean()))))
@@ -235,21 +254,37 @@ def main(args):
                                      "deterministic_repeats": True}}
                 if binary:
                     probability = np.clip(pred.astype(np.float64), 1e-7, 1-1e-7)
+                    train_probability = np.clip(
+                        train_pred.astype(np.float64), 1e-7, 1-1e-7)
                     record["metrics"] = {
                         "roc_auc": metric, "average_precision": float(average_precision_score(truth, pred)),
                         "accuracy": float(accuracy_score(truth, pred >= .5)),
                         "log_loss": float(log_loss(truth, probability, labels=[0, 1])),
                         "positive_fraction": float(truth.mean()),
                     }
+                    record["train_metrics"] = {
+                        "roc_auc": float(roc_auc_score(y, train_pred)),
+                        "average_precision": float(average_precision_score(y, train_pred)),
+                        "accuracy": float(accuracy_score(y, train_pred >= .5)),
+                        "log_loss": float(log_loss(y, train_probability, labels=[0, 1])),
+                    }
                 else:
                     record["metrics"] = {"rmse": metric, "mae": float(mean_absolute_error(truth, pred)),
                                          "r2": float(r2_score(truth, pred))}
+                    record["train_metrics"] = {
+                        "rmse": float(np.sqrt(mean_squared_error(y, train_pred))),
+                        "mae": float(mean_absolute_error(y, train_pred)),
+                        "r2": float(r2_score(y, train_pred)),
+                    }
                 for key in ("fit_seconds", "predict_seconds", "peak_rss_kib"):
                     record[key] = float(np.median([run[key] for run in runs]))
                 results.append(record)
                 print(f"{name:15} {language:6} {engine:8} {metric:.4f} fit={record['fit_seconds']:.4f}s", flush=True)
         for engine in engines:
             np.testing.assert_allclose(predictions[("cpp", engine)], predictions[("python", engine)],
+                                       rtol=2e-5, atol=2e-3)
+            np.testing.assert_allclose(training_predictions[("cpp", engine)],
+                                       training_predictions[("python", engine)],
                                        rtol=2e-5, atol=2e-3)
         for record in results[-2 * len(engines):]:
             record["checks"]["cpp_python_parity"] = True
@@ -277,7 +312,7 @@ if __name__ == "__main__":
     parser.add_argument("--suite", choices=["all", "kaggle", "original", "builtin"], default="all")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--threads", type=int, default=1)
-    parser.add_argument("--datasets", nargs="+", choices=["titanic", "insurance", "pima", "telco", "wine",
+    parser.add_argument("--datasets", nargs="+", choices=["titanic", "insurance", "pima", "telco", "wine", "bank_marketing",
                                                          "diabetes", "breast_cancer", "friedman_20k", "friedman_100k"])
     parser.add_argument("--worker")
     parser.add_argument("--engine", choices=["libtree", "xgboost", "lightgbm"])

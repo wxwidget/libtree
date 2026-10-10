@@ -118,6 +118,7 @@ int main(int argc, char** argv) {
       throw std::runtime_error("invalid benchmark arguments");
     const libtree::Gbdt validated(p);
     std::vector<float> predictions;
+    std::vector<float> training_predictions;
     double fit_seconds, predict_seconds;
     if (std::string(argv[4]) == "libtree") {
       libtree::Gbdt model(p);
@@ -129,6 +130,8 @@ int main(int argc, char** argv) {
       predictions =
           model.Predict({data.test_x.data(), data.test_rows, data.cols});
       predict_seconds = Seconds(start);
+      training_predictions =
+          model.Predict({data.train_x.data(), data.train_rows, data.cols});
     } else if (std::string(argv[4]) == "lightgbm") {
       if (argc != 6 && argc != 13 && argc != 14)
         throw std::runtime_error("LightGBM library path required");
@@ -194,6 +197,15 @@ int main(int argc, char** argv) {
         throw std::runtime_error("LightGBM prediction size mismatch");
       predictions.assign(output.begin(), output.end());
       predict_seconds = Seconds(start);
+      output.resize(data.train_rows);
+      count = 0;
+      api.Check(predict(
+          booster, data.train_x.data(), 0, data.train_rows, data.cols, 1, 0, 0,
+          -1, ("num_threads=" + std::to_string(p.num_threads)).c_str(), &count,
+          output.data()));
+      if (count != static_cast<std::int64_t>(data.train_rows))
+        throw std::runtime_error("LightGBM training prediction size mismatch");
+      training_predictions.assign(output.begin(), output.end());
     } else {
       if ((argc != 6 && argc != 13 && argc != 14) ||
           std::string(argv[4]) != "xgboost")
@@ -261,11 +273,20 @@ int main(int argc, char** argv) {
       api.Check(predict(booster, test, 0, 0, 0, &count, &output));
       predictions.assign(output, output + count);
       predict_seconds = Seconds(start);
+      api.Check(predict(booster, train, 0, 0, 0, &count, &output));
+      training_predictions.assign(output, output + count);
     }
     std::ofstream output(argv[2], std::ios::binary);
     output.write(reinterpret_cast<const char*>(predictions.data()),
                  predictions.size() * sizeof(float));
     if (!output) throw std::runtime_error("cannot write predictions");
+    std::ofstream train_output(std::string(argv[2]) + ".train",
+                               std::ios::binary);
+    train_output.write(
+        reinterpret_cast<const char*>(training_predictions.data()),
+        training_predictions.size() * sizeof(float));
+    if (!train_output)
+      throw std::runtime_error("cannot write training predictions");
     std::cout << "{\"fit_seconds\":" << fit_seconds
               << ",\"predict_seconds\":" << predict_seconds
               << ",\"peak_rss_kib\":" << PeakRssKib() << "}\n";

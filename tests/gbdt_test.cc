@@ -359,6 +359,76 @@ void Run() {
                               parallel_columns}) == expected);
     }
   }
+  // Cross the adaptive layer-builder threshold with a medium-sized task. Its
+  // tree must remain byte-identical to the recursive serial reference.
+  constexpr int layer_rows = 13200, layer_columns = 20;
+  std::vector<float> layer_x(layer_rows * layer_columns);
+  std::vector<float> layer_y(layer_rows);
+  for (float& value : layer_x) value = uniform(generator);
+  for (int row = 0; row < layer_rows; ++row) {
+    layer_y[row] = layer_x[row * layer_columns] +
+                           0.7f * layer_x[row * layer_columns + 1] >
+                       0;
+  }
+  Parameters layer_parameters;
+  layer_parameters.num_trees = 8;
+  layer_parameters.max_depth = 4;
+  layer_parameters.min_samples_leaf = 5;
+  layer_parameters.objective = libtree::Objective::kBinaryLogistic;
+  Gbdt layer_serial(layer_parameters);
+  layer_serial.Fit({layer_x.data(), layer_rows, layer_columns}, layer_y);
+  std::stringstream layer_reference;
+  layer_serial.SaveModel(layer_reference);
+  const auto layer_expected =
+      layer_serial.Predict({layer_x.data(), layer_rows, layer_columns});
+  for (int threads : {2, 4}) {
+    auto p = layer_parameters;
+    p.num_threads = threads;
+    Gbdt layer_parallel(p);
+    layer_parallel.Fit({layer_x.data(), layer_rows, layer_columns}, layer_y);
+    std::stringstream layer_model;
+    layer_parallel.SaveModel(layer_model);
+    if (layer_model.str() != layer_reference.str()) {
+      const auto actual = layer_model.str();
+      const auto expected = layer_reference.str();
+      std::size_t mismatch = 0;
+      while (mismatch < actual.size() && mismatch < expected.size() &&
+             actual[mismatch] == expected[mismatch])
+        ++mismatch;
+      throw std::runtime_error(
+          "layer model differs at " + std::to_string(threads) +
+          " threads near " + std::to_string(mismatch) + ": " +
+          expected.substr(mismatch, 50) + " vs " + actual.substr(mismatch, 50));
+    }
+    if (layer_parallel.training_loss() != layer_serial.training_loss())
+      throw std::runtime_error("layer loss differs at " +
+                               std::to_string(threads) + " threads");
+    if (layer_parallel.Predict({layer_x.data(), layer_rows, layer_columns}) !=
+        layer_expected)
+      throw std::runtime_error("layer prediction differs at " +
+                               std::to_string(threads) + " threads");
+  }
+  // Force a shallow child to stop at the minimum-leaf guard, and use fewer
+  // than 16 features so the positional row lookup is maintained for sparse
+  // child histograms.
+  constexpr int small_rows = 20200, small_columns = 13;
+  std::vector<float> small_x(small_rows * small_columns);
+  std::vector<float> small_y(small_rows);
+  for (int row = 0; row < small_rows; ++row) {
+    small_x[row * small_columns] = row < small_rows - 12 ? 0.0f : 1.0f;
+    for (int column = 1; column < small_columns; ++column)
+      small_x[row * small_columns + column] = 1.0f;
+    small_y[row] = row < small_rows - 12 ? 0.0f : 1.0f;
+  }
+  auto minimum_leaf_parameters = layer_parameters;
+  minimum_leaf_parameters.num_trees = 2;
+  minimum_leaf_parameters.max_depth = 5;
+  minimum_leaf_parameters.min_samples_leaf = 10;
+  minimum_leaf_parameters.num_threads = 2;
+  Gbdt minimum_leaf_model(minimum_leaf_parameters);
+  minimum_leaf_model.Fit({small_x.data(), small_rows, small_columns}, small_y);
+  Check(minimum_leaf_model.Predict(
+            {small_x.data(), small_rows, small_columns}).size() == small_rows);
   for (int threads : {0, -1, 257}) {
     Parameters p;
     p.num_threads = threads;

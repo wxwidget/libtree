@@ -9,7 +9,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 DATASETS = ['titanic', 'insurance', 'pima', 'telco', 'wine',
-            'friedman_20k', 'friedman_100k']
+            'bank_marketing', 'friedman_20k', 'friedman_100k']
 
 
 def main():
