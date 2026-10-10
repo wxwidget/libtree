@@ -61,6 +61,11 @@ C++ 与 Python 的效果、训练/预测时间及内存。
 工作负载和硬件。C++ `PredictInto(view, output)` 直接写入独立的调用者
 float 缓冲区；仍可使用返回 vector 的 `Predict`。
 
+LibTree 将 XGBoost 的二阶划分评分和数据局部性思路，与 LightGBM 的紧凑
+直方图、直方图差分和独立任务调度结合，并通过本地测试决定优化是否保留。
+加权近似 sketch、GOSS、EFB 和 leaf-wise 生长尚未实现；实现差异、论文引用和
+实测优势边界见[研究引用与实现对应关系](docs/references.zh-CN.md)。
+
 ## 五分钟使用 C++
 
 先看 [examples/train.cc](examples/train.cc)。编译命令：

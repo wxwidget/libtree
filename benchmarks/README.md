@@ -5,6 +5,14 @@ LightGBM. Results below use local held-out measurements; they are not Kaggle
 leaderboard scores. All raw repetitions, data fingerprints, package versions,
 and source hashes are kept in [`parallel-results.json`](parallel-results.json).
 
+The algorithm lineage and implementation differences are documented in
+[Research references](../docs/references.md). In brief, LibTree combines
+second-order split scoring and data-locality choices associated with XGBoost
+with compact histograms, histogram subtraction and eligible independent-work
+scheduling associated with LightGBM. The results here show where this is
+currently advantageous and where LightGBM remains ahead; they do not claim
+algorithmic equivalence or universal superiority.
+
 ## Latest measured scaling
 
 Measured 2026-10-10 on AMD EPYC 9V74 (80-core host, four-core cgroup quota),

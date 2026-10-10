@@ -145,6 +145,13 @@ platform details, and caveats.
 | Output allocation | Add `PredictInto` and direct C/Python output paths | Avoid a temporary result allocation/copy when caller owns the buffer |
 | Parallel runtime | Reuse a bounded C++ thread pool; keep small workloads serial | Avoid per-round worker creation and excessive nested parallelism |
 
+These design choices combine measured, transferable ideas from XGBoost's
+second-order split scoring and data-locality work with LightGBM's compact
+histograms, histogram subtraction and independent-work scheduling. The mapping
+also lists what LibTree does not implement: weighted approximate sketch, GOSS,
+EFB and leaf-wise growth. See the [research references and implementation
+limits](docs/references.md) before interpreting this as algorithmic equivalence.
+
 Model ordering and arithmetic remain deterministic across tested thread counts.
 The depth-wise builder restores the established depth-first model ordering so
 serialized output remains compatible within this implementation. These
@@ -228,6 +235,7 @@ quality or data splits.
 - [Optimization benchmark](benchmarks/OPTIMIZATION_REPORT.zh-CN.md)
 - [Scale and finance benchmark](benchmarks/ADAPTIVE_REPORT.zh-CN.md)
 - [Validation history](docs/validation.md)
+- [Research references and implementation map](docs/references.md)
 
 ## Test and contribute
 

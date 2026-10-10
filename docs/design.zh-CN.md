@@ -71,6 +71,24 @@
 Release 构建并检查效果。排名仅适用于记录的数据、参数、硬件和线程数，
 不能证明所有任务都更快。
 
+### 研究来源和实现边界
+
+划分目标、缓存/稀疏感知工程参考 XGBoost [1]；紧凑直方图、直方图差分、
+独立特征/节点的任务调度参考 LightGBM [2]。完整的
+[研究与实现映射](references.zh-CN.md)说明了本项目实现和差异。特别是，
+LibTree 使用不加权的确定性分位切点样本，而非 XGBoost 加权近似 sketch；
+未实现 LightGBM GOSS 或 EFB；公开树生长策略受最大深度限制，而非
+LightGBM leaf-wise。这些机制会带来不同的数据前提和效果/模型结构权衡，
+采用前需要单独设计 API 并做消融。LibTree 实测优势只适用于已测任务：历史五数据集
+单线程快照记录了更快的推理；最新的 1→4 平均训练扩展高于 XGBoost。记录的
+中大型数据上，LightGBM 扩展仍更好。
+
+引用：[1] Chen 和 Guestrin， “XGBoost: A Scalable Tree Boosting System”，
+KDD 2016，[DOI 10.1145/2939672.2939785](https://doi.org/10.1145/2939672.2939785)。
+[2] Ke 等， “LightGBM: A Highly Efficient Gradient Boosting Decision Tree”，
+NeurIPS 2017，[论文](https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html)。
+更多出处和实现对应关系见[研究引用](references.zh-CN.md)。
+
 ## 确定性并行
 
 `num_threads` 包含调用线程。可复用线程池最多启动 `num_threads - 1` 个工作线程，

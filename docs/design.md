@@ -82,6 +82,28 @@ missing-value behavior and both interfaces. Benchmark a Release build and record
 quality with runtime. Rankings apply only to the recorded datasets, parameters,
 hardware and thread settings; they do not establish universal superiority.
 
+### Research lineage and implementation limits
+
+The split objective and cache/sparsity-aware engineering are informed by
+XGBoost [1]. Compact histograms, histogram subtraction, and work scheduling for
+independent features/nodes follow ideas described by LightGBM [2]. The design
+map in [references.md](references.md) names the local implementation and its
+differences. In particular, LibTree uses an unweighted deterministic quantile
+cut sample rather than XGBoost's weighted approximate sketch; it has neither
+LightGBM's GOSS nor EFB; and its public tree growth is depth-limited rather than
+LightGBM leaf-wise. Those omitted mechanisms have different quality, data-shape
+and model-shape tradeoffs, so they need separate APIs and ablations before
+adoption. LibTree's measured advantages are workload-specific: the historical
+five-dataset single-thread snapshot recorded faster prediction, and the latest
+1→4 mean fit scaling beats XGBoost. LightGBM still scales better on the
+recorded medium/large suite.
+
+References: [1] Chen and Guestrin, “XGBoost: A Scalable Tree Boosting System,”
+KDD 2016, [DOI 10.1145/2939672.2939785](https://doi.org/10.1145/2939672.2939785).
+[2] Ke et al., “LightGBM: A Highly Efficient Gradient Boosting Decision Tree,”
+NeurIPS 2017, [paper](https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html).
+See the [full research and implementation map](references.md).
+
 ## Deterministic parallel execution
 
 `num_threads` is a runtime budget, including the caller. A reusable pool starts
