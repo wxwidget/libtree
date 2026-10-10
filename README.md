@@ -182,14 +182,18 @@ leaderboard placement or production performance guarantees.
 
 ### Current scale evidence
 
-The most recent scale experiment includes Bank Marketing and synthetic Friedman
-datasets. On a container with a 4-core CPU quota, moving from one to four
-threads reduced mean training time on 75k Friedman training rows from 557 ms to
-373 ms in C++ (1.50×), and from 538 ms to 393 ms through Python (1.37×). The
-30.9k-row Bank Marketing training task improved by 1.12× C++ and 1.10× Python.
-The 20k-row Friedman task showed smaller gains and Python was slower at four
-threads than at two. This is why LibTree uses workload heuristics instead of
-assuming every job scales with thread count.
+The latest same-split experiment measures four datasets at 1/2/4 threads, using
+three seeds and three timing repeats. On the three medium/large tasks, mean
+1→4 training scaling is 1.32× for LibTree C++, 1.02× for XGBoost C++, and 2.04×
+for LightGBM C++; through Python it is 1.35×, 0.95×, and 1.97× respectively.
+LibTree currently beats XGBoost on this scaling measure, but does not beat
+LightGBM. The 100k-row Friedman workload scales 1.51×/1.54× for LibTree,
+1.04×/0.97× for XGBoost, and 2.07×/2.27× for LightGBM (C++/Python).
+
+The requested “scale better than both competitors” criterion is therefore not
+met. The [benchmark README](benchmarks/README.md) records the full per-workload
+table and how to reproduce it; [the raw report](benchmarks/PARALLEL_REPORT.zh-CN.md)
+includes means, standard deviations, observed ranges, and every run.
 
 ## Experiments and ablations
 

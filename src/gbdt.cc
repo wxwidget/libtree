@@ -64,6 +64,8 @@ struct SplitCandidate {
   int feature = -1;
   std::size_t bin = 0;
   bool missing_left = true;
+  Stats left;
+  Stats right;
 };
 struct SplitSearchConfig {
   std::size_t min_samples_leaf;
@@ -101,6 +103,8 @@ SplitCandidate FindBestSplit(
           best.feature = static_cast<int>(feature);
           best.bin = bin;
           best.missing_left = missing_left;
+          best.left = left;
+          best.right = right;
         }
       }
     }
@@ -245,6 +249,12 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   losses.reserve(parameters_.num_trees);
   std::vector<double> margins(n, base);
   std::vector<Derivative> derivatives(n), ordered_derivatives;
+  // Gradient and loss updates are independent per row. Keep fixed-size chunks
+  // so their reduction order is stable across thread counts while exposing a
+  // useful amount of work after every tree.
+  constexpr std::size_t kDerivativeChunk = 4096;
+  std::vector<double> derivative_losses(
+      (n + kDerivativeChunk - 1) / kDerivativeChunk);
   const double initial_prediction = binary ? Sigmoid(base) : base;
   const double initial_hessian =
       binary ? std::max(initial_prediction * (1 - initial_prediction), 1e-6)
@@ -456,18 +466,18 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       tree[node_id].threshold = cuts[split.feature][split.bin - 1];
       tree[node_id].missing_left = split.missing_left;
       int left, right;
+      const Stats left_total = split.left;
+      const Stats right_total = split.right;
       if (depth + 1 == parameters_.max_depth) {
-        left = self(self, begin, middle, depth + 1, nullptr,
-                    sum_rows(begin, middle));
-        right =
-            self(self, middle, end, depth + 1, nullptr, sum_rows(middle, end));
+        left = self(self, begin, middle, depth + 1, nullptr, left_total);
+        right = self(self, middle, end, depth + 1, nullptr, right_total);
       } else {
         auto& small_histogram = workspace[depth + 1];
         small_histogram.resize(offsets.back());
         const bool left_small = middle - begin <= end - middle;
         const std::size_t small_begin = left_small ? begin : middle;
         const std::size_t small_end = left_small ? middle : end;
-        const Stats small_total = sum_rows(small_begin, small_end);
+        const Stats small_total = left_small ? left_total : right_total;
         make_histograms(small_begin, small_end, small_total,
                         small_histogram.data(), histograms);
         for (std::size_t b = 0; b < offsets.back(); ++b)
@@ -478,7 +488,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
         const std::size_t large_begin = left_small ? middle : begin;
         const std::size_t large_end = left_small ? end : middle;
         const int large = self(self, large_begin, large_end, depth + 1,
-                               histograms, sum_rows(large_begin, large_end));
+                               histograms, left_small ? right_total : left_total);
         left = left_small ? small : large;
         right = left_small ? large : small;
       }
@@ -497,7 +507,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
     } else {
       struct LayerNode {
         std::size_t begin = 0, end = 0, middle = 0;
-        Stats total;
+        Stats total, left_total, right_total;
         int tree_index = -1, feature = -1;
         std::size_t bin = 0;
         bool missing_left = true;
@@ -506,8 +516,13 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       const std::size_t no_child = std::numeric_limits<std::size_t>::max();
       std::vector<LayerNode> level;
       std::vector<std::uint8_t> right_child_first(1, 0);
-      level.push_back({0, n, 0, root_total, 0, -1, 0, true,
-                       std::move(workspace[0])});
+      LayerNode root;
+      root.begin = 0;
+      root.end = n;
+      root.total = root_total;
+      root.tree_index = 0;
+      root.histograms = std::move(workspace[0]);
+      level.push_back(std::move(root));
       tree.resize(1);
       for (int depth = 0; depth < parameters_.max_depth && !level.empty();
            ++depth) {
@@ -533,6 +548,8 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           }
           current.bin = split.bin;
           current.missing_left = split.missing_left;
+          current.left_total = split.left;
+          current.right_total = split.right;
           const auto* column =
               bins.data() + static_cast<std::size_t>(split.feature) * n;
           const auto middle = std::partition(
@@ -585,8 +602,8 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           const std::size_t left_end = parent.middle;
           const std::size_t right_begin = parent.middle;
           const std::size_t right_end = parent.end;
-          const Stats left_total = sum_rows(left_begin, left_end);
-          const Stats right_total = sum_rows(right_begin, right_end);
+          const Stats left_total = parent.left_total;
+          const Stats right_total = parent.right_total;
           const bool left_small = left_end - left_begin <=
                                   right_end - right_begin;
           right_child_first[parent.tree_index] =
@@ -617,7 +634,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
         }
         if (has_next_histograms) {
           auto prepare_children = [&](std::size_t index,
-                                     bool allow_inner_parallel) {
+                                      bool allow_inner_parallel) {
             const auto child = child_indices[index];
             if (child[0] == no_child) return;
             auto& parent = level[index];
@@ -671,23 +688,39 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       append_depth_first(append_depth_first, 0);
       tree = std::move(depth_first);
     }
-    double loss = 0;
-    for (std::size_t i = 0; i < n; ++i) {
-      if (binary) {
-        // Stable softplus cross entropy without log(0) or exp overflow.
-        // Reuse its exponential to prepare the next boosting iteration.
-        const double e = std::exp(-std::abs(margins[i]));
-        const double prediction = margins[i] >= 0 ? 1 / (1 + e) : e / (1 + e);
-        loss +=
-            std::max(margins[i], 0.0) - labels[i] * margins[i] + std::log1p(e);
-        derivatives[i] = {prediction - labels[i],
-                          std::max(prediction * (1 - prediction), 1e-6)};
-      } else {
-        const double residual = margins[i] - labels[i];
-        loss += residual * residual;
-        derivatives[i] = {residual, 1};
+    auto update_derivatives = [&](std::size_t chunk) {
+      const std::size_t begin = chunk * kDerivativeChunk;
+      const std::size_t end = std::min(n, begin + kDerivativeChunk);
+      double partial_loss = 0;
+      for (std::size_t i = begin; i < end; ++i) {
+        if (binary) {
+          // Stable softplus cross entropy without log(0) or exp overflow.
+          // Reuse its exponential to prepare the next boosting iteration.
+          const double e = std::exp(-std::abs(margins[i]));
+          const double prediction =
+              margins[i] >= 0 ? 1 / (1 + e) : e / (1 + e);
+          partial_loss += std::max(margins[i], 0.0) -
+                          labels[i] * margins[i] + std::log1p(e);
+          derivatives[i] = {prediction - labels[i],
+                            std::max(prediction * (1 - prediction), 1e-6)};
+        } else {
+          const double residual = margins[i] - labels[i];
+          partial_loss += residual * residual;
+          derivatives[i] = {residual, 1};
+        }
       }
+      derivative_losses[chunk] = partial_loss;
+    };
+    if (executor && derivative_losses.size() > 1) {
+      executor->For(derivative_losses.size(), [&](int, std::size_t chunk) {
+        update_derivatives(chunk);
+      });
+    } else {
+      for (std::size_t chunk = 0; chunk < derivative_losses.size(); ++chunk)
+        update_derivatives(chunk);
     }
+    double loss = 0;
+    for (double partial_loss : derivative_losses) loss += partial_loss;
     losses.push_back(loss / n);
     trees.push_back(std::move(tree));
   }

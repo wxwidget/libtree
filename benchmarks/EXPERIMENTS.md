@@ -5,8 +5,9 @@ chosen, how comparisons were made, which ablations exist, and what remains
 unknown. Results are local CPU measurements, not Kaggle leaderboard scores.
 
 Related artifacts: [raw five-dataset results](optimized-results.json),
-[paired optimization runs](optimization-ab-results.json), and
-[scale/finance raw runs](adaptive-parallel-results.json). The Chinese reports
+[paired optimization runs](optimization-ab-results.json), [latest equal-thread
+raw runs](parallel-results.json), and [archived scale/finance raw
+runs](adaptive-parallel-results.json). The Chinese reports
 provide additional per-run tables: [optimization](OPTIMIZATION_REPORT.zh-CN.md)
 and [adaptive parallelism](ADAPTIVE_REPORT.zh-CN.md).
 
@@ -175,26 +176,44 @@ deployments.
 
 ## 5. Ablation studies
 
-### A. Parallelism by thread budget
+### A. Latest parallelism and competitor scaling
 
-This is a controlled thread-budget ablation: same data splits, fixed model
-parameters, and thread budgets 1/2/4. Times below are arithmetic means of all
-raw observations, in milliseconds. The machine exposed five logical CPUs but
-had a container quota of four CPU cores.
+The current controlled thread-budget experiment uses the same prepared splits,
+fixed model parameters, 1/2/4-thread budgets, and three seeds with three repeats
+per seed. The table reports arithmetic mean fit times in milliseconds. Results
+were collected on an AMD EPYC 9V74 container with five visible logical CPUs and
+a four-core quota; raw ranges and standard deviations are in the
+[latest parallel report](PARALLEL_REPORT.zh-CN.md).
 
 | Dataset / training rows | Interface | 1 thread fit | 2 threads fit | 4 threads fit | 1→4 fit speedup |
 | --- | --- | ---: | ---: | ---: | ---: |
-| Bank Marketing / 30,891 | C++ | 273.01 | 255.20 | 243.49 | 1.12× |
-| Bank Marketing / 30,891 | Python | 280.93 | 258.34 | 254.75 | 1.10× |
-| Friedman 20k / 15,000 | C++ | 115.26 | 100.28 | 95.03 | 1.21× |
-| Friedman 20k / 15,000 | Python | 108.92 | 90.60 | 100.78 | 1.08× |
-| Friedman 100k / 75,000 | C++ | 557.40 | 431.72 | 372.78 | 1.50× |
-| Friedman 100k / 75,000 | Python | 538.20 | 421.92 | 393.07 | 1.37× |
+| Bank Marketing / 30,891 | C++ | 262.92 | 209.00 | 205.65 | 1.28× |
+| Bank Marketing / 30,891 | Python | 262.45 | 227.85 | 202.48 | 1.30× |
+| Friedman 20k / 15,000 | C++ | 97.34 | 82.76 | 82.92 | 1.17× |
+| Friedman 20k / 15,000 | Python | 99.59 | 83.99 | 82.64 | 1.21× |
+| Friedman 100k / 75,000 | C++ | 492.11 | 381.57 | 325.65 | 1.51× |
+| Friedman 100k / 75,000 | Python | 517.34 | 360.39 | 336.58 | 1.54× |
 
-Larger training jobs benefit more in this sample. The Python Friedman 20k task
-is slower at four threads than at two, demonstrating scheduling noise and
-parallel overhead. This supports workload-aware fallback, not a blanket
-recommendation to maximize thread count.
+The four-dataset suite also includes small Insurance control rows, shown in
+the report; their millisecond timings are dominated by scheduling noise. The
+following factors compare mean 1-thread and 4-thread fit time on the three
+medium/large tasks:
+
+| Interface | LibTree | XGBoost | LightGBM |
+| --- | ---: | ---: | ---: |
+| C++ | 1.32× | 1.02× | 2.04× |
+| Python | 1.35× | 0.95× | 1.97× |
+
+LibTree exceeds XGBoost on this scaling measure, but the stated goal of beating
+both competitors is not met: LightGBM scales more strongly. The optimization
+bundle reduced LibTree's four-thread fit times by 12.6%–20.5% versus the
+archived measurements on the same data and seeds. Engine order and shared-cloud
+scheduling differed between snapshots, so those before/after deltas are
+directional rather than a paired significance test.
+
+This confirms that parallel scaling depends on workload size and competitor
+implementation. It does not support a blanket recommendation to maximize
+thread count or claim that LibTree leads on scaling.
 
 ### B. Before/after optimization bundle
 
@@ -257,14 +276,14 @@ not only the fastest run.
   input validation and representation conversion. Interpret them as these
   interfaces' measured end-to-end calls.
 
-Reproduce the latest parallel/finance matrix (after building Release binaries):
+Reproduce the latest four-dataset parallel suite (after building Release binaries):
 
 ```sh
 . /workspace/libtree-venv/bin/activate
 PYTHONPATH=python python benchmarks/parallel.py \
+  --datasets insurance bank_marketing friedman_20k friedman_100k \
   --threads 1 2 4 --seeds 42 2024 2026 --repeats 3 \
-  --datasets bank_marketing friedman_20k friedman_100k \
-  --output benchmarks/adaptive-parallel-results.json
+  --output benchmarks/parallel-results.json
 ```
 
 The [interactive learning guide](../docs/LEARNING_GUIDE.html) explains the

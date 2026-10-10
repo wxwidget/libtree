@@ -38,3 +38,14 @@ def test_corrupt_cached_dataset_is_rejected(tmp_path, monkeypatch):
     (tmp_path / "pima.csv").write_text("corrupted data")
     with pytest.raises(RuntimeError, match="checksum mismatch"):
         run.source("pima")
+
+
+def test_measurement_order_is_reproducible_but_varies_by_thread_and_seed():
+    engines = ("libtree", "xgboost", "lightgbm")
+    first = run.measurement_order("friedman_100k", 42, 1, engines)
+    assert first == run.measurement_order("friedman_100k", 42, 1, engines)
+    assert set(first) == {(language, engine)
+                          for language in ("cpp", "python")
+                          for engine in engines}
+    assert first != run.measurement_order("friedman_100k", 42, 4, engines)
+    assert first != run.measurement_order("friedman_100k", 2024, 1, engines)

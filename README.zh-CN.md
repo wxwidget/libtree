@@ -123,11 +123,10 @@ CI 运行检查和一次基准冒烟测试；仓库保存的性能结果采用�
 
 ## 对比与迁移
 
-[实测报告](benchmarks/README.md)涵盖 Titanic、医疗保险费用、糖尿病、乳腺癌
-及 2 万行 Friedman 数据，分别对比 **C++ 原生调用和 Python 接口**与
-XGBoost 3.4.1 的效果、训练时间、预测时间和进程内存。
-固定划分上的效果接近，速度因数据集而异；较大的合成数据上 XGBoost 更快。
-这些是本地留出集结果，没有提交 Kaggle 榜单，也不构成普遍优于 XGBoost 的结论。
+[benchmark README](benchmarks/README.md)提供中大型数据的最新 **C++ 和 Python**
+对比、可复现命令和完整报告。固定划分上的效果和速度随任务变化；多线程方面，
+LibTree 的平均 1→4 训练扩展优于 XGBoost，但仍低于 LightGBM。严格的 scaling
+目标尚未达到。结果来自本地留出集，没有提交 Kaggle 榜单，也不代表普遍排名。
 
 本次重构删除了不安全的裸指针所有权、不完整的随机森林和 entropy 分支、
 未经推导的 boosting 权重及未经校验的二进制模型读写。旧 `train`/`classify`
@@ -158,7 +157,9 @@ Python 使用 `GBDTRegressor(n_jobs=4)` 或 `GBDTClassifier(n_jobs=4)`；C++ 设
 [同线程三方实测](benchmarks/PARALLEL_REPORT.zh-CN.md) · [交互扩展性图表](benchmarks/PARALLEL_REPORT.html)
 
 ```sh
-PYTHONPATH=python python benchmarks/parallel.py --threads 1 2 4 --seeds 42 2024 2026 --repeats 3
-python benchmarks/parallel_report.py
+PYTHONPATH=python python benchmarks/parallel.py \
+  --datasets insurance bank_marketing friedman_20k friedman_100k \
+  --threads 1 2 4 --seeds 42 2024 2026 --repeats 3
+python benchmarks/parallel_report.py --input benchmarks/parallel-results.json
 make thread-sanitize
 ```

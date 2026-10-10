@@ -1,107 +1,154 @@
-# XGBoost comparison / XGBoost 对比
+# Benchmark Guide and Latest Results
 
-[English guide](../README.md) · [中文指南](../README.zh-CN.md)
+This directory compares LibTree's C++ and Python interfaces with XGBoost and
+LightGBM. Results below use local held-out measurements; they are not Kaggle
+leaderboard scores. All raw repetitions, data fingerprints, package versions,
+and source hashes are kept in [`parallel-results.json`](parallel-results.json).
 
-Latest equal-thread measurements: [parallel report](PARALLEL_REPORT.zh-CN.md)
-and [interactive HTML](PARALLEL_REPORT.html), including 1/2/4-thread CPU scaling.
-最新同线程三方比较与 1/2/4 线程扩展性见上述报告；以下为历史单线程快照。
+## Latest measured scaling
 
-## Reproduce / 复现
+Measured 2026-10-10 on AMD EPYC 9V74 (80-core host, four-core cgroup quota),
+GCC 14.2, Python 3.12, XGBoost 3.4.1, and LightGBM 4.7.0. The test used four
+datasets, three seeds, three timing repetitions, and 1/2/4 threads: 648 raw
+timing records, each containing fit and prediction times. The entries below are training speedup ratios:
+mean 1-thread fit time divided by mean 4-thread fit time.
+
+| Workload | LibTree C++ | XGBoost C++ | LightGBM C++ | LibTree Python | XGBoost Python | LightGBM Python |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Insurance (small) | 0.96× | 1.01× | 0.45× | 0.99× | 1.10× | 0.60× |
+| Bank Marketing (medium) | 1.28× | 0.99× | 1.99× | 1.30× | 0.86× | 1.95× |
+| Friedman 20k (medium) | 1.17× | 1.03× | 2.07× | 1.21× | 1.04× | 1.69× |
+| Friedman 100k (large) | 1.51× | 1.04× | 2.07× | 1.54× | 0.97× | 2.27× |
+| Medium/large arithmetic mean | **1.32×** | 1.02× | **2.04×** | **1.35×** | 0.95× | **1.97×** |
+
+**The requested scaling criterion is not met:** LibTree scales better than
+XGBoost across these medium/large workloads, but LightGBM has a higher 1→4
+training scaling factor in both APIs. The implementation and benchmark suite
+remain useful for tracking the gap; the result is not presented as a win.
+Small insurance timings are included as a control, but their few-millisecond
+fit time is dominated by scheduling noise and is not a useful scaling target.
+The full arithmetic means, standard deviations, ranges, quality metrics, and
+all repetitions are in the [generated text report](PARALLEL_REPORT.zh-CN.md)
+and [raw JSON](parallel-results.json).
+
+## Run the benchmark
+
+From the repository root, install the benchmark dependencies and build the
+native targets:
 
 ```sh
 python -m pip install -r benchmarks/requirements.txt
 make all
-PYTHONPATH=python python benchmarks/run.py --suite original --repeats 3
-python benchmarks/report.py
 ```
 
-Raw repeats, hashes and versions: [results.json](results.json).
-原始重复测量、数据指纹和版本见 results.json。
+Run the selected financial, medium, and large datasets at equal 1/2/4-thread
+budgets. Each of the three seeds gets three independent timing repetitions per
+engine and interface. The run order is reproducibly shuffled by dataset, seed,
+and thread count.
 
-Measured / 测量时间 (UTC): 2026-10-09T03:54:53Z. model name	: AMD EPYC 9V74 80-Core Processor.
-g++ (Debian 14.2.0-19) 14.2.0; Python 3.12.14; XGBoost 3.4.1.
+```sh
+PYTHONPATH=python python benchmarks/parallel.py \
+  --datasets insurance bank_marketing friedman_20k friedman_100k \
+  --threads 1 2 4 \
+  --seeds 42 2024 2026 \
+  --repeats 3 \
+  --output benchmarks/parallel-results.json
+```
 
-## Method / 方法
+The runner verifies finite predictions, baseline quality, repeat determinism,
+and C++/Python prediction parity. It stores each raw fit and prediction timing;
+preprocessing, data downloads, library imports, and process startup are outside
+the timed region. LibTree and competitors receive the same main tree controls
+and configured thread budget. Their histogram construction, missing-value
+routing, and tree growth algorithms are not identical, so the comparison is a
+matched workload rather than a claim of algorithmic equivalence.
 
-Five datasets, fixed 75/25 train/test split (seed 42); binary splits are stratified.
-Categorical encoding is fitted on training rows only; unknown categories are ignored.
-NaNs remain missing for both learners. There is no tuning on the test set.
-100 trees, depth 4, 64 bins, learning rate 0.1, L2 1; one CPU thread; no GPU.
-LibTree uses minimum leaf count 5; XGBoost uses its default minimum Hessian weight 1.
-Their sketches, missing routing, base estimates and leaf constraints differ:
-this compares matched main controls, not mathematically identical learners.
+Generate the text and interactive HTML reports from the raw file:
 
-每个数据集固定 75/25 划分、seed=42，二分类分层抽样；编码器只拟合训练集。
-两种算法保留 NaN，不用测试集调参。主参数相同，但分位数算法、叶约束等不同。
+```sh
+python -m pip install -r benchmarks/requirements-report.txt
+python benchmarks/parallel_report.py --input benchmarks/parallel-results.json
+```
 
-Each timing repeat runs in a fresh process; table shows the median of three repeats.
-Native XGBoost calls its public C API from C++; no Python bridge is timed there.
-Fit time includes binning/DMatrix creation and label transfer; imports, CSV loading,
-preprocessing and subprocess startup are excluded. Prediction includes each interface's
-required input validation/conversion: native XGBoost builds a test DMatrix; Python uses
-its estimator prediction path. These are end-to-end interface timings, not isolated tree traversal.
-RSS is whole-process peak memory in MiB, not incremental model allocation. Python workers
-import both engines, so Python RSS includes the same substantial runtime baseline.
+The report generator checks raw run completeness, split hashes, source hashes,
+and LibTree's quality parity across thread counts. It writes
+[`PARALLEL_REPORT.zh-CN.md`](PARALLEL_REPORT.zh-CN.md),
+[`PARALLEL_REPORT.html`](PARALLEL_REPORT.html), and
+[`parallel-summary.json`](parallel-summary.json). The Markdown report is usable
+without a browser; the HTML includes filters, charts, and raw CSV export.
 
-每次测量启动独立进程，取三次中位数。C++ 通过 XGBoost 的公开 C API 直接调用。
-训练计时包含分箱/矩阵构建，不包含导入、文件读取、预处理和进程启动。预测计时
-包含接口必要的转换；C++ XGBoost 构造测试 DMatrix，Python 使用 estimator 路径。
-内存是整个进程的峰值，不是单个模型的增量；Python 进程均导入两种库。
+To run one engine or a single dataset for a quick local check, use the lower
+level runner:
 
-Quality uses held-out RMSE (lower is better) or ROC AUC (higher is better).
-All runs must beat a mean-label/AUC=0.5 baseline and emit finite predictions.
-C++ and Python predictions of each engine are checked with rtol=2e-5, atol=2e-3.
-Repeated predictions are also checked for determinism.
+```sh
+PYTHONPATH=python python benchmarks/run.py \
+  --suite all --datasets friedman_100k \
+  --threads 4 --seed 42 --repeats 3 \
+  --engines libtree xgboost lightgbm
+```
 
-效果采用留出集 RMSE（越低越好）或 AUC（越高越好），检查优于简单基线、
-预测有限、重复运行确定性及同一引擎的 C++/Python 一致性。
+## Method and workload selection
 
-## Results / 结果
+The checked-in scaling suite covers:
 
-Historical RSS used getrusage and may include inherited pre-exec high-water. Use the [new Kaggle report](KAGGLE_REPORT.zh-CN.md) for corrected Linux VmHWM measurements.
-此历史报告的 RSS 可能受启动前继承的内存高水位影响；内存比较以新 Kaggle 报告为准。
+- `insurance`: smaller real-world tabular regression.
+- `bank_marketing`: medium-size financial marketing classification.
+- `friedman_20k`: medium synthetic regression with known signal.
+- `friedman_100k`: larger synthetic regression used to expose scaling behavior.
 
-| Dataset | Interface | Engine | Metric | Value | Fit ms | Predict ms | Peak RSS MiB |
-| --- | --- | --- | --- | ---: | ---: | ---: | ---: |
-| diabetes | cpp | libtree | rmse | 58.7458 | 4.54 | 0.261 | 134.3 |
-| diabetes | cpp | xgboost | rmse | 57.1881 | 12.74 | 0.171 | 134.4 |
-| diabetes | python | libtree | rmse | 58.7458 | 5.26 | 0.307 | 134.4 |
-| diabetes | python | xgboost | rmse | 57.1881 | 17.75 | 0.684 | 141.8 |
-| breast_cancer | cpp | libtree | roc_auc | 0.9971 | 15.51 | 0.225 | 134.6 |
-| breast_cancer | cpp | xgboost | roc_auc | 0.9985 | 20.70 | 0.263 | 134.9 |
-| breast_cancer | python | libtree | roc_auc | 0.9971 | 14.63 | 0.354 | 134.9 |
-| breast_cancer | python | xgboost | roc_auc | 0.9985 | 27.50 | 0.885 | 142.1 |
-| titanic | cpp | libtree | roc_auc | 0.8415 | 13.80 | 0.454 | 136.4 |
-| titanic | cpp | xgboost | roc_auc | 0.8269 | 9.31 | 0.374 | 136.4 |
-| titanic | python | libtree | roc_auc | 0.8415 | 11.93 | 0.494 | 136.4 |
-| titanic | python | xgboost | roc_auc | 0.8269 | 12.77 | 0.871 | 141.7 |
-| insurance | cpp | libtree | rmse | 4576.7344 | 14.77 | 0.619 | 137.4 |
-| insurance | cpp | xgboost | rmse | 4576.4545 | 8.11 | 0.331 | 137.4 |
-| insurance | python | libtree | rmse | 4576.7344 | 16.32 | 0.673 | 137.4 |
-| insurance | python | xgboost | rmse | 4576.4545 | 13.03 | 0.808 | 141.8 |
-| friedman_20k | cpp | libtree | rmse | 1.1478 | 261.22 | 12.284 | 144.6 |
-| friedman_20k | cpp | xgboost | rmse | 1.1470 | 124.45 | 4.807 | 144.6 |
-| friedman_20k | python | libtree | rmse | 1.1478 | 252.59 | 12.622 | 144.6 |
-| friedman_20k | python | xgboost | rmse | 1.1470 | 134.09 | 4.329 | 144.9 |
+The suite uses 75/25 train/test splits, stratified for classification. Encoders
+are fitted on training rows only, missing values are retained, and no test-set
+tuning is performed. Parameters are 100 trees, depth 4, 64 bins, learning rate
+0.1, L2 1, and minimum leaf count 5 where supported. XGBoost's minimum Hessian
+weight and LightGBM's leaf-wise growth differ from LibTree's constraints.
+Small tasks can be slower with more threads because scheduling costs exceed the
+parallel work; include those rows rather than hiding them.
 
-## Sources and limits / 数据来源与限制
+Times are arithmetic means over all seed/repetition observations in each cell.
+The report also gives standard deviation and the observed range. Scaling is a
+ratio of means, not the mean of per-run ratios. All raw observations remain
+available so readers can assess outliers and CPU scheduling noise. Runs execute
+serially in fresh processes, with engine and interface order shuffled
+deterministically. Native C++ XGBoost uses its public C API; Python timings use
+the estimator API. Prediction timings include each interface's required input
+conversion; native XGBoost includes test-matrix creation.
 
-Titanic uses the public Kaggle training data mirrored in Géron's teaching repository.
-Medical insurance uses the public insurance dataset mirrored by Machine Learning with R
-(also used in Kaggle medical-cost exercises); it is not an official competition score.
-Both downloads use HTTPS and pinned SHA256. Diabetes and breast cancer are sklearn
-bundled datasets; Friedman is synthetic (20,000 rows, 20 features, noise 1, seed 42).
+## Performance work in this snapshot
 
-Titanic 来自公开 Kaggle 训练集镜像，保险费用来自公开教学镜像（也用于 Kaggle
-练习），均校验 SHA256；其他为 sklearn 内置或合成数据。没有 Kaggle 榜单提交。
+- Reuse the split search's left/right gradient, Hessian, and row-count totals
+  instead of rescanning every node's rows to recompute child statistics.
+- Update gradients and loss in fixed-size row chunks. Independent rows can run
+  in parallel, while fixed chunk boundaries and ordered reduction preserve
+  deterministic results across thread counts.
+- Retain depth-layer scheduling for sufficiently large datasets and a bounded
+  histogram-memory estimate; smaller workloads keep the recursive path.
 
-These are small/medium local workloads and one split, not a universal ranking.
-LibTree quality is close to XGBoost here, with a higher Titanic AUC on this split.
-XGBoost is faster on the larger Friedman workload. Historical RSS is not suitable
-for engine comparisons; see the corrected Kaggle report. Small timings and shared-cloud CPU
-scheduling are noisy; examine raw repeats. No hyperparameter search, cross-validation,
-GPU, sparse, multiclass or multi-thread comparison was run.
+The benchmark disproves the hypothesis that these changes close the scaling
+gap to LightGBM. The next high-value work is profiling the large workload's
+remaining serial fraction and measuring any follow-up against the same raw
+suite before claiming an advantage.
 
-效果相近，Titanic 的这个划分上 LibTree AUC 较高；较大合成任务上 XGBoost 更快。
-内存比较请查看修正后的新报告。小样本毫秒级计时容易受共享 CPU 调度影响，
-只有一个划分，未进行交叉验证、超参搜索、GPU、稀疏、多分类或多线程比较。
+### Change versus the previous LibTree snapshot
+
+On the same three medium/large datasets and seeds, the current implementation
+also reduced mean 4-thread LibTree fit time relative to the archived
+[`adaptive-parallel-results.json`](adaptive-parallel-results.json):
+
+| Dataset | C++ previous → current | C++ change | Python previous → current | Python change |
+| --- | ---: | ---: | ---: | ---: |
+| Bank Marketing | 243.5 → 205.7 ms | −15.5% | 254.8 → 202.5 ms | −20.5% |
+| Friedman 20k | 95.0 → 82.9 ms | −12.8% | 100.8 → 82.6 ms | −18.0% |
+| Friedman 100k | 372.8 → 325.6 ms | −12.6% | 393.1 → 336.6 ms | −14.4% |
+
+This is an optimization-bundle comparison, not an isolated kernel ablation.
+Inputs and seeds match, but the archived and current runs used different
+randomized engine order and can experience different cloud scheduling. Treat
+the timing deltas as directional evidence, not a paired significance test.
+
+## Related files
+
+- [Parallel implementation and scaling report](PARALLEL_REPORT.zh-CN.md)
+- [Raw equal-thread measurements](parallel-results.json)
+- [Adaptive scaling history](ADAPTIVE_REPORT.zh-CN.md)
+- [Experiment design and ablations](EXPERIMENTS.md)
+- [Benchmark runner](run.py) and [parallel suite runner](parallel.py)

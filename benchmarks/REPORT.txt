@@ -1,129 +1,65 @@
-LibTree 性能、竞品对比与测试报告
-================================
+LibTree benchmark report
+Measured: 2026-10-10
+Machine: AMD EPYC 9V74, 4-core cgroup CPU quota, GCC 14.2, Python 3.12
+Competitors: XGBoost 3.4.1 and LightGBM 4.7.0
 
-生成时间：2026-10-09
-平台：Linux x86-64，AMD EPYC 9V74，GCC 14.2，Python 3.12
-引擎：LibTree、XGBoost 3.4.1、LightGBM 4.7.0
+Scope
+-----
+Insurance, Bank Marketing, Friedman 20k, and Friedman 100k; C++ and Python
+interfaces; LibTree, XGBoost, and LightGBM; 1, 2, and 4 threads; three seeds;
+three fresh-process timing repeats per seed. The raw file contains 648 timing
+records, each with fit and prediction times. They are reported separately.
 
-一、结论
---------
+Four-thread training scaling
+----------------------------
+Scaling factor = arithmetic mean fit time at one thread / arithmetic mean fit
+time at four threads. Medium/large mean is the arithmetic mean across Bank
+Marketing, Friedman 20k, and Friedman 100k.
 
-1. 在当前固定参数和云环境中，LibTree 的 C++ 版本五个数据集的平均训练时间为
-   14.336 ms，XGBoost 为 21.995 ms，LightGBM 为 19.947 ms；按五个数据集的
-   平均值计算，LibTree 约快 1.53x 和 1.39x。均值包含每个数据集的 15 次原始计时。
-2. C++ 平均推理时间为 LibTree 0.363 ms、XGBoost 0.811 ms、LightGBM 1.749 ms；
-   LibTree 约快 2.23x 和 4.82x。均值同时保留异常慢样本的影响。
-3. Python 接口的模型效果与 C++ 完全一致。五个数据集的平均训练时间为
-   LibTree 14.577 ms、XGBoost 29.287 ms、LightGBM 33.016 ms；平均推理为
-   0.496 ms、1.590 ms、2.713 ms。
-4. LibTree 在这组固定参数下的效果并非所有数据集都第一：保险数据的 XGBoost
-   R² 略高；Telco 的 ROC-AUC 基本相同。Wine、Pima、Titanic 的主指标由 LibTree
-   取得最高值。
-5. 多线程测试覆盖 1/2/4 线程、7 个数据集、两种接口、3 个随机种子和 3 次计时，
-   共 1,134 条原始测量。小数据集受调度开销影响，Friedman 大数据集收益最明显。
-   把 7 个数据集等权后，C++ 训练平均值从 105.91 ms 降到 81.84 ms（1.29x），
-   Python 从 102.32 ms 降到 79.06 ms（1.29x）。这个聚合被 100k 行任务主导，
-   因此不能当作典型小型表格数据的加速保证。
+Workload             LibTree C++   XGBoost C++   LightGBM C++   LibTree Py   XGBoost Py   LightGBM Py
+Insurance            0.96x         1.01x         0.45x          0.99x        1.10x        0.60x
+Bank Marketing       1.28x         0.99x         1.99x          1.30x        0.86x        1.95x
+Friedman 20k         1.17x         1.03x         2.07x          1.21x        1.04x        1.69x
+Friedman 100k        1.51x         1.04x         2.07x          1.54x        0.97x        2.27x
+Medium/large mean    1.32x         1.02x         2.04x          1.35x        0.95x        1.97x
 
-二、五数据集竞品对比（优化后，C++）
---------------------------------------
+Assessment
+----------
+The stated requirement that LibTree's training scaling exceed both competitors
+is not met. LibTree exceeds XGBoost on the medium/large workloads, but LightGBM
+scales faster in both interfaces. The current code changes reduced LibTree's
+four-thread mean fit time by about 12.6%-20.5% versus the archived measurements
+on the same workloads and seeds. Those before/after timings are directional:
+the benchmark order changed and cloud scheduling is variable. The full report
+does not hide slow cases or summarize times with medians.
 
-主指标：ROC-AUC 或 R²，数值越高越好；时间单位为 ms，时间是 3 个种子 × 5
-次原始计时的平均值。括号内为样本标准差。
+Changes measured
+----------------
+1. Reuse split-search left/right gradient, Hessian, and row-count totals rather
+   than rescanning child rows to recompute them.
+2. Compute per-row gradients and losses in fixed-size chunks with a fixed
+   reduction order, enabling deterministic parallel work.
+3. Preserve adaptive layer scheduling for sufficiently large tree workloads.
 
-数据集       指标    LibTree效果  XGBoost效果  LightGBM效果   LibTree训练/推理均值±标准差
-insurance    R²      0.8566       0.8574       0.8566         4.436±0.714 / 0.186±0.015
-pima         AUC     0.8074       0.8047       0.8030         5.532±0.401 / 0.183±0.059
-telco        AUC     0.8465       0.8465       0.8444        50.056±2.359 / 1.100±0.105
-titanic      AUC     0.8393       0.8325       0.8337         4.252±0.537 / 0.163±0.028
-wine         R²      0.3999       0.3787       0.3974         7.403±0.662 / 0.182±0.001
+An attempted parallel partition and a flattened node-feature histogram queue
+did not improve the measured scaling and were removed.
 
-C++ 竞品时间：
-  insurance：LibTree 4.436±0.714/0.186±0.015，XGBoost 10.079±1.527/0.496±0.158，LightGBM 7.952±0.897/0.952±0.106
-  pima：     LibTree 5.532±0.401/0.183±0.059，XGBoost 15.505±1.217/0.440±0.077，LightGBM 10.712±0.958/0.694±0.081
-  telco：    LibTree 50.056±2.359/1.100±0.105，XGBoost 54.098±3.004/2.262±0.219，LightGBM 60.654±2.950/5.344±0.510
-  titanic：  LibTree 4.252±0.537/0.163±0.028，XGBoost 9.502±0.655/0.402±0.060，LightGBM 7.840±0.852/0.661±0.106
-  wine：     LibTree 7.403±0.662/0.182±0.001，XGBoost 20.792±2.409/0.453±0.082，LightGBM 12.578±1.456/1.095±0.148
+Validation
+----------
+CTest 5/5; Python 31/31; CLI 13/13; performance and memory 2/2; benchmark tests
+5/5. C++ line coverage 1349/1349 (100%); Python 148/148 (100%). ASan, UBSan,
+LSan, and ThreadSanitizer passed.
 
-Python 平均时间（五数据集，均值为每个数据集原始均值的平均）：
-  引擎       训练 ms  推理 ms  相对 LibTree 训练  相对 LibTree 推理
-  LibTree    14.577    0.496       1.00x             1.00x
-  XGBoost    29.287    1.590       2.01x             3.21x
-  LightGBM   33.016    2.713       2.27x             5.47x
+Reproduce
+---------
+python -m pip install -r benchmarks/requirements.txt
+make all
+PYTHONPATH=python python benchmarks/parallel.py \
+  --datasets insurance bank_marketing friedman_20k friedman_100k \
+  --threads 1 2 4 --seeds 42 2024 2026 --repeats 3 \
+  --output benchmarks/parallel-results.json
+python -m pip install -r benchmarks/requirements-report.txt
+python benchmarks/parallel_report.py --input benchmarks/parallel-results.json
 
-三、多线程结果
---------------
-
-LibTree 相对自身单线程平均时间的平均加速比（7 个数据集，按语言分别统计；± 为
-7 个数据集之间的标准差）：
-
-接口       线程   训练加速比       推理加速比
-C++        1      1.00x±0.00     1.00x±0.00
-C++        2      1.05x±0.12     1.22x±0.29
-C++        4      1.04x±0.18     1.49x±0.65
-Python     1      1.00x±0.00     1.00x±0.00
-Python     2      1.03x±0.12     1.22x±0.22
-Python     4      1.01x±0.20     1.52x±0.58
-
-在每个接口、每个线程预算与三个竞品比较时，LibTree 的最快次数为：
-  1 线程：训练 12/14，推理 14/14
-  2 线程：训练 10/14，推理 14/14
-  4 线程：训练  9/14，推理 14/14
-
-大数据集 4 线程加速示例（原始计时算术平均，训练/推理）：
-  friedman_100k：C++ 1.42x / 2.36x，Python 1.42x / 2.35x
-  friedman_20k： C++ 1.10x / 2.31x，Python 1.11x / 2.15x
-
-训练规模敏感性（C++，1线程→4线程，训练时间为平均 ms）：
-  friedman_100k 561.95→396.24（1.42x）；friedman_20k 107.87→98.21（1.10x）
-  telco 50.26→56.71（0.89x）；insurance 4.14→4.65（0.89x）
-  pima 5.48→5.48（1.00x）；titanic 4.25→4.44（0.96x）；wine 7.43→7.16（1.04x）
-
-四、为什么训练加速有限
-----------------------
-
-Boosting 的第 t+1 棵树依赖第 t 棵树更新后的 margins/gradients，所以不同 boosting
-轮次不能直接并行。当前代码也不是整棵树完全串行：对大任务，特征分箱、根直方图，
-以及树递归过程中的部分直方图构建会使用线程池。但递归的左右子树依次处理，
-分裂扫描、行 partition、子节点统计、margin 更新和每轮 loss/derivative 更新仍有
-串行部分。`make_histograms` 的并行门槛是节点样本数×特征数至少 65,536；下层节点
-很快低于门槛。同一节点的直方图分桶工作还会触碰许多分散内存，受到 cache 和内存带宽
-制约。线程池任务 dispatch 与 barrier 对小任务的成本可能大于节省的计算时间。
-
-因此合理路线是随数据规模切换并行粒度：小数据维持单线程/少量线程，避免派发开销；
-中型数据并行特征和行区间；大数据将一层中的 ready nodes 批量调度，并行构建各节点
-直方图。每层节点有依赖屏障。可选地，在一个节点的分裂确定后并行准备左右子节点；
-但要解决共享 rows/positions 的区间切分、树节点 ID 分配和独立直方图工作区。每轮
-loss/derivative 更新也可按连续行块并行，再按固定顺序归并，以维持确定性。
-
-这项诊断给出可验证的优化方向，并不表示节点级并行已经实现或已测得收益。
-
-五、测试与质量门禁
-------------------
-
-1. 原生 CTest：5/5 通过；原生行为检查 4,701 项通过。
-2. Python：31 个 Python 行为测试、13 个 CLI 测试、2 个性能/内存测试通过。
-3. 覆盖率：C++ 源码 1,116/1,116 行（100%）；Python 148/148 行（100%）。
-   Makefile 已设置 --fail-under-line 100。
-4. Sanitizer：ASan、UBSan、LSan 和 ThreadSanitizer 均通过；未发现泄漏、未定义
-   行为或数据竞争。
-5. 确定性：不同线程数的模型字节、预测结果和每轮训练损失保持一致；C++/Python
-   结果保持一致。
-6. HTML 报告：Chromium 验证了双语切换、1/2/4 线程筛选、5 个图表、1,134 条
-   CSV 原始记录、线性/对数坐标、移动布局和无 JavaScript 错误。
-
-六、测试方法与限制
-------------------
-
-所有竞品使用相同数据划分、随机种子 42/2024/2026 和固定参数：100 棵树、深度
-4、64 分箱、学习率 0.1、L2=1、最小叶样本数 5。优化对比使用每个划分 5 次原始计时，
-报告使用算术平均值和样本标准差；
-多线程对比使用每个划分 3 次计时。计时包含训练所需的矩阵/分箱处理，不包含下载和
-进程启动；推理包含接口校验和必要转换。
-
-Kaggle API 在当前网络环境被代理以 HTTP 403 拒绝，因此使用固定 SHA256 的公开镜像，
-不能宣称官方 Kaggle 字节级身份或 Kaggle 排行榜成绩。结果是当前硬件、数据和参数
-下的可复现实验，不代表所有规模、平台、GPU、稀疏数据或超参数搜索场景的普遍排名。
-
-原始数据：parallel-results.json、optimized-results.json、comparison-results.json
-覆盖率详情：../build-coverage/coverage.html、../build-coverage/summary.json
+Full details and raw values are in PARALLEL_REPORT.zh-CN.md,
+parallel-results.json, and parallel-summary.json.

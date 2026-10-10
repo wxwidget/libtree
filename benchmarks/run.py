@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import random
 import struct
 import subprocess
 import sys
@@ -183,6 +184,16 @@ def prepare(x, y, binary, seed=42):
             np.asarray(train_y, dtype=np.float32), np.asarray(test_y, dtype=np.float32))
 
 
+def measurement_order(dataset, seed, threads, engines):
+    """Return a reproducible, seed-specific order for engine/interface jobs."""
+    order = [(language, engine) for language in ("cpp", "python")
+             for engine in engines]
+    order_seed = (seed * 1_000_003 + threads * 97 +
+                  sum((index + 1) * ord(char) for index, char in enumerate(dataset)))
+    random.Random(order_seed).shuffle(order)
+    return order
+
+
 def main(args):
     RUNS.mkdir(exist_ok=True)
     results, sources = [], {}
@@ -215,8 +226,8 @@ def main(args):
                 stream.write(array.astype("<f4").tobytes())
         predictions = {}
         training_predictions = {}
-        for language in ("cpp", "python"):
-            for engine in engines:
+        current_order = measurement_order(name, args.seed, args.threads, engines)
+        for language, engine in current_order:
                 runs = []
                 output = RUNS / f"{name}-{language}-{engine}.f32"
                 for repetition in range(args.repeats):
@@ -236,9 +247,21 @@ def main(args):
                     if train_pred.shape != y.shape or not np.isfinite(train_pred).all():
                         raise RuntimeError("invalid training predictions")
                     if repetition:
-                        np.testing.assert_allclose(pred, predictions[(language, engine)], atol=1e-6, rtol=1e-6)
-                        np.testing.assert_allclose(train_pred, training_predictions[(language, engine)],
-                                                   atol=1e-6, rtol=1e-6)
+                        try:
+                            np.testing.assert_allclose(
+                                pred, predictions[(language, engine)],
+                                atol=1e-6, rtol=1e-6)
+                            np.testing.assert_allclose(
+                                train_pred,
+                                training_predictions[(language, engine)],
+                                atol=1e-6, rtol=1e-6)
+                        except AssertionError as error:
+                            raise RuntimeError(
+                                "nondeterministic prediction: "
+                                f"dataset={name}, language={language}, "
+                                f"engine={engine}, threads={args.threads}, "
+                                f"seed={args.seed}, repetition={repetition + 1}") \
+                                from error
                     predictions[(language, engine)] = pred
                     training_predictions[(language, engine)] = train_pred
                 metric = float(roc_auc_score(truth, pred) if binary else

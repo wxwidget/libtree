@@ -86,7 +86,8 @@ def summarize(raw, previous=None, check_sources=True):
                    'metric_mean': mean(values), 'metric_std': stdev(values) if len(values) > 1 else 0}
         for field in ('fit_seconds', 'predict_seconds', 'peak_rss_kib'):
             timings = [r[field] for r in runs]
-            summary[field] = median(timings)
+            summary[field] = mean(timings)
+            summary[field + '_std'] = stdev(timings) if len(timings) > 1 else 0
             summary[field + '_min'] = min(timings)
             summary[field + '_max'] = max(timings)
         result.append(summary)
@@ -119,13 +120,13 @@ code{overflow-wrap:anywhere}summary{cursor:pointer;padding:12px}a{color:#007d77}
 </style><script>__PLOTLY__</script></head><body>
 <header><div class="wrap"><div class="sub">LIBTREE · CPU 并行优化 / Parallel CPU execution</div><h1>__THREAD_LABEL__ 线程：训练与推理实测</h1><p>Kaggle 数据镜像与合成压力测试 · C++ / Python · 三方相同线程预算</p><div class="sub" id="environment"></div></div></header>
 <nav class="toolbar"><div class="wrap"><button id="cpp" class="active" aria-pressed="true">C++</button><button id="python" aria-pressed="false">Python</button><label>线程 <select id="threads"></select></label><label>扩展性数据集 <select id="dataset"></select></label><button id="json">下载原始 JSON</button><button id="csv">下载全部 CSV</button></div></nav>
-<main class="wrap"><p>所有运行使用相同主参数、数据划分及配置线程数。每组按 __SEEDS__ 个划分 × __REPEATS__ 次独立计时的中位数比较；小任务可能使用较少工作线程。排名属于本次硬件和任务。</p>
+<main class="wrap"><p>所有运行使用相同主参数、数据划分及配置线程数。时间显示 __SEEDS__ 个划分 × __REPEATS__ 次独立计时的算术平均值，并保留原始记录和标准差；小任务可能使用较少工作线程。排名属于本次硬件和任务。</p>
 <div class="cards"><div class="card"><div class="note">当前数据集 · LibTree 训练加速</div><div class="big" id="fit-ratio"></div><div class="note">同版本 1 线程 ÷ 所选线程耗时</div></div><div class="card"><div class="note">当前数据集 · LibTree 推理加速</div><div class="big" id="predict-ratio"></div><div class="note">模型与效果指标保持一致</div></div><div class="card"><div class="note">可审查的原始计时</div><div class="big" id="run-count"></div><div class="note" id="wins"></div></div></div>
 <h2>同线程预算的训练与推理</h2><label class="note"><input type="checkbox" id="log" checked> 对数时间坐标</label><div class="grid"><article class="card"><h3>训练时间 · ms ↓</h3><p class="note">含分箱、矩阵构建及 LibTree 线程池准备；误差线为最小至最大计时。</p><div class="chart" id="fit"></div></article><article class="card"><h3>预测时间 · ms ↓</h3><p class="note">接口端到端，包括必要校验和转换，复用已拟合模型的线程池。</p><div class="chart" id="predict"></div></article></div>
 <h2>随线程数变化：所选数据集</h2><div class="grid"><article class="card"><h3>训练加速比 ↑</h3><p class="note">各引擎自身的单线程耗时作为基准；小于 1 表示变慢。</p><div class="chart" id="fit-scaling"></div></article><article class="card"><h3>推理加速比 ↑</h3><p class="note">收益受串行工作、调度与 CPU 配额限制，并非线程数倍数。</p><div class="chart" id="predict-scaling"></div></article><article class="card wide"><h3>峰值进程内存 · MiB ↓</h3><p class="note" id="memory-note"></p><div class="chart" id="rss"></div></article></div>
-<h2>效果和测量明细</h2><p class="note">效果是 __SEEDS__ 个划分的均值 ± 样本标准差；AUC ↑，RMSE ↓。时间是 __POOLED__ 次运行的中位数。LibTree 同划分效果指标跨线程数逐项相同，旧版五数据集效果也未改变。</p><div class="card table-scroll"><table><thead><tr><th>数据集</th><th>引擎</th><th>指标</th><th>测试效果</th><th>训练 ms</th><th>推理 ms</th><th>训练排名</th><th>推理排名</th></tr></thead><tbody id="rows"></tbody></table></div>
-<h2>实现与验证</h2><div class="card"><p>标准 C++17 线程池，调用线程参与计算；特征直方图各自写入独立区域，保持样本累加顺序。Boosting 各轮与树节点按依赖执行。预测按 64 行批次并行，校验完成后才写输出。小任务保留串行路径。</p><p>TDD 先建立缺失接口的失败测试。5/5 原生目标、31 Python、13 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生行为检查。ASan/UBSan/LSan、ThreadSanitizer 均通过。源码行覆盖率 100%（1116/1116），分支 67.2%，Python 100%（148/148）。仅排除明确标记的系统耗尽、异常边界、竞态和编译器行映射续行。这些是本地检查，远程 CI 结果需另行查看。</p><p><code>xgbt train --train data.csv --threads 4</code><br><code>GBDTRegressor(n_jobs=4)</code><br><code>Parameters::num_threads = 4</code></p><p>默认 1，范围 1–256，含调用线程。线程数不写入模型；共享模型的并发预测分发会排队，不能并发拟合、关闭或修改线程数。</p></div>
-<h2>方法、来源与边界</h2><div class="card"><p>100 棵树、深度 4、64 分箱、学习率 0.1、L2=1、最小叶样本数 5。XGBoost 使用默认最小 Hessian 权重 1；LightGBM leaf-wise、最多 16 叶。分箱与生长方式并不完全相同，没有超参数搜索。</p><p>种子 42/2024/2026；75/25 留出，分类分层抽样；编码只拟合训练集，保留 NaN。红酒先去重，Telco 删除客户 ID。训练排除下载、CSV 读取、编码、导入和进程启动；XGBoost 原生预测计入测试 DMatrix 构建。Python 进程均导入三个库，RSS 是进程峰值而非模型增量。</p><p>各线程/种子的执行块以固定种子随机排序，测量进程串行运行。加速比为两组中位数之比，不是逐轮配对实验；共享云 CPU 存在波动。Kaggle 数据来自已校验 SHA256 的公开镜像，不是官方榜单成绩。Friedman 数据为合成回归压力测试，不代表所有真实任务；不覆盖稀疏、GPU、多分类、百万行任务。</p><div id="sources"></div><details><summary>源码与报告指纹</summary><div id="hashes"></div></details></div>
+<h2>效果和测量明细</h2><p class="note">效果是 __SEEDS__ 个划分的均值 ± 样本标准差；AUC ↑，RMSE ↓。时间显示算术平均值 ± 样本标准差；图表误差范围显示最小至最大值。LibTree 同划分效果指标跨线程数逐项相同。</p><div class="card table-scroll"><table><thead><tr><th>数据集</th><th>引擎</th><th>指标</th><th>测试效果</th><th>训练 ms（平均 ± SD）</th><th>推理 ms（平均 ± SD）</th><th>训练排名</th><th>推理排名</th></tr></thead><tbody id="rows"></tbody></table></div>
+<h2>实现与验证</h2><div class="card"><p>标准 C++17 线程池，调用线程参与计算；特征直方图各自写入独立区域，保持样本累加顺序。Boosting 各轮与树节点按依赖执行。预测按 64 行批次并行，校验完成后才写输出。小任务保留串行路径。</p><p>验证命令和最近一次结果以仓库当前 README/CI 为准；该页面专注于 benchmark 证据，避免在结果文件中复制可能过期的覆盖率或 sanitizer 数字。</p><p><code>xgbt train --train data.csv --threads 4</code><br><code>GBDTRegressor(n_jobs=4)</code><br><code>Parameters::num_threads = 4</code></p><p>默认 1，范围 1–256，含调用线程。线程数不写入模型；共享模型的并发预测分发会排队，不能并发拟合、关闭或修改线程数。</p></div>
+<h2>方法、来源与边界</h2><div class="card"><p>100 棵树、深度 4、64 分箱、学习率 0.1、L2=1、最小叶样本数 5。XGBoost 使用默认最小叶 Hessian 权重 1；LightGBM leaf-wise、最多 16 叶。分箱与生长方式并不完全相同，没有超参数搜索。</p><p>种子 42/2024/2026；75/25 留出，分类分层抽样；编码只拟合训练集，保留 NaN。红酒先去重，Telco 删除客户 ID。训练排除下载、CSV 读取、编码、导入和进程启动；XGBoost 原生预测计入测试 DMatrix 构建。Python 进程均导入三个库，RSS 是进程峰值而非模型增量。</p><p>每个数据集内的引擎/接口顺序按 seed 和线程数确定性随机排序，进程串行运行。加速比为单线程平均耗时除以当前线程平均耗时；原始记录保留每次测量，因此加速比不是逐轮配对实验。共享云 CPU 存在波动。Kaggle 数据来自已校验 SHA256 的公开镜像，不是官方榜单成绩。Friedman 数据为合成回归压力测试，不代表所有真实任务；不覆盖稀疏、GPU、多分类、百万行任务。</p><div id="sources"></div><details><summary>源码与报告指纹</summary><div id="hashes"></div></details></div>
 <footer>全部 1 / 2 / 4 线程结果均保留，包括负收益。排名与效果不外推为普遍最优。</footer></main>
 <script id="evidence" type="application/json">__DATA__</script><script>
 'use strict';const evidence=JSON.parse(document.getElementById('evidence').textContent),raw=evidence.raw,stats=evidence.summary;
@@ -145,7 +146,7 @@ function render(){for(const lang of ['cpp','python']){const active=lang===langua
  const wins=f=>selected.filter(r=>r.engine==='libtree'&&r[f+'_rank']===1).length;
  document.getElementById('wins').textContent='所选接口 / 线程：训练 '+wins('fit_seconds')+'/'+names.length+'，推理 '+wins('predict_seconds')+'/'+names.length+' 组最快';
  document.getElementById('memory-note').textContent=language==='cpp'?'原生执行进程的峰值，含线程池等运行内存。':'Python 运行时及三个库共同构成基础开销；计量整个进程峰值。';
- document.getElementById('rows').innerHTML=selected.map(r=>`<tr><td>${r.dataset}</td><td>${r.engine}</td><td>${r.metric_name==='roc_auc'?'AUC ↑':'RMSE ↓'}</td><td>${r.metric_mean.toFixed(4)} ± ${r.metric_std.toFixed(4)}</td><td>${(r.fit_seconds*1000).toFixed(2)}</td><td>${(r.predict_seconds*1000).toFixed(3)}</td><td>${r.fit_seconds_rank}</td><td>${r.predict_seconds_rank}</td></tr>`).join('');
+ document.getElementById('rows').innerHTML=selected.map(r=>`<tr><td>${r.dataset}</td><td>${r.engine}</td><td>${r.metric_name==='roc_auc'?'AUC ↑':'RMSE ↓'}</td><td>${r.metric_mean.toFixed(4)} ± ${r.metric_std.toFixed(4)}</td><td>${(r.fit_seconds*1000).toFixed(2)} ± ${(r.fit_seconds_std*1000).toFixed(2)}</td><td>${(r.predict_seconds*1000).toFixed(3)} ± ${(r.predict_seconds_std*1000).toFixed(3)}</td><td>${r.fit_seconds_rank}</td><td>${r.predict_seconds_rank}</td></tr>`).join('');
 }
 document.getElementById('threads').innerHTML=raw.threads.map(t=>`<option ${t===threads?'selected':''}>${t}</option>`).join('');
 document.getElementById('dataset').innerHTML=names.map(n=>`<option value="${n}" ${n===dataset?'selected':''}>${n}</option>`).join('');
@@ -165,21 +166,21 @@ def main():
     parser.add_argument('--historical', action='store_true', help='Skip current checkout SHA checks for an older snapshot')
     args = parser.parse_args()
     raw = json.loads(args.input.read_text())
-    previous = json.loads((ROOT / 'optimized-results.json').read_text())
-    summary = summarize(raw, previous=previous, check_sources=not args.historical)
+    summary = summarize(raw, check_sources=not args.historical)
     runs = sum(len(r['raw_runs']) for s in raw['split_reports'] for r in s['results'])
     (ROOT / 'parallel-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
     lines = ['# LibTree CPU 多线程实测', '',
              f'{len(raw["threads"])} 个线程数 × {len(raw["split_reports"][0]["sources"])} 个数据集 × {len(raw["seeds"])} 个划分 × C++/Python × 3 个引擎 × {raw["timing_repeats_per_split"]} 次计时，共 **{runs} 次**。', '',
-             f"Equal configured thread budgets; independent processes. Each cell uses the pooled median of {len(raw['seeds']) * raw['timing_repeats_per_split']} runs. "
-             'All LibTree same-split quality metrics are unchanged across threads and from the preceding five-dataset snapshot.', '',
-             '训练与预测分开测量。每组 9 次原始计时，保留最小/最大值；效果为三个划分的均值及样本标准差。', '',
+              f"Equal configured thread budgets; independent processes. Each cell uses the arithmetic mean of {len(raw['seeds']) * raw['timing_repeats_per_split']} runs. "
+             'All LibTree same-split quality metrics are unchanged across configured thread counts.', '',
+             f"训练与预测分开测量。每组 {len(raw['seeds']) * raw['timing_repeats_per_split']} 次原始计时，时间报告算术平均值±样本标准差并保留范围；效果为三个划分的均值及样本标准差。", '',
              f"可用逻辑 CPU：{raw['split_reports'][0]['metadata']['available_cpus']}；cgroup CPU 配额：{raw['split_reports'][0]['metadata']['cpu_quota']}；种子：{raw['seeds']}。线程数为预算，小任务可串行。", '',
-             '| 数据集 | 接口 | 引擎 | 线程 | 训练 ms | 推理 ms | 训练加速 | 推理加速 | 指标 | 测试效果 |',
+             '| 数据集 | 接口 | 引擎 | 线程 | 训练 ms 平均±SD | 推理 ms 平均±SD | 训练加速 | 推理加速 | 指标 | 测试效果 |',
              '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |']
     for r in summary:
         lines.append(f"| {r['dataset']} | {r['language']} | {r['engine']} | {r['threads']} | "
-                     f"{r['fit_seconds']*1000:.2f} | {r['predict_seconds']*1000:.3f} | "
+                     f"{r['fit_seconds']*1000:.2f} ± {r['fit_seconds_std']*1000:.2f} | "
+                     f"{r['predict_seconds']*1000:.3f} ± {r['predict_seconds_std']*1000:.3f} | "
                      f"{r['fit_seconds_speedup']:.2f}× | {r['predict_seconds_speedup']:.2f}× | "
                      f"{'AUC ↑' if r['metric_name'] == 'roc_auc' else 'RMSE ↓'} | "
                      f"{r['metric_mean']:.4f} ± {r['metric_std']:.4f} |")
@@ -189,7 +190,7 @@ def main():
         fit = sum(r['fit_seconds_rank'] == 1 for r in subset)
         pred = sum(r['predict_seconds_rank'] == 1 for r in subset)
         lines.append(f'{count} 线程：LibTree 训练 {fit}/{len(subset)} 组最快，推理 {pred}/{len(subset)} 组最快。')
-    lines += ['', '加速比为同版本单线程中位数除以当前线程中位数，不是配对逐轮实验。'
+    lines += ['', '加速比为同版本单线程平均耗时除以当前线程平均耗时；原始计时按数据集、种子和线程数固定随机排序，不是逐轮配对实验。'
               '共享云 CPU 有波动，不能将差异解释为普遍最优。小任务可能因启动和同步变慢，全部结果均保留。', '',
               '主参数：100 棵树、深度 4、64 分箱、学习率 0.1、L2=1、最小增益 0。'
               'LibTree/LightGBM 最小叶样本 5；XGBoost 默认最小 Hessian 权重 1；LightGBM leaf-wise、16 叶。'
@@ -198,12 +199,9 @@ def main():
               '预测计时包含接口必要校验和转换，C++ XGBoost 包含测试 DMatrix 构建；RSS 为执行进程 VmHWM。', '',
               '75/25 留出，二分类分层；训练集拟合编码，保留 NaN，红酒先去重。Kaggle 对应数据来自固定 SHA256 的公开镜像；'
               'Friedman 为合成压力测试。未覆盖百万行、稀疏、多分类、GPU、跨硬件任务。', '',
-              '5/5 CTest、31 Python、13 CLI、4 基准准备及 2 性能/所有权用例通过；4,701 项原生检查。'
-              'ASan/UBSan/LSan 与 ThreadSanitizer 均通过。源码行覆盖 1116/1116=100%，'
-              '分支 1116/1660=67.2%，函数 106/106；Python 148/148=100%。仅排除明确标记的系统耗尽、异常边界、竞态和编译器行映射续行。'
-              '远程 GitHub Actions 是否通过需另行查看。', '',
+              '训练、质量和重复确定性检查均由 benchmark runner 执行；仓库级单元测试、覆盖率与 sanitizer 命令见根目录 Makefile。', '',
               '## 复现', '', '```sh', '. /workspace/libtree-venv/bin/activate', 'make all',
-              'PYTHONPATH=python python benchmarks/parallel.py --threads 1 2 4 --seeds 42 2024 2026 --repeats 3',
+              'PYTHONPATH=python python benchmarks/parallel.py --datasets insurance bank_marketing friedman_20k friedman_100k --threads 1 2 4 --seeds 42 2024 2026 --repeats 3',
               'python -m pip install -r benchmarks/requirements-report.txt', 'python benchmarks/parallel_report.py',
               'make test', 'make sanitize', 'make thread-sanitize', 'make coverage', '```', '',
               '[交互 HTML](PARALLEL_REPORT.html) · [全部原始计时](parallel-results.json) · [聚合数据](parallel-summary.json) · '
