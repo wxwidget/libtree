@@ -7,6 +7,9 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#if defined(__linux__)
+#include <pthread.h>
+#endif
 
 namespace libtree {
 namespace internal {
@@ -73,6 +76,11 @@ class ParallelExecutor {
     }
   }
   void Worker(int id) {
+#if defined(__linux__)
+    // Stable names let Linux diagnostics distinguish LibTree workers from
+    // threads started lazily by Python, NumPy, or other loaded libraries.
+    pthread_setname_np(pthread_self(), "libtree-worker");
+#endif
     std::size_t seen = 0;
     std::unique_lock<std::mutex> lock(mutex_);
     while (true) {

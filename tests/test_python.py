@@ -119,30 +119,53 @@ def test_invalid_threads(threads):
 
 
 def test_parallel_workers_released_and_failed_refit():
+    import time
     from pathlib import Path
-    def threads():
-        return {
-            task.name: (task / 'comm').read_text().strip()
-            for task in Path('/proc/self/task').iterdir()
-        }
+    def libtree_workers():
+        workers = set()
+        for task in Path('/proc/self/task').iterdir():
+            try:
+                name = (task / 'comm').read_text().strip()
+            except FileNotFoundError:
+                continue
+            if name == 'libtree-worker':
+                workers.add(task.name)
+        return workers
+    def wait_for_worker_count(expected):
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            workers = libtree_workers()
+            if len(workers) == expected:
+                return workers
+            time.sleep(0.001)
+        return libtree_workers()
+    def wait_for_workers(expected):
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            workers = libtree_workers()
+            if workers == expected:
+                return workers
+            time.sleep(0.001)
+        return libtree_workers()
     x = np.arange(40000, dtype=np.float32).reshape(2000, 20)
     y = x[:, 0] / 100
     invalid_y = np.full(len(x), np.nan)
-    baseline = threads()
+    baseline = libtree_workers()
     for _ in range(15):
         with GBDTRegressor(n_estimators=3, n_jobs=4) as model:
             model.fit(x, y)
+            workers_after_fit = wait_for_worker_count(len(baseline) + 3)
+            assert len(workers_after_fit) == len(baseline) + 3
             before = model.predict(x)
             with pytest.raises(ValueError):
                 model.fit(x, invalid_y)
+            current = wait_for_workers(workers_after_fit)
+            assert current == workers_after_fit, {
+                'added': current - workers_after_fit
+            }
             np.testing.assert_array_equal(before, model.predict(x))
-        current = threads()
-        assert current == baseline, {
-            'added': {key: value for key, value in current.items()
-                      if key not in baseline},
-            'removed': {key: value for key, value in baseline.items()
-                        if key not in current},
-        }
+        current = wait_for_workers(baseline)
+        assert current == baseline, {'added': current - baseline}
 
 
 def test_library_fallback_path(monkeypatch):
