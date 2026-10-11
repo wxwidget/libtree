@@ -21,7 +21,7 @@ class ParallelExecutor {
     try {
       for (int id = 1; id < threads; ++id)
         workers_.emplace_back([this, id] { Worker(id); });
-    // GCOVR_EXCL_START: thread creation failure depends on system exhaustion.
+      // GCOVR_EXCL_START: thread creation failure depends on system exhaustion.
     } catch (...) {
       Stop();
       throw;

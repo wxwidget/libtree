@@ -188,7 +188,8 @@ void WriteAtomic(const std::string& path,
           std::chrono::steady_clock::now().time_since_epoch().count());
   // The timestamp collision is an uncontrollable filesystem race.
   if (std::filesystem::exists(temporary))
-    throw std::runtime_error("temporary file already exists");  // GCOVR_EXCL_LINE
+    throw std::runtime_error(
+        "temporary file already exists");  // GCOVR_EXCL_LINE
   try {
     std::ofstream output(temporary);
     if (!output) throw std::runtime_error("cannot open output: " + path);

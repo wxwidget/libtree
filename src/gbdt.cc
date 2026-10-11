@@ -72,11 +72,10 @@ struct SplitSearchConfig {
   double l2;
   double min_gain;
 };
-SplitCandidate FindBestSplit(
-    const Stats& total, const Stats* histograms,
-    const std::vector<std::size_t>& offsets,
-    const std::vector<std::vector<float>>& cuts,
-    const SplitSearchConfig& config) {
+SplitCandidate FindBestSplit(const Stats& total, const Stats* histograms,
+                             const std::vector<std::size_t>& offsets,
+                             const std::vector<std::vector<float>>& cuts,
+                             const SplitSearchConfig& config) {
   SplitCandidate best;
   double best_gain = config.min_gain;
   const double parent_score = Score(total, config.l2);
@@ -95,9 +94,8 @@ SplitCandidate FindBestSplit(
         if (left.count < config.min_samples_leaf ||
             right.count < config.min_samples_leaf)
           continue;
-        const double gain =
-            0.5 * (Score(left, config.l2) + Score(right, config.l2) -
-                   parent_score);
+        const double gain = 0.5 * (Score(left, config.l2) +
+                                   Score(right, config.l2) - parent_score);
         if (gain > best_gain + 1e-12) {
           best_gain = gain;
           best.feature = static_cast<int>(feature);
@@ -253,8 +251,8 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
   // so their reduction order is stable across thread counts while exposing a
   // useful amount of work after every tree.
   constexpr std::size_t kDerivativeChunk = 4096;
-  std::vector<double> derivative_losses(
-      (n + kDerivativeChunk - 1) / kDerivativeChunk);
+  std::vector<double> derivative_losses((n + kDerivativeChunk - 1) /
+                                        kDerivativeChunk);
   const double initial_prediction = binary ? Sigmoid(base) : base;
   const double initial_hessian =
       binary ? std::max(initial_prediction * (1 - initial_prediction), 1e-6)
@@ -329,98 +327,102 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
     }
     for (std::size_t j = begin; j < end; ++j)
       ordered_derivatives[j] = derivatives[rows[j]];
-    for_features((end - begin) * d, [&](int, std::size_t f) {
-      const std::size_t num_bins = cuts[f].size();
-      if (num_bins == 0) return;
-      auto* histogram = histograms + offsets[f];
-      if (parent && num_bins <= 4) {
-        int occupied = -1;
-        for (std::size_t b = 0; b <= num_bins; ++b)
-          if (parent[offsets[f] + b].count) {
+    for_features(
+        (end - begin) * d,
+        [&](int, std::size_t f) {
+          const std::size_t num_bins = cuts[f].size();
+          if (num_bins == 0) return;
+          auto* histogram = histograms + offsets[f];
+          if (parent && num_bins <= 4) {
+            int occupied = -1;
+            for (std::size_t b = 0; b <= num_bins; ++b)
+              if (parent[offsets[f] + b].count) {
+                if (occupied >= 0) {
+                  occupied = -1;
+                  break;
+                }
+                occupied = static_cast<int>(b);
+              }
             if (occupied >= 0) {
-              occupied = -1;
-              break;
+              histogram[occupied] = total;
+              return;
             }
-            occupied = static_cast<int>(b);
           }
-        if (occupied >= 0) {
-          histogram[occupied] = total;
-          return;
-        }
-      }
-      const auto* column = bins.data() + f * n;
-      const auto& sparse = sparse_columns[f];
-      const bool root = begin == 0 && end == n;
-      if (sparse.enabled &&
-          (root || sparse.exceptions.size() < (end - begin) / 2)) {
-        if (sparse.single_bin >= 0 && root) {
-          std::array<Stats, 4> partial{};
-          std::size_t j = 0;
-          for (; j + 4 <= sparse.exceptions.size(); j += 4)
-            for (std::size_t lane = 0; lane < 4; ++lane)
-              partial[lane] += derivatives[sparse.exceptions[j + lane]];
-          for (; j < sparse.exceptions.size(); ++j)
-            partial[0] += derivatives[sparse.exceptions[j]];
-          for (const auto& lane : partial) histogram[sparse.single_bin] += lane;
-        } else {
-          for (std::size_t row : sparse.exceptions) {
-            if (root || (positions[row] >= begin && positions[row] < end))
-              histogram[column[row]] += derivatives[row];
+          const auto* column = bins.data() + f * n;
+          const auto& sparse = sparse_columns[f];
+          const bool root = begin == 0 && end == n;
+          if (sparse.enabled &&
+              (root || sparse.exceptions.size() < (end - begin) / 2)) {
+            if (sparse.single_bin >= 0 && root) {
+              std::array<Stats, 4> partial{};
+              std::size_t j = 0;
+              for (; j + 4 <= sparse.exceptions.size(); j += 4)
+                for (std::size_t lane = 0; lane < 4; ++lane)
+                  partial[lane] += derivatives[sparse.exceptions[j + lane]];
+              for (; j < sparse.exceptions.size(); ++j)
+                partial[0] += derivatives[sparse.exceptions[j]];
+              for (const auto& lane : partial)
+                histogram[sparse.single_bin] += lane;
+            } else {
+              for (std::size_t row : sparse.exceptions) {
+                if (root || (positions[row] >= begin && positions[row] < end))
+                  histogram[column[row]] += derivatives[row];
+              }
+            }
+            Stats other;
+            for (std::size_t b = 0; b <= num_bins; ++b)
+              if (b != sparse.default_bin) other += histogram[b];
+            histogram[sparse.default_bin] = total - other;
+          } else if (sparse.single_bin >= 0) {
+            // Two-valued columns need only one weighted sum. Masking avoids
+            // scattered histogram writes and unpredictable per-row branches.
+            std::array<Stats, 4> partial{};
+            std::size_t j = begin;
+            for (; j + 4 <= end; j += 4)
+              for (std::size_t lane = 0; lane < 4; ++lane) {
+                const std::size_t row = rows[j + lane];
+                const std::size_t hit = column[row] == sparse.single_bin;
+                partial[lane].gradient +=
+                    ordered_derivatives[j + lane].gradient * hit;
+                partial[lane].hessian +=
+                    ordered_derivatives[j + lane].hessian * hit;
+                partial[lane].count += hit;
+              }
+            for (; j < end; ++j) {
+              const std::size_t row = rows[j];
+              const std::size_t hit = column[row] == sparse.single_bin;
+              partial[0].gradient += ordered_derivatives[j].gradient * hit;
+              partial[0].hessian += ordered_derivatives[j].hessian * hit;
+              partial[0].count += hit;
+            }
+            Stats other;
+            for (const auto& lane : partial) other += lane;
+            histogram[sparse.single_bin] = other;
+            histogram[sparse.default_bin] = total - other;
+          } else if (num_bins <= 4) {
+            // Independent accumulators avoid a serial dependency chain for
+            // binary/low-cardinality columns dominated by one bin.
+            std::array<std::array<Stats, 5>, 4> partial{};
+            std::size_t j = begin;
+            for (; j + 4 <= end; j += 4)
+              for (std::size_t lane = 0; lane < 4; ++lane) {
+                const std::size_t row = rows[j + lane];
+                partial[lane][column[row]] += ordered_derivatives[j + lane];
+              }
+            for (; j < end; ++j) {
+              const std::size_t row = rows[j];
+              partial[0][column[row]] += ordered_derivatives[j];
+            }
+            for (std::size_t b = 0; b <= num_bins; ++b)
+              for (const auto& lane : partial) histogram[b] += lane[b];
+          } else {
+            for (std::size_t j = begin; j < end; ++j) {
+              const std::size_t row = rows[j];
+              histogram[column[row]] += ordered_derivatives[j];
+            }
           }
-        }
-        Stats other;
-        for (std::size_t b = 0; b <= num_bins; ++b)
-          if (b != sparse.default_bin) other += histogram[b];
-        histogram[sparse.default_bin] = total - other;
-      } else if (sparse.single_bin >= 0) {
-        // Two-valued columns need only one weighted sum. Masking avoids
-        // scattered histogram writes and unpredictable per-row branches.
-        std::array<Stats, 4> partial{};
-        std::size_t j = begin;
-        for (; j + 4 <= end; j += 4)
-          for (std::size_t lane = 0; lane < 4; ++lane) {
-            const std::size_t row = rows[j + lane];
-            const std::size_t hit = column[row] == sparse.single_bin;
-            partial[lane].gradient +=
-                ordered_derivatives[j + lane].gradient * hit;
-            partial[lane].hessian +=
-                ordered_derivatives[j + lane].hessian * hit;
-            partial[lane].count += hit;
-          }
-        for (; j < end; ++j) {
-          const std::size_t row = rows[j];
-          const std::size_t hit = column[row] == sparse.single_bin;
-          partial[0].gradient += ordered_derivatives[j].gradient * hit;
-          partial[0].hessian += ordered_derivatives[j].hessian * hit;
-          partial[0].count += hit;
-        }
-        Stats other;
-        for (const auto& lane : partial) other += lane;
-        histogram[sparse.single_bin] = other;
-        histogram[sparse.default_bin] = total - other;
-      } else if (num_bins <= 4) {
-        // Independent accumulators avoid a serial dependency chain for
-        // binary/low-cardinality columns dominated by one bin.
-        std::array<std::array<Stats, 5>, 4> partial{};
-        std::size_t j = begin;
-        for (; j + 4 <= end; j += 4)
-          for (std::size_t lane = 0; lane < 4; ++lane) {
-            const std::size_t row = rows[j + lane];
-            partial[lane][column[row]] += ordered_derivatives[j + lane];
-          }
-        for (; j < end; ++j) {
-          const std::size_t row = rows[j];
-          partial[0][column[row]] += ordered_derivatives[j];
-        }
-        for (std::size_t b = 0; b <= num_bins; ++b)
-          for (const auto& lane : partial) histogram[b] += lane[b];
-      } else {
-        for (std::size_t j = begin; j < end; ++j) {
-          const std::size_t row = rows[j];
-          histogram[column[row]] += ordered_derivatives[j];
-        }
-      }
-    }, allow_parallel);
+        },
+        allow_parallel);
   };
   for (int iteration = 0; iteration < parameters_.num_trees; ++iteration) {
     std::iota(rows.begin(), rows.end(), 0);
@@ -487,8 +489,9 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
                                small_histogram.data(), small_total);
         const std::size_t large_begin = left_small ? middle : begin;
         const std::size_t large_end = left_small ? end : middle;
-        const int large = self(self, large_begin, large_end, depth + 1,
-                               histograms, left_small ? right_total : left_total);
+        const int large =
+            self(self, large_begin, large_end, depth + 1, histograms,
+                 left_small ? right_total : left_total);
         left = left_small ? small : large;
         right = left_small ? large : small;
       }
@@ -529,17 +532,17 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
         auto evaluate = [&](std::size_t index) {
           auto& current = level[index];
           Node& output = tree[current.tree_index];
-          output.value =
-              -current.total.gradient / (current.total.hessian + parameters_.l2);
+          output.value = -current.total.gradient /
+                         (current.total.hessian + parameters_.l2);
           if (current.total.count / 2 <
               static_cast<std::size_t>(parameters_.min_samples_leaf)) {
             for (std::size_t j = current.begin; j < current.end; ++j)
               margins[rows[j]] += parameters_.learning_rate * output.value;
             return;
           }
-          const SplitCandidate split = FindBestSplit(
-              current.total, current.histograms.data(), offsets, cuts,
-              split_config);
+          const SplitCandidate split =
+              FindBestSplit(current.total, current.histograms.data(), offsets,
+                            cuts, split_config);
           current.feature = split.feature;
           if (split.feature < 0) {
             for (std::size_t j = current.begin; j < current.end; ++j)
@@ -567,9 +570,8 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           output.missing_left = split.missing_left;
         };
         if (level.size() > 1) {
-          executor->For(level.size(), [&](int, std::size_t index) {
-            evaluate(index);
-          });
+          executor->For(level.size(),
+                        [&](int, std::size_t index) { evaluate(index); });
         } else {
           evaluate(0);
         }
@@ -604,8 +606,8 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           const std::size_t right_end = parent.end;
           const Stats left_total = parent.left_total;
           const Stats right_total = parent.right_total;
-          const bool left_small = left_end - left_begin <=
-                                  right_end - right_begin;
+          const bool left_small =
+              left_end - left_begin <= right_end - right_begin;
           right_child_first[parent.tree_index] =
               has_next_histograms && !left_small;
           if (!has_next_histograms) {
@@ -649,8 +651,7 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
                             small.histograms.data(), parent.histograms.data(),
                             allow_inner_parallel);
             for (std::size_t b = 0; b < offsets.back(); ++b)
-              parent.histograms[b] =
-                  parent.histograms[b] - small.histograms[b];
+              parent.histograms[b] = parent.histograms[b] - small.histograms[b];
             large.histograms = std::move(parent.histograms);
           };
           if (level.size() > 1) {
@@ -697,10 +698,9 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
           // Stable softplus cross entropy without log(0) or exp overflow.
           // Reuse its exponential to prepare the next boosting iteration.
           const double e = std::exp(-std::abs(margins[i]));
-          const double prediction =
-              margins[i] >= 0 ? 1 / (1 + e) : e / (1 + e);
-          partial_loss += std::max(margins[i], 0.0) -
-                          labels[i] * margins[i] + std::log1p(e);
+          const double prediction = margins[i] >= 0 ? 1 / (1 + e) : e / (1 + e);
+          partial_loss += std::max(margins[i], 0.0) - labels[i] * margins[i] +
+                          std::log1p(e);
           derivatives[i] = {prediction - labels[i],
                             std::max(prediction * (1 - prediction), 1e-6)};
         } else {
@@ -712,9 +712,8 @@ void Gbdt::Fit(MatrixView features, const std::vector<float>& labels) {
       derivative_losses[chunk] = partial_loss;
     };
     if (executor && derivative_losses.size() > 1) {
-      executor->For(derivative_losses.size(), [&](int, std::size_t chunk) {
-        update_derivatives(chunk);
-      });
+      executor->For(derivative_losses.size(),
+                    [&](int, std::size_t chunk) { update_derivatives(chunk); });
     } else {
       for (std::size_t chunk = 0; chunk < derivative_losses.size(); ++chunk)
         update_derivatives(chunk);

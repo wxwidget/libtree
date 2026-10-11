@@ -366,9 +366,9 @@ void Run() {
   std::vector<float> layer_y(layer_rows);
   for (float& value : layer_x) value = uniform(generator);
   for (int row = 0; row < layer_rows; ++row) {
-    layer_y[row] = layer_x[row * layer_columns] +
-                           0.7f * layer_x[row * layer_columns + 1] >
-                       0;
+    layer_y[row] =
+        layer_x[row * layer_columns] + 0.7f * layer_x[row * layer_columns + 1] >
+        0;
   }
   Parameters layer_parameters;
   layer_parameters.num_trees = 8;
@@ -427,8 +427,8 @@ void Run() {
   minimum_leaf_parameters.num_threads = 2;
   Gbdt minimum_leaf_model(minimum_leaf_parameters);
   minimum_leaf_model.Fit({small_x.data(), small_rows, small_columns}, small_y);
-  Check(minimum_leaf_model.Predict(
-            {small_x.data(), small_rows, small_columns}).size() == small_rows);
+  Check(minimum_leaf_model.Predict({small_x.data(), small_rows, small_columns})
+            .size() == small_rows);
   for (int threads : {0, -1, 257}) {
     Parameters p;
     p.num_threads = threads;
