@@ -120,19 +120,29 @@ def test_invalid_threads(threads):
 
 def test_parallel_workers_released_and_failed_refit():
     from pathlib import Path
-    def count():
-        return len(list(Path('/proc/self/task').iterdir()))
-    baseline = count()
+    def threads():
+        return {
+            task.name: (task / 'comm').read_text().strip()
+            for task in Path('/proc/self/task').iterdir()
+        }
     x = np.arange(40000, dtype=np.float32).reshape(2000, 20)
     y = x[:, 0] / 100
+    invalid_y = np.full(len(x), np.nan)
+    baseline = threads()
     for _ in range(15):
         with GBDTRegressor(n_estimators=3, n_jobs=4) as model:
             model.fit(x, y)
             before = model.predict(x)
             with pytest.raises(ValueError):
-                model.fit(x, np.full(len(x), np.nan))
+                model.fit(x, invalid_y)
             np.testing.assert_array_equal(before, model.predict(x))
-        assert count() == baseline
+        current = threads()
+        assert current == baseline, {
+            'added': {key: value for key, value in current.items()
+                      if key not in baseline},
+            'removed': {key: value for key, value in baseline.items()
+                        if key not in current},
+        }
 
 
 def test_library_fallback_path(monkeypatch):
