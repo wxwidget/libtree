@@ -154,7 +154,7 @@ for(const lang of ['cpp','python'])document.getElementById(lang).onclick=()=>{la
 function download(content,name,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 document.getElementById('json').onclick=()=>download(JSON.stringify(raw,null,2),'parallel-results.json','application/json');
 document.getElementById('csv').onclick=()=>{const rows=['dataset,seed,threads,language,engine,repeat,metric_name,metric,fit_seconds,predict_seconds,peak_rss_kib'];for(const report of raw.split_reports)for(const r of report.results)r.raw_runs.forEach((s,i)=>rows.push([r.dataset,r.seed,report.metadata.threads,r.language,r.engine,i+1,r.metric_name,r.metric,s.fit_seconds,s.predict_seconds,s.peak_rss_kib].join(',')));download(rows.join('\n'),'parallel-timing-'+evidence.run_count+'-runs.csv','text/csv');};
-const m=raw.split_reports[0].metadata,quota=m.cpu_quota.split(' '),quotaLabel=quota[0]==='max'?'不限':(Number(quota[0])/Number(quota[1])).toFixed(1)+' 核';document.getElementById('environment').textContent=m.cpu.replace(/^model name\s*:\s*/,'')+' · 可用 CPU '+m.available_cpus+' / CPU 配额 '+quotaLabel+' · '+m.compiler+' · Python '+m.python+' · XGBoost '+m.xgboost+' / LightGBM '+m.lightgbm;
+const m=raw.split_reports[0].metadata,quota=m.cpu_quota?.split(' '),quotaLabel=quota?(quota[0]==='max'?'不限':(Number(quota[0])/Number(quota[1])).toFixed(1)+' 核'):'未知';document.getElementById('environment').textContent=m.cpu.replace(/^model name\s*:\s*/,'')+' · 可用 CPU '+m.available_cpus+' / CPU 配额 '+quotaLabel+' · '+m.compiler+' · Python '+m.python+' · XGBoost '+m.xgboost+' / LightGBM '+m.lightgbm;
 document.getElementById('run-count').textContent=evidence.run_count+' 次';document.getElementById('sources').innerHTML=Object.entries(raw.split_reports[0].sources).map(([n,s])=>`<p><strong>${n}</strong> · ${s.rows_after_cleaning} 行 · ${s.raw_feature_count} 原始特征 ${s.url?` · <a href="${s.url}">实际镜像</a> · SHA256 <code>${s.sha256}</code>`:` · ${s.source}`}</p>`).join('');
 document.getElementById('hashes').innerHTML=Object.entries({...m.source_sha256,...evidence.files}).map(([n,h])=>`<p>${n}<br><code>${h}</code></p>`).join('');render();window.__reportReady=true;
 </script></body></html>'''
@@ -174,7 +174,7 @@ def main():
               f"Equal configured thread budgets; independent processes. Each cell uses the arithmetic mean of {len(raw['seeds']) * raw['timing_repeats_per_split']} runs. "
              'All LibTree same-split quality metrics are unchanged across configured thread counts.', '',
              f"训练与预测分开测量。每组 {len(raw['seeds']) * raw['timing_repeats_per_split']} 次原始计时，时间报告算术平均值±样本标准差并保留范围；效果为三个划分的均值及样本标准差。", '',
-             f"可用逻辑 CPU：{raw['split_reports'][0]['metadata']['available_cpus']}；cgroup CPU 配额：{raw['split_reports'][0]['metadata']['cpu_quota']}；种子：{raw['seeds']}。线程数为预算，小任务可串行。", '',
+             f"可用逻辑 CPU：{raw['split_reports'][0]['metadata']['available_cpus']}；cgroup CPU 配额：{raw['split_reports'][0]['metadata']['cpu_quota'] or '未知'}；种子：{raw['seeds']}。线程数为预算，小任务可串行。", '',
              '| 数据集 | 接口 | 引擎 | 线程 | 训练 ms 平均±SD | 推理 ms 平均±SD | 训练加速 | 推理加速 | 指标 | 测试效果 |',
              '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |']
     for r in summary:

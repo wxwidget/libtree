@@ -95,6 +95,20 @@ PYTHONPATH=python python benchmarks/run.py \
   --engines libtree xgboost lightgbm
 ```
 
+Run the full CI benchmark with all ten datasets, three engines, and both APIs:
+
+```sh
+PYTHONPATH=python python benchmarks/run.py --repeats 1 \
+  --output benchmarks/runs/ci-results.json
+```
+
+Environment metadata is recorded separately from model measurements.
+`metadata.cpu_quota` contains the raw cgroup v2 `cpu.max` value when readable;
+it is `null` when the file is missing, empty, or inaccessible. Some hosted
+GitHub runners and cgroup v1 hosts do not expose this file. Reports display an
+unknown quota in that case; missing telemetry does not stop the benchmark and
+does not imply unlimited CPU resources.
+
 ## Method and workload selection
 
 The checked-in scaling suite covers:

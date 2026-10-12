@@ -41,6 +41,15 @@ SOURCES = {
 }
 
 
+def cpu_quota():
+    # Bare-metal/root cgroups and cgroup v1 hosts may not expose cpu.max.
+    # Optional environment telemetry must not prevent saving benchmark results.
+    try:
+        return Path('/sys/fs/cgroup/cpu.max').read_text().strip() or None
+    except OSError:
+        return None
+
+
 def peak_rss_kib():
     # VmHWM belongs to the current exec's address space; ru_maxrss can include
     # high-water usage inherited from the fork before exec on Linux.
@@ -316,7 +325,7 @@ def main(args):
               "xgboost": xgb.__version__, "lightgbm": lgb.__version__, "engines": engines, "compiler": subprocess.check_output(["g++", "--version"], text=True).splitlines()[0],
               "repeats": args.repeats, "seed": args.seed, "suite": args.suite, "threads": args.threads,
               "available_cpus": len(os.sched_getaffinity(0)),
-              "cpu_quota": Path("/sys/fs/cgroup/cpu.max").read_text().strip(),
+              "cpu_quota": cpu_quota(),
               "memory_measurement": "Linux /proc/self/status VmHWM after prediction (KiB); current exec address space",
               "parameters": {"trees": args.trees, "depth": args.depth, "bins": args.bins,
                              "min_leaf": args.min_leaf, "rate": args.rate, "l2": args.l2, "min_gain": args.min_gain},

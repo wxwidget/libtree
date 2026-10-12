@@ -1,4 +1,8 @@
 """Behavioral guards for leakage-safe benchmark preparation and cache integrity."""
+from argparse import Namespace
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -7,6 +11,40 @@ from benchmarks import run
 
 def test_memory_counter_uses_current_address_space():
     assert run.peak_rss_kib() > 0
+
+
+@pytest.mark.parametrize('quota,error,expected', [
+    ('400000 100000\n', None, '400000 100000'),
+    ('max 100000\n', None, 'max 100000'),
+    ('', None, None),
+    (None, FileNotFoundError, None),
+    (None, PermissionError, None),
+])
+def test_report_survives_unavailable_cpu_quota(tmp_path, monkeypatch,
+                                             quota, error, expected):
+    original_read_text = Path.read_text
+
+    def read_text(path, *args, **kwargs):
+        if path == Path('/sys/fs/cgroup/cpu.max'):
+            if error:
+                raise error('cgroup CPU quota unavailable')
+            return quota
+        return original_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'read_text', read_text)
+    monkeypatch.setattr(run, 'datasets', lambda suite: iter(()))
+    monkeypatch.setattr(run, 'RUNS', tmp_path / 'runs')
+    monkeypatch.setattr(run.subprocess, 'check_output',
+                        lambda *args, **kwargs: 'test compiler\n')
+    output = tmp_path / 'report.json'
+    args = Namespace(engines=['libtree'], trees=2, depth=2, bins=8,
+                     min_leaf=1, rate=.1, l2=1., min_gain=0., threads=1,
+                     suite='builtin', datasets=None, seed=42, repeats=1,
+                     output=output)
+    run.main(args)
+    report = json.loads(output.read_text())
+    assert report['metadata']['cpu_quota'] == expected
+    assert report['results'] == []
 
 
 def test_numeric_only_preparation_and_seed():
