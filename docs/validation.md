@@ -1,5 +1,10 @@
 # Validation evidence / 验证记录
 
+Latest risk extension: [risk validation/report](../benchmarks/RISK_REPORT.md).
+Native source lines 2444/2444 and Python statements 371/371 are covered (100%).
+Hellinger, explicit boosting, balanced weights, KS ties/direction, CV encoder
+isolation and cache-integrity checks pass, along with Release and sanitizers.
+
 Latest C5 implementation validation and its coverage scope are recorded in
 [C5 measurements and validation](../benchmarks/C5_REPORT.md). Both native
 instrumented source lines (2434/2434) and Python statements (359/359) reach

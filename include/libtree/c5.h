@@ -9,7 +9,12 @@
 #include "libtree/gbdt.h"
 
 namespace libtree {
-enum class SplitCriterion { kGainRatio = 0, kEntropy = 1, kGini = 2 };
+enum class SplitCriterion {
+  kGainRatio = 0,
+  kEntropy = 1,
+  kGini = 2,
+  kHellinger = 3
+};
 struct C5Parameters {
   int num_estimators = 10;
   int max_depth = 6;

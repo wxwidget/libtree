@@ -130,8 +130,10 @@ class C5Classifier::Builder {
       ++counts[bin];
     }
     Split best;
+    const bool hellinger =
+        model_->parameters_.criterion == SplitCriterion::kHellinger;
     const double parent =
-        Impurity(total, weight, model_->parameters_.criterion);
+        hellinger ? 0 : Impurity(total, weight, model_->parameters_.criterion);
     std::size_t left_count = 0;
     for (std::size_t b = 0; b + 1 < regular; ++b) {
       left_count += counts[b];
@@ -154,10 +156,20 @@ class C5Classifier::Builder {
         const double rw = std::accumulate(right.begin(), right.end(), 0.);
         if (lw <= 0 || rw <= 0) continue;
         const double p = lw / (lw + rw);
-        const double gain =
-            parent -
-            p * Impurity(candidate, lw, model_->parameters_.criterion) -
-            (1 - p) * Impurity(right, rw, model_->parameters_.criterion);
+        double gain;
+        // Cieslak et al., DMKD 2012, doi:10.1007/s10618-011-0222-1.
+        // Class-conditional branch probabilities remove the class-prior factor.
+        if (hellinger) {
+          const double left_distance = std::sqrt(candidate[0] / total[0]) -
+                                       std::sqrt(candidate[1] / total[1]);
+          const double right_distance =
+              std::sqrt(right[0] / total[0]) - std::sqrt(right[1] / total[1]);
+          gain = std::hypot(left_distance, right_distance);
+        } else {
+          gain = parent -
+                 p * Impurity(candidate, lw, model_->parameters_.criterion) -
+                 (1 - p) * Impurity(right, rw, model_->parameters_.criterion);
+        }
         const double score =
             model_->parameters_.criterion == SplitCriterion::kGainRatio
                 ? gain / (-p * std::log2(p) - (1 - p) * std::log2(1 - p))
@@ -248,7 +260,8 @@ C5Classifier::C5Classifier(C5Parameters parameters) : parameters_(parameters) {
       p.pruning_alpha < 0 || !std::isfinite(p.min_gain) || p.min_gain < 0 ||
       (p.criterion != SplitCriterion::kGainRatio &&
        p.criterion != SplitCriterion::kEntropy &&
-       p.criterion != SplitCriterion::kGini))
+       p.criterion != SplitCriterion::kGini &&
+       p.criterion != SplitCriterion::kHellinger))
     throw std::invalid_argument("invalid C5 parameters");
 }
 void C5Classifier::Fit(MatrixView x, const std::vector<int>& y,
@@ -267,6 +280,8 @@ void C5Classifier::Fit(MatrixView x, const std::vector<int>& y,
   for (int label : y) seen[label] = true;
   if (std::find(seen.begin(), seen.end(), false) != seen.end())
     throw std::invalid_argument("class indices must be contiguous from zero");
+  if (parameters_.criterion == SplitCriterion::kHellinger && largest > 1)
+    throw std::invalid_argument("Hellinger requires binary classification");
   std::vector<double> weights = sample_weight;
   if (weights.empty()) weights.assign(x.rows, 1);
   // Scale before summation to avoid overflow with large finite input weights.
@@ -291,6 +306,8 @@ void C5Classifier::Fit(MatrixView x, const std::vector<int>& y,
 }
 void C5Classifier::Train(MatrixView x, const std::vector<int>& y,
                          const std::vector<double>& initial_weights) {
+  // Zhu et al., Multi-class AdaBoost (2009), doi:10.4310/SII.2009.v2.n3.a8.
+  // Shrinkage learning_rate scales both learner votes and weight updates.
   Builder builder(this, x, y);
   auto weights = initial_weights;
   for (int round = 0; round < parameters_.num_estimators; ++round) {

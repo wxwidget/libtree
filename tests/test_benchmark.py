@@ -112,3 +112,51 @@ def test_c5_stratifies_multiclass_and_rejects_invalid_probabilities():
         with pytest.raises(ValueError):
             c5.metrics([0], probability)
     assert c5.metrics([0, 1], [[.8, .2], [.2, .8]])['accuracy'] == 1
+
+
+def test_risk_ks_is_tie_safe_and_has_clear_orientation():
+    from benchmarks.risk import ks_statistic
+    assert ks_statistic([0, 0, 1, 1], [.1, .2, .8, .9]) == 1
+    assert ks_statistic([0, 1, 0, 1], [.5, .5, .5, .5]) == 0
+    assert ks_statistic([0, 0, 1, 1], [.9, .8, .2, .1]) == 1
+    assert ks_statistic([0, 0, 1, 1], [.9, .8, .2, .1], directional=True) == 0
+    assert ks_statistic([0, 1, 0, 1], [.1, .8, .2, .2]) == .5
+    for y, score in (([1, 1], [.1, .2]), ([0, 1], [np.nan, .2]),
+                     ([0, 1], [.1]), ([0, 2], [.1, .2])):
+        with pytest.raises(ValueError):
+            ks_statistic(y, score)
+
+
+def test_risk_encoder_and_selector_are_train_only(monkeypatch):
+    from benchmarks import risk
+    train = pd.DataFrame({'category': ['known'] * 30, 'value': np.arange(30)})
+    test = pd.DataFrame({'category': ['test-only'], 'value': [100]})
+    a, b = risk.encode(train, test)
+    assert a.shape == (30, 2) and b.shape == (1, 2)
+    assert b[0, 1] == 0
+    frame = pd.DataFrame({'value': np.arange(60)}, index=np.arange(100, 160))
+    y = (np.arange(60) % 3 == 0).astype(int)
+    seen = []
+    original = risk.encode
+
+    def spy(a, b):
+        assert set(a.index).isdisjoint(b.index)
+        assert set(a.index) | set(b.index) == set(frame.index)
+        seen.append((len(a), len(b)))
+        return original(a, b)
+
+    monkeypatch.setattr(risk, 'encode', spy)
+    parameters = {'n_estimators': 2, 'min_samples_leaf': 1}
+    selected, report = risk.select_configuration(frame, y,
+        {'samme_30': parameters, 'identical_candidate': parameters}, seed=42, folds=3)
+    assert selected == 'samme_30'
+    assert len(seen) == 3 and len(report['candidates']) == 2
+    assert risk.metrics([0, 1], [[.9, .1], [.1, .9]])['ks'] == 1
+
+
+def test_risk_data_corruption_is_rejected(tmp_path, monkeypatch):
+    from benchmarks import risk
+    monkeypatch.setattr(run, 'CACHE', tmp_path)
+    (tmp_path / 'german_credit.csv').write_text('corrupted')
+    with pytest.raises(ValueError, match='checksum'):
+        risk.dataset('german_credit')

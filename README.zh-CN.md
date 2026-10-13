@@ -1,5 +1,8 @@
 # LibTree
 
+风险建模新增 boosting 开关、类别平衡、Hellinger 二分类准则与 KS 指标：
+[优化方法及引用](docs/c5-risk.zh-CN.md) · [风险评测](benchmarks/RISK_REPORT.zh-CN.md)。
+
 新增独立的 **C5 风格多分类器**：SAMME boosting、剪枝、IF–THEN 规则、
 gain ratio/entropy/gini、样本权重与单条预测解释。参阅[C5 新手指南](docs/c5.zh-CN.md)、
 [交互规则演示](docs/C5_GUIDE.html)和[实测竞品比较与消融](benchmarks/C5_REPORT.zh-CN.md)。

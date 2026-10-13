@@ -221,3 +221,45 @@ def test_command_line(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, 'argv', ['libtree', 'rules', '--train', str(tmp_path / 'missing')])
     with pytest.raises(SystemExit):
         main()
+
+
+def test_hellinger_and_explicit_boosting():
+    rng = np.random.default_rng(31)
+    x = rng.normal(size=(600, 4)).astype('f4')
+    y = (x[:, 0] + x[:, 1] > 1.8).astype(int)
+    with C5Classifier(criterion='hellinger', n_estimators=12, max_depth=2,
+                      pruning_alpha=0, min_samples_leaf=2) as model:
+        model.fit(x, y)
+        assert model.score(x, y) > .9
+        assert len(model.estimator_errors_) > 1
+        assert model.explain(x[0])['predicted_label'] == model.predict(x[:1])[0]
+        before = model.predict(x)
+        with pytest.raises(ValueError, match='binary'):
+            model.fit(x, np.arange(len(x)) % 3)
+        np.testing.assert_array_equal(before, model.predict(x))
+    with C5Classifier(boosting='none', n_estimators=50) as off, C5Classifier(n_estimators=1) as single:
+        off.fit(x, y)
+        single.fit(x, y)
+        assert len(off.estimator_errors_) == 1
+        np.testing.assert_array_equal(off.predict_proba(x), single.predict_proba(x))
+
+
+def test_balanced_class_weights_equal_explicit_weights():
+    rng = np.random.default_rng(3)
+    x = rng.normal(size=(200, 3)).astype('f4')
+    y = (x[:, 0] > 1).astype(int)
+    supplied = rng.uniform(.5, 2., len(x))
+    weights = supplied * len(y) / (2 * np.bincount(y)[y])
+    with C5Classifier(class_weight='balanced') as balanced, C5Classifier() as explicit:
+        balanced.fit(x, y, sample_weight=supplied)
+        explicit.fit(x, y, sample_weight=weights)
+        np.testing.assert_allclose(balanced.predict_proba(x), explicit.predict_proba(x))
+        balanced.fit(x, y)
+        explicit.fit(x, y, sample_weight=len(y) / (2 * np.bincount(y)[y]))
+        np.testing.assert_allclose(balanced.predict_proba(x), explicit.predict_proba(x))
+        assert balanced.get_params()['class_weight'] == 'balanced'
+    for params in ({'boosting': 'unknown'}, {'class_weight': 'unknown'},
+                   {'boosting': 'none', 'n_estimators': 0}):
+        with C5Classifier(**params) as model:
+            with pytest.raises(ValueError):
+                model.fit(x, y)

@@ -159,7 +159,7 @@ void Learning() {
   const float nan = std::numeric_limits<float>::quiet_NaN();
   for (auto criterion :
        {libtree::SplitCriterion::kGainRatio, libtree::SplitCriterion::kEntropy,
-        libtree::SplitCriterion::kGini}) {
+        libtree::SplitCriterion::kGini, libtree::SplitCriterion::kHellinger}) {
     libtree::C5Parameters p;
     p.min_samples_leaf = 1;
     p.pruning_alpha = 0;

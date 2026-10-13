@@ -26,6 +26,7 @@ import lightgbm as lgb
 
 from libtree import C5Classifier
 from benchmarks import run
+from benchmarks.metrics import ks_statistic
 
 ROOT = Path(__file__).resolve().parents[1]
 VARIANTS = ('c5', 'tree', 'adaboost', 'xgboost', 'lightgbm', 'c5_single',
@@ -62,12 +63,17 @@ def metrics(y, probability):
         raise ValueError('invalid probabilities')
     probability = probability / probability.sum(axis=1, keepdims=True)
     prediction = probability.argmax(axis=1)
-    return {'accuracy': accuracy_score(y, prediction),
+    result = {'accuracy': accuracy_score(y, prediction),
             'balanced_accuracy': balanced_accuracy_score(y, prediction),
             'macro_f1': f1_score(y, prediction, average='macro', zero_division=0),
             'log_loss': log_loss(y, probability, labels=np.arange(probability.shape[1])),
             'roc_auc': roc_auc_score(y, probability[:, 1]) if probability.shape[1] == 2
                        else roc_auc_score(y, probability, multi_class='ovr', average='macro')}
+
+    if probability.shape[1] == 2:
+        result.update(ks=ks_statistic(y, probability[:, 1]),
+                      ks_directional=ks_statistic(y, probability[:, 1], directional=True))
+    return result
 
 
 def build(variant, threads, args):
@@ -134,7 +140,7 @@ def summarize(records):
         item = dict(dataset=name, variant=variant, interface=interface, threads=threads,
                     measurements=len(rows))
         for field in ('fit_seconds', 'predict_seconds', 'accuracy', 'balanced_accuracy',
-                      'macro_f1', 'roc_auc', 'log_loss', 'train_accuracy', 'rules', 'conditions'):
+                      'macro_f1', 'roc_auc', 'log_loss', 'ks', 'ks_directional', 'train_accuracy', 'rules', 'conditions'):
             values = [float(r[field]) for r in rows if field in r]
             if values:
                 item[field] = {'mean': float(np.mean(values)), 'std': float(np.std(values)),

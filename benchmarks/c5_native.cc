@@ -1,4 +1,5 @@
 // Benchmark harness; prepared inputs use the same layout as native_benchmark.
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -12,7 +13,7 @@
 
 int main(int argc, char** argv) {
   try {
-    if (argc != 12)
+    if (argc != 12 && argc != 13)
       throw std::invalid_argument(
           "usage: c5_benchmark data output rounds depth bins min_leaf rate "
           "alpha gain criterion threads");
@@ -52,7 +53,21 @@ int main(int argc, char** argv) {
     p.num_threads = std::stoi(argv[11]);
     libtree::C5Classifier model(p);
     const auto start = std::chrono::steady_clock::now();
-    model.Fit({x.data(), rows, cols}, y);
+    std::vector<double> weights;
+    if (argc == 13) {
+      const int balanced = std::stoi(argv[12]);
+      if (balanced != 0 && balanced != 1)
+        throw std::invalid_argument("invalid balanced flag");
+      if (balanced) {
+        const int classes = *std::max_element(y.begin(), y.end()) + 1;
+        std::vector<std::size_t> counts(classes);
+        for (int label : y) ++counts[label];
+        for (int label : y)
+          weights.push_back(static_cast<double>(rows) /
+                            (classes * counts[label]));
+      }
+    }
+    model.Fit({x.data(), rows, cols}, y, weights);
     const auto trained = std::chrono::steady_clock::now();
     const auto prediction = model.PredictProba({test.data(), test_rows, cols});
     const auto predicted = std::chrono::steady_clock::now();

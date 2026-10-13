@@ -17,6 +17,7 @@ jobs:
       - run: clang-format --dry-run --Werror include/libtree/*.h src/*.cc src/*.h tests/*.cc examples/*.cc benchmarks/*.cc
       - run: PYTHONPATH=python python benchmarks/run.py --repeats 1 --output benchmarks/runs/ci-results.json
       - run: PYTHONPATH=python:. python benchmarks/c5.py --datasets breast_cancer wine --seeds 42 --threads 1 --repeats 1 --rounds 3 --output benchmarks/runs/c5-ci.json
+      - run: PYTHONPATH=python:. python benchmarks/risk.py --datasets german_credit --seeds 42 --threads 1 --repeats 1 --rounds 3 --folds 2 --output benchmarks/runs/risk-ci.json
       - uses: actions/upload-artifact@v4
         with:
           name: coverage

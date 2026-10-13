@@ -1,5 +1,20 @@
 # Benchmark Guide and Latest Results
 
+Credit-risk evaluation now includes three real credit/late-payment datasets,
+rare-event synthetic data, KS/directional KS/AP, explicit boosting controls,
+class balancing and Hellinger ablations. Read the [risk report](RISK_REPORT.md)
+([中文](RISK_REPORT.zh-CN.md)) and [cited methods](../docs/c5-risk.md).
+
+```sh
+PYTHONPATH=python:. python benchmarks/risk.py --seeds 42 2024 7 --threads 1 4 \
+  --rounds 100 --folds 3 --repeats 3 --output benchmarks/risk-results.json
+PYTHONPATH=python:. python benchmarks/risk_report.py
+```
+
+The `selected` model uses outer-training CV only; raw fold results and search
+costs are retained. This does not guarantee a higher KS on every test task.
+Original C5 results below are a separate historical experiment.
+
 The independent C5-style classifier has a [comparison/ablation report](C5_REPORT.md),
 [raw measurements](c5-results.json), and [beginner guide](../docs/c5.md).
 After a Release build and `pip install '.[dev,benchmark]'`, reproduce it with:

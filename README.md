@@ -11,6 +11,10 @@ single-sample explanations. Start with the [C5 guide](docs/c5.md), the
 [interactive rule explorer](docs/C5_GUIDE.html), and the
 [measured comparison/ablation report](benchmarks/C5_REPORT.md).
 
+Risk scoring adds explicit boosting controls, class balancing, binary Hellinger
+splits and tie-safe KS. See [methods and research citations](docs/c5-risk.md)
+and the [credit-risk comparison](benchmarks/RISK_REPORT.md).
+
 This README is the standalone English project guide. The [Chinese README](README.zh-CN.md)
 is maintained separately. New to machine learning or decision trees? Start with
 the interactive, offline [GBDT Learning Guide](docs/LEARNING_GUIDE.html). For a

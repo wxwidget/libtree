@@ -18,7 +18,8 @@ class C5Classifier(_OwnedModel):
 
     def __init__(self, n_estimators=10, max_depth=6, max_bins=64,
                  min_samples_leaf=5, learning_rate=1., pruning_alpha=.001,
-                 min_gain=1e-9, criterion='gain_ratio', n_jobs=1):
+                 min_gain=1e-9, criterion='gain_ratio', n_jobs=1,
+                 boosting='samme', class_weight=None):
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_bins = max_bins
@@ -28,13 +29,15 @@ class C5Classifier(_OwnedModel):
         self.min_gain = min_gain
         self.criterion = criterion
         self.n_jobs = n_jobs
+        self.boosting = boosting
+        self.class_weight = class_weight
         self._handle = None
         self._finalizer = None
 
     def get_params(self, deep=True):
         return {k: getattr(self, k) for k in ('n_estimators', 'max_depth', 'max_bins',
                 'min_samples_leaf', 'learning_rate', 'pruning_alpha', 'min_gain',
-                'criterion', 'n_jobs')}
+                'criterion', 'n_jobs', 'boosting', 'class_weight')}
 
     def set_params(self, **params):
         if params.keys() - self.get_params().keys():
@@ -60,13 +63,23 @@ class C5Classifier(_OwnedModel):
         for k in ('n_estimators', 'max_depth', 'max_bins', 'min_samples_leaf', 'n_jobs'):
             if not isinstance(getattr(self, k), (int, np.integer)) or not -(2**31) <= getattr(self, k) < 2**31:
                 raise ValueError(f'{k} must be a 32-bit integer')
-        if self.criterion not in ('gain_ratio', 'entropy', 'gini'):
-            raise ValueError('criterion must be gain_ratio, entropy or gini')
+        if self.boosting not in ('none', 'samme') or not 1 <= self.n_estimators <= 1000:
+            raise ValueError('boosting must be none or samme; n_estimators must be in 1..1000')
+        if self.class_weight not in (None, 'balanced'):
+            raise ValueError('class_weight must be None or balanced')
+        if self.class_weight == 'balanced':
+            # Inverse-frequency weighting; He & Garcia (2009),
+            # doi:10.1109/TKDE.2008.239. Multiply user weights, never mutate them.
+            balance = len(y) / (len(classes) * np.bincount(indices)[indices])
+            weights = balance if weights is None else weights * balance
+        if self.criterion not in ('gain_ratio', 'entropy', 'gini', 'hellinger'):
+            raise ValueError('criterion must be gain_ratio, entropy, gini or hellinger')
         lib = _library()
-        handle = lib.LtC5Create(self.n_estimators, self.max_depth, self.max_bins,
+        rounds = self.n_estimators if self.boosting == 'samme' else 1
+        handle = lib.LtC5Create(rounds, self.max_depth, self.max_bins,
                               self.min_samples_leaf, self.learning_rate,
                               self.pruning_alpha, self.min_gain,
-                              ('gain_ratio', 'entropy', 'gini').index(self.criterion), self.n_jobs)
+                              ('gain_ratio', 'entropy', 'gini', 'hellinger').index(self.criterion), self.n_jobs)
         if not handle:
             raise ValueError(lib.LtLastError().decode())
         if lib.LtC5Fit(handle, _pointer(x), *x.shape, indices.ctypes.data_as(ct.POINTER(ct.c_int)),
