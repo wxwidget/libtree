@@ -1,5 +1,22 @@
 # Benchmark Guide and Latest Results
 
+The independent C5-style classifier has a [comparison/ablation report](C5_REPORT.md),
+[raw measurements](c5-results.json), and [beginner guide](../docs/c5.md).
+After a Release build and `pip install '.[dev,benchmark]'`, reproduce it with:
+
+```sh
+PYTHONPATH=python:. python benchmarks/c5.py --seeds 42 2024 7 --threads 1 4 \
+  --repeats 3 --rounds 30 --depth 4 --output benchmarks/c5-results.json
+PYTHONPATH=python:. python benchmarks/c5.py --datasets breast_cancer wine \
+  --seeds 42 --threads 1 --repeats 1 --rounds 3 --output benchmarks/runs/c5-smoke.json
+```
+
+Six tasks include bank marketing; competitors are sklearn trees/SAMME,
+XGBoost and LightGBM. Results use arithmetic means, standard deviations and
+extrema, with native/Python prediction parity checks. C5 has native comparisons
+on every task; competitor native comparisons cover binary tasks. sklearn SAMME
+is serial. The main GBDT study below is a separate experiment.
+
 This directory compares LibTree's C++ and Python interfaces with XGBoost and
 LightGBM. Results below use local held-out measurements; they are not Kaggle
 leaderboard scores. All raw repetitions, data fingerprints, package versions,

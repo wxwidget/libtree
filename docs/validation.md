@@ -1,5 +1,12 @@
 # Validation evidence / 验证记录
 
+Latest C5 implementation validation and its coverage scope are recorded in
+[C5 measurements and validation](../benchmarks/C5_REPORT.md). Both native
+instrumented source lines (2434/2434) and Python statements (359/359) reach
+100%, with Release, ASan/UBSan/LSan and TSan checks passing. The dated sections
+below are historical records. C5 adds no coverage exclusions. Installed-wheel
+Unicode rules/explanations and both guide code examples were also executed.
+
 Current local validation: 2026-10-09, Linux x86-64, GCC 14.2, Python 3.12.14.
 The initial migration evidence below is historical; the latest CLI and three-engine
 validation is recorded at the end of this document.

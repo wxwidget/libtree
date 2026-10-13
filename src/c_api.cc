@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "libtree/c5.h"
 #include "libtree/gbdt.h"
 
 namespace {
@@ -15,6 +16,10 @@ thread_local std::string last_error;
 libtree::Gbdt& Model(LtModel model) {
   if (model == nullptr) throw std::invalid_argument("null model");
   return *static_cast<libtree::Gbdt*>(model);
+}
+libtree::C5Classifier& C5Model(LtC5Model model) {
+  if (model == nullptr) throw std::invalid_argument("null C5 model");
+  return *static_cast<libtree::C5Classifier*>(model);
 }
 template <typename Function>
 void Inspection(const char* const* names, size_t name_count, char* out,
@@ -133,6 +138,85 @@ int LtExplainPrediction(LtModel model, const float* x, size_t cols, int format,
           Model(model).ExplainPrediction(
               {x, 1, cols}, output, static_cast<libtree::DumpFormat>(format),
               labels);
+        });
+  });
+}
+LtC5Model LtC5Create(int rounds, int depth, int bins, int min_leaf, double rate,
+                     double alpha, double min_gain, int criterion,
+                     int threads) {
+  LtC5Model model = nullptr;
+  Guard([&] {
+    libtree::C5Parameters p;
+    p.num_estimators = rounds;
+    p.max_depth = depth;
+    p.max_bins = bins;
+    p.min_samples_leaf = min_leaf;
+    p.learning_rate = rate;
+    p.pruning_alpha = alpha;
+    p.min_gain = min_gain;
+    p.criterion = static_cast<libtree::SplitCriterion>(criterion);
+    p.num_threads = threads;
+    model = new libtree::C5Classifier(p);
+  });
+  return model;
+}
+void LtC5Free(LtC5Model model) {
+  delete static_cast<libtree::C5Classifier*>(model);
+}
+int LtC5Fit(LtC5Model model, const float* x, size_t rows, size_t cols,
+            const int* y, const double* weights) {
+  return Guard([&] {
+    if (y == nullptr || rows == 0 || rows > 100000000)
+      throw std::invalid_argument("invalid C5 labels");
+    C5Model(model).Fit({x, rows, cols}, std::vector<int>(y, y + rows),
+                       weights ? std::vector<double>(weights, weights + rows)
+                               : std::vector<double>{});
+  });
+}
+size_t LtC5ClassCount(LtC5Model model) {
+  size_t count = 0;
+  Guard([&] { count = C5Model(model).num_classes(); });
+  return count;
+}
+int LtC5PredictProba(LtC5Model model, const float* x, size_t rows, size_t cols,
+                     double* out) {
+  return Guard([&] { C5Model(model).PredictProbaInto({x, rows, cols}, out); });
+}
+size_t LtC5ErrorCount(LtC5Model model) {
+  size_t count = 0;
+  Guard([&] { count = C5Model(model).estimator_errors().size(); });
+  return count;
+}
+int LtC5Errors(LtC5Model model, double* out, size_t count) {
+  return Guard([&] {
+    const auto& errors = C5Model(model).estimator_errors();
+    if (count != errors.size() || (count != 0 && out == nullptr))
+      throw std::invalid_argument("invalid C5 error output");
+    std::copy(errors.begin(), errors.end(), out);
+  });
+}
+int LtC5DumpRules(LtC5Model model, int format, const char* const* names,
+                  size_t name_count, char* out, size_t capacity,
+                  size_t* required) {
+  return Guard([&] {
+    Inspection(
+        names, name_count, out, capacity, required,
+        [&](std::ostream& output, const std::vector<std::string>& labels) {
+          C5Model(model).DumpRules(
+              output, static_cast<libtree::DumpFormat>(format), labels);
+        });
+  });
+}
+int LtC5Explain(LtC5Model model, const float* x, size_t cols, int format,
+                const char* const* names, size_t name_count, char* out,
+                size_t capacity, size_t* required) {
+  return Guard([&] {
+    Inspection(
+        names, name_count, out, capacity, required,
+        [&](std::ostream& output, const std::vector<std::string>& labels) {
+          C5Model(model).Explain({x, 1, cols}, output,
+                                 static_cast<libtree::DumpFormat>(format),
+                                 labels);
         });
   });
 }

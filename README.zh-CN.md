@@ -1,5 +1,9 @@
 # LibTree
 
+新增独立的 **C5 风格多分类器**：SAMME boosting、剪枝、IF–THEN 规则、
+gain ratio/entropy/gini、样本权重与单条预测解释。参阅[C5 新手指南](docs/c5.zh-CN.md)、
+[交互规则演示](docs/C5_GUIDE.html)和[实测竞品比较与消融](benchmarks/C5_REPORT.zh-CN.md)。
+
 [English](README.md) · [原理与性能设计](docs/design.zh-CN.md) · [实测基准](benchmarks/README.md)
 
 一个简洁、确定性的 **C++17 直方图 GBDT**，提供 NumPy/Python 接口。

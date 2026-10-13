@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from benchmarks import run
+from benchmarks import c5
 
 
 def test_memory_counter_uses_current_address_space():
@@ -87,3 +88,27 @@ def test_measurement_order_is_reproducible_but_varies_by_thread_and_seed():
                           for engine in engines}
     assert first != run.measurement_order("friedman_100k", 42, 4, engines)
     assert first != run.measurement_order("friedman_100k", 2024, 1, engines)
+
+
+def test_c5_summary_uses_means_and_preserves_outliers():
+    rows = [dict(dataset='tiny', variant='c5', interface='python', threads=1,
+                 fit_seconds=v, predict_seconds=v / 2, accuracy=.8)
+            for v in (1, 1, 10)]
+    summary = c5.summarize(rows)[0]
+    assert summary['fit_seconds']['mean'] == 4
+    assert summary['fit_seconds']['max'] == 10
+    assert summary['fit_seconds']['min'] == 1
+    assert summary['fit_seconds']['std'] > 4
+
+
+def test_c5_stratifies_multiclass_and_rejects_invalid_probabilities():
+    x = np.arange(180).reshape(90, 2)
+    y = np.repeat([4, 8, 12], 30)
+    train, test, labels, truth = c5.prepare(x, y, 42)
+    assert train.shape[0] + test.shape[0] == 90
+    assert set(labels) == set(truth) == {0, 1, 2}
+    assert np.bincount(truth).max() - np.bincount(truth).min() <= 1
+    for probability in (np.array([[np.nan, 0]]), np.array([[.1, .1]])):
+        with pytest.raises(ValueError):
+            c5.metrics([0], probability)
+    assert c5.metrics([0, 1], [[.8, .2], [.2, .8]])['accuracy'] == 1

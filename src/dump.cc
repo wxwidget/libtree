@@ -9,6 +9,7 @@
 #include <string_view>
 #include <vector>
 
+#include "inspection.h"
 #include "libtree/gbdt.h"
 
 namespace libtree {
@@ -29,41 +30,6 @@ std::vector<std::string> FeatureNames(const std::vector<std::string>& names,
   for (std::size_t i = 0; i < count; ++i)
     result.push_back("f" + std::to_string(i));
   return result;
-}
-void Quote(std::ostream& output, std::string_view text) {
-  constexpr char kHex[] = "0123456789abcdef";
-  output << '"';
-  for (unsigned char c : text) {
-    switch (c) {
-      case '"':
-        output << "\\\"";
-        break;
-      case '\\':
-        output << "\\\\";
-        break;
-      case '\b':
-        output << "\\b";
-        break;
-      case '\f':
-        output << "\\f";
-        break;
-      case '\n':
-        output << "\\n";
-        break;
-      case '\r':
-        output << "\\r";
-        break;
-      case '\t':
-        output << "\\t";
-        break;
-      default:
-        if (c < 0x20)
-          output << "\\u00" << kHex[c >> 4] << kHex[c & 15];
-        else
-          output << static_cast<char>(c);
-    }
-  }
-  output << '"';
 }
 void Configure(std::ostream& output) {
   output.imbue(std::locale::classic());
@@ -86,7 +52,7 @@ void Metadata(std::ostream& output, DumpFormat format, Objective objective,
          << ",\"learning_rate\":" << rate << ",\"feature_names\":[";
   for (std::size_t i = 0; i < names.size(); ++i) {
     if (i) output << ',';
-    Quote(output, names[i]);
+    internal::QuoteJson(output, names[i]);
   }
   output << ']';
 }
@@ -142,14 +108,14 @@ void Gbdt::DumpModel(std::ostream& output, DumpFormat format, int tree_index,
         if (json) {
           buffer << ",\"feature_index\":" << node.feature
                  << ",\"feature_name\":";
-          Quote(buffer, names[node.feature]);
+          internal::QuoteJson(buffer, names[node.feature]);
           buffer << ",\"threshold\":" << node.threshold
                  << ",\"left_id\":" << node.left
                  << ",\"right_id\":" << node.right
                  << ",\"missing_direction\":\""
                  << (node.missing_left ? "left" : "right") << '"';
         } else {
-          Quote(buffer, names[node.feature]);
+          internal::QuoteJson(buffer, names[node.feature]);
           buffer << " [f" << node.feature << "] <= " << node.threshold << " -> "
                  << node.left << "; > -> " << node.right << "; missing -> "
                  << missing;
@@ -199,7 +165,7 @@ void Gbdt::ExplainPrediction(
         buffer << "{\"node_id\":" << step.node_id
                << ",\"feature_index\":" << step.feature_index
                << ",\"feature_name\":";
-        Quote(buffer, names[step.feature_index]);
+        internal::QuoteJson(buffer, names[step.feature_index]);
         buffer << ",\"threshold\":" << step.threshold << ",\"feature_value\":";
         if (missing)
           buffer << "null";
@@ -211,7 +177,7 @@ void Gbdt::ExplainPrediction(
                << "\",\"next_node_id\":" << step.next_node_id << '}';
       } else {
         buffer << "  node " << step.node_id << ": ";
-        Quote(buffer, names[step.feature_index]);
+        internal::QuoteJson(buffer, names[step.feature_index]);
         if (missing)
           buffer << " missing -> " << (step.missing_left ? "left" : "right");
         else

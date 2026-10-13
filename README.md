@@ -5,6 +5,12 @@ Python/NumPy, and command-line interfaces. It supports squared-error regression,
 binary logistic classification, dense row-major features, and learned routing for
 missing (`NaN`) values.
 
+An independent **C5-style multiclass classifier** adds SAMME boosting, pruned
+IF–THEN rules, gain ratio/entropy/Gini criteria, sample weights and faithful
+single-sample explanations. Start with the [C5 guide](docs/c5.md), the
+[interactive rule explorer](docs/C5_GUIDE.html), and the
+[measured comparison/ablation report](benchmarks/C5_REPORT.md).
+
 This README is the standalone English project guide. The [Chinese README](README.zh-CN.md)
 is maintained separately. New to machine learning or decision trees? Start with
 the interactive, offline [GBDT Learning Guide](docs/LEARNING_GUIDE.html). For a
@@ -82,7 +88,8 @@ with GBDTClassifier(min_samples_leaf=1) as model:
 ```
 
 Use two-dimensional dense features and one-dimensional labels. Classification
-labels must be `0` or `1`. Convert categorical features to numeric features;
+labels for `GBDTClassifier` must be `0` or `1`. C5 supports multiclass labels.
+Convert categorical features to numeric features;
 fit encoders on training data only. `NaN` means missing. Infinity and invalid
 shapes are rejected. Contiguous `float32` input avoids a conversion copy.
 
@@ -137,6 +144,12 @@ keep the final test set untouched. Training loss is a diagnostic, not a measure
 of generalization. The learning guide covers this distinction and data leakage.
 
 ## Optimization changelog
+
+- **C5-style rules:** independent multiclass SAMME, cost-complexity pruning,
+  gain ratio/entropy/Gini, repeated-condition merging, exact matched-rule
+  explanations and workload-adaptive parallel histograms. See the
+  [C5 experiment report](benchmarks/C5_REPORT.md) for speed, quality, scaling,
+  rule complexity and preselected ablations.
 
 This is a summary of measured and tested implementation milestones. The
 [detailed optimization report](benchmarks/OPTIMIZATION_REPORT.zh-CN.md) and

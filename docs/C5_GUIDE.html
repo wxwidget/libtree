@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C5 rules and votes · LibTree</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#17314c;background:#edf3f8}body{max-width:1020px;margin:32px auto;padding:0 20px}a{color:#1458a1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:white;border:1px solid #ccdae6;border-radius:16px;padding:24px}label{display:block;margin:16px 0 6px}input[type=range]{width:100%}output{font-variant-numeric:tabular-nums}pre{white-space:pre-wrap;font:14px/1.7 ui-monospace,monospace;background:#f2f6fa;padding:16px;border-radius:8px}.hint{color:#48627b;line-height:1.6}table{border-collapse:collapse;width:100%}th,td{text-align:left;border-bottom:1px solid #ccd7e2;padding:10px}.bar{height:14px;background:#2571b2;border-radius:4px}#result{font-size:1.35rem;font-weight:650}svg{width:100%;height:auto}.node{fill:#edf3f8;stroke:#869db0}.active{fill:#d6f2e2;stroke:#23845b;stroke-width:3}text{fill:#17314c;font:14px system-ui}@media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+<h1>Read the rule. Add the votes.<br>看规则，加票数，读懂预测。</h1>
+<p class="hint">Move the sample and inspect its matched rules. 调整样本，观察命中规则与类别投票。<br>
+Illustrative two-round model with fixed votes; not a trained financial model or benchmark.</p>
+<p><a href="c5.md">English guide</a> · <a href="c5.zh-CN.md">中文指南</a> · <a href="../benchmarks/C5_REPORT.md">Measured experiments</a></p>
+<div class="grid"><section class="card" aria-label="Sample and model settings">
+<h2>Sample / 样本</h2>
+<label for="delay">Days late / 逾期天数: <output id="delayValue"></output></label>
+<input id="delay" type="range" min="0" max="30" value="15">
+<label><input id="missing" type="checkbox"> Days late missing / 逾期天数缺失</label>
+<label for="balance">Balance / 余额: <output id="balanceValue"></output></label>
+<input id="balance" type="range" min="0" max="1000" value="200" step="10">
+<h2>Model / 模型</h2>
+<label><input id="boost" type="checkbox" checked> Include round 2 / 加入第二轮</label>
+<label for="vote">Round 2 vote / 第二轮票数: <output id="voteValue"></output></label>
+<input id="vote" type="range" min=".1" max="3" step=".1" value=".8">
+<label for="alpha">Pruning alpha / 剪枝惩罚: <output id="alphaValue"></output></label>
+<input id="alpha" type="range" min="0" max=".4" step=".01" value=".05">
+<p class="hint">Round 2 subtree risk: .10 + 2α. Leaf risk: .28 + α. Prune at α ≥ .18.
+剪枝比较误差与叶子数惩罚；该叶子的多数类为 repays。</p>
+</section><section class="card" aria-label="Prediction explanation" aria-live="polite">
+<h2>Actual route / 实际路径</h2>
+<svg viewBox="0 0 400 170" role="img" aria-label="Days late at most two or missing takes left, otherwise right">
+<path d="M200 48 L95 120 M200 48 L305 120" stroke="#869db0" fill="none"/>
+<rect class="node" x="105" y="12" width="190" height="42" rx="8"/>
+<text x="200" y="38" text-anchor="middle">days_late ≤ 2 ?</text>
+<rect id="left" class="node" x="15" y="115" width="160" height="40" rx="8"/>
+<text x="95" y="140" text-anchor="middle">repays (class 1)</text>
+<rect id="right" class="node" x="225" y="115" width="160" height="40" rx="8"/>
+<text x="305" y="140" text-anchor="middle">late (class 0)</text>
+<text x="65" y="91">≤ 2 / missing</text><text x="306" y="91">&gt; 2</text>
+</svg><pre id="rules"></pre>
+<table><thead><tr><th>Class / 类别</th><th>Votes / 票数</th><th>Normalized score</th></tr></thead><tbody id="scores"></tbody></table>
+<p id="result"></p><p id="complexity" class="hint"></p>
+<p class="hint">One rule matches per round. Sum votes; ties choose class 0. 每轮一条规则，总票数最大者获胜。
+Scores use softmax(votes / sum(votes)); probabilities are uncalibrated.</p>
+</section></div>
+<script>
+const ids=['delay','balance','missing','boost','vote','alpha'],el=id=>document.getElementById(id);
+function update(){
+ const delay=Number(el('delay').value),balance=Number(el('balance').value),alpha=Number(el('alpha').value),weight=Number(el('vote').value);
+ const missing=el('missing').checked,boost=el('boost').checked,pruned=alpha>=.18;
+ for(const id of ['delay','balance','vote','alpha'])el(id+'Value').textContent=el(id).value;
+ el('delay').disabled=missing;
+ const first=missing||delay<=2?1:0,second=pruned||balance>250?1:0,votes=[0,0];votes[first]+=1.4;if(boost)votes[second]+=weight;
+ el('left').setAttribute('class',first===1?'node active':'node');el('right').setAttribute('class',first===0?'node active':'node');
+ let rules=`Round 1: IF ${first===1?'days_late ≤ 2 OR MISSING':'days_late > 2'}\nTHEN ${first===1?'repays':'late'}; vote 1.4`;
+ if(boost)rules+=`\n\nRound 2: IF ${pruned?'TRUE (pruned)':second===1?'balance > 250':'balance ≤ 250'}\nTHEN ${second===1?'repays':'late'}; vote ${weight.toFixed(1)}`;
+ el('rules').textContent=rules;
+ const total=votes[0]+votes[1],max=Math.max(...votes),e=votes.map(v=>Math.exp((v-max)/total)),sum=e[0]+e[1],p=e.map(v=>v/sum);
+ el('scores').innerHTML=votes.map((v,i)=>`<tr><td>${i===0?'late':'repays'} (${i})</td><td>${v.toFixed(1)}</td><td>${p[i].toFixed(3)}<div class="bar" style="width:${100*p[i]}%"></div></td></tr>`).join('');
+ el('result').textContent=`Prediction / 预测: ${votes[1]>votes[0]?'repays':'late'}`;
+ el('complexity').textContent=`${boost?2:1} rounds; ${2+(boost?(pruned?1:2):0)} model rules; ${1+(boost&&!pruned?1:0)} matched conditions.`;
+}
+ids.forEach(id=>el(id).addEventListener('input',update));update();
+</script></html>

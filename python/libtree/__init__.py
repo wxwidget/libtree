@@ -45,6 +45,26 @@ def _library():
         lib.LtExplainPrediction.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t,
                                            ct.c_int, *inspection_output]
         lib.LtExplainPrediction.restype = ct.c_int
+        lib.LtC5Create.argtypes = [ct.c_int] * 4 + [ct.c_double] * 3 + [ct.c_int] * 2
+        lib.LtC5Create.restype = ct.c_void_p
+        lib.LtC5Free.argtypes = [ct.c_void_p]
+        lib.LtC5Free.restype = None
+        lib.LtC5Fit.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t, ct.c_size_t,
+                                ct.POINTER(ct.c_int), ct.POINTER(ct.c_double)]
+        lib.LtC5Fit.restype = ct.c_int
+        lib.LtC5PredictProba.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t, ct.c_size_t,
+                                         ct.POINTER(ct.c_double)]
+        lib.LtC5PredictProba.restype = ct.c_int
+        for name in ('LtC5ClassCount', 'LtC5ErrorCount'):
+            function = getattr(lib, name)
+            function.argtypes = [ct.c_void_p]
+            function.restype = ct.c_size_t
+        lib.LtC5Errors.argtypes = [ct.c_void_p, ct.POINTER(ct.c_double), ct.c_size_t]
+        lib.LtC5Errors.restype = ct.c_int
+        lib.LtC5DumpRules.argtypes = [ct.c_void_p, ct.c_int, *inspection_output]
+        lib.LtC5DumpRules.restype = ct.c_int
+        lib.LtC5Explain.argtypes = lib.LtExplainPrediction.argtypes
+        lib.LtC5Explain.restype = ct.c_int
         _LIB = lib
     return _LIB
 
@@ -60,7 +80,49 @@ def _pointer(array):
     return array.ctypes.data_as(_FLOAT)
 
 
-class GBDTRegressor:
+class _OwnedModel:
+    """Shared native ownership and caller-owned inspection buffers."""
+
+    def _inspection(self, operation, arguments, format, feature_names):
+        if self._handle is None:
+            raise RuntimeError("model is not fitted or is closed")
+        if format not in ('text', 'json'):
+            raise ValueError("format must be text or json")
+        names = None
+        count = 0
+        if feature_names is not None:
+            if isinstance(feature_names, str):
+                raise ValueError("feature_names must be a sequence of strings")
+            labels = tuple(feature_names)
+            if any(not isinstance(name, str) or '\0' in name for name in labels):
+                raise ValueError("feature names must be strings without NUL")
+            count = len(labels)
+            names = (ct.c_char_p * count)(*(name.encode('utf-8') for name in labels))
+        lib = _library()
+        function = getattr(lib, operation)
+        required = ct.c_size_t()
+        arguments = arguments(0 if format == 'text' else 1)
+        if function(self._handle, *arguments, names, count, None, 0, ct.byref(required)):
+            raise ValueError(lib.LtLastError().decode())
+        output = ct.create_string_buffer(required.value)
+        if function(self._handle, *arguments, names, count, output, len(output), ct.byref(required)):
+            raise RuntimeError(lib.LtLastError().decode())
+        return output.value.decode('utf-8')
+
+    def close(self):
+        if self._finalizer is not None:
+            self._finalizer()
+        self._handle = None
+        self._finalizer = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+
+class GBDTRegressor(_OwnedModel):
     """Squared-error GBDT. fit replaces the model; predict returns float32.
 
     NaN values are supported. Inputs are not mutated. A model must not be fitted
@@ -147,32 +209,6 @@ class GBDTRegressor:
     def predict(self, x):
         return self._predict_values(x)
 
-    def _inspection(self, operation, arguments, format, feature_names):
-        if self._handle is None:
-            raise RuntimeError("model is not fitted or is closed")
-        if format not in ('text', 'json'):
-            raise ValueError("format must be text or json")
-        names = None
-        count = 0
-        if feature_names is not None:
-            if isinstance(feature_names, str):
-                raise ValueError("feature_names must be a sequence of strings")
-            labels = tuple(feature_names)
-            if any(not isinstance(name, str) or '\0' in name for name in labels):
-                raise ValueError("feature names must be strings without NUL")
-            count = len(labels)
-            names = (ct.c_char_p * count)(*(name.encode('utf-8') for name in labels))
-        lib = _library()
-        function = getattr(lib, operation)
-        required = ct.c_size_t()
-        arguments = arguments(0 if format == 'text' else 1)
-        if function(self._handle, *arguments, names, count, None, 0, ct.byref(required)):
-            raise ValueError(lib.LtLastError().decode())
-        output = ct.create_string_buffer(required.value)
-        if function(self._handle, *arguments, names, count, output, len(output), ct.byref(required)):
-            raise RuntimeError(lib.LtLastError().decode())
-        return output.value.decode('utf-8')
-
     def dump_model(self, format='text', tree_index=None, feature_names=None):
         """Return a text/JSON string; indices are zero-based, None exports all trees.
 
@@ -226,17 +262,6 @@ class GBDTRegressor:
         total = np.sum((y - y.mean()) ** 2)
         return float(1 - residual / total) if total else float(residual == 0)
 
-    def close(self):
-        if self._finalizer is not None:
-            self._finalizer()
-        self._handle = None
-        self._finalizer = None
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        self.close()
 
 
 class GBDTClassifier(GBDTRegressor):
@@ -257,3 +282,6 @@ class GBDTClassifier(GBDTRegressor):
         if y.ndim != 1 or y.shape != pred.shape or len(y) == 0:
             raise ValueError("invalid score labels")
         return float(np.mean(pred == y))
+
+
+from .c5 import C5Classifier  # noqa: E402

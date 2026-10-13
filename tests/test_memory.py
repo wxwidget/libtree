@@ -2,7 +2,8 @@
 import gc
 from pathlib import Path
 import numpy as np
-from libtree import GBDTRegressor
+import pytest
+from libtree import C5Classifier, GBDTRegressor
 
 
 def rss_bytes():
@@ -12,13 +13,16 @@ def rss_bytes():
     raise RuntimeError("Linux RSS measurement unavailable")
 
 
-def test_repeated_python_ownership_plateaus():
+@pytest.mark.parametrize('estimator', [GBDTRegressor, C5Classifier])
+def test_repeated_python_ownership_plateaus(estimator):
     rng = np.random.default_rng(42)
     x = rng.normal(size=(500, 5)).astype(np.float32)
     y = x[:, 0] + x[:, 1]
+    if estimator is C5Classifier:
+        y = (y > 0).astype(int)
     rss = []
     for cycle in range(300):
-        model = GBDTRegressor(n_estimators=10)
+        model = estimator(n_estimators=10)
         model.fit(x, y)
         assert np.isfinite(model.predict(x)).all()
         # Alternate explicit close and Python finalization.

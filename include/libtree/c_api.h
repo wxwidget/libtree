@@ -33,6 +33,27 @@ int LtDumpModel(LtModel model, int format, int tree_index,
 int LtExplainPrediction(LtModel model, const float* x, size_t cols, int format,
                         const char* const* names, size_t name_count, char* out,
                         size_t capacity, size_t* required);
+// Independent C5 handle; never pass it to a GBDT operation (or vice versa).
+typedef void* LtC5Model;
+LtC5Model LtC5Create(int rounds, int depth, int bins, int min_leaf, double rate,
+                     double alpha, double min_gain, int criterion, int threads);
+void LtC5Free(LtC5Model model);
+// y: contiguous class indices 0..K-1, K<=256. weights=NULL means uniform.
+int LtC5Fit(LtC5Model model, const float* x, size_t rows, size_t cols,
+            const int* y, const double* weights);
+size_t LtC5ClassCount(LtC5Model model);
+// Output capacity must be rows * LtC5ClassCount(model) doubles; no overlap x.
+int LtC5PredictProba(LtC5Model model, const float* x, size_t rows, size_t cols,
+                     double* out);
+size_t LtC5ErrorCount(LtC5Model model);
+int LtC5Errors(LtC5Model model, double* out, size_t count);
+// Same inspection buffer and feature-name contract as LtDumpModel.
+int LtC5DumpRules(LtC5Model model, int format, const char* const* names,
+                  size_t name_count, char* out, size_t capacity,
+                  size_t* required);
+int LtC5Explain(LtC5Model model, const float* x, size_t cols, int format,
+                const char* const* names, size_t name_count, char* out,
+                size_t capacity, size_t* required);
 #ifdef __cplusplus
 }
 #endif
