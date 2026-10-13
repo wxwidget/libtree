@@ -205,3 +205,43 @@ both interfaces and all three thread budgets displayed the raw-data timings,
 scaling dataset selection and numeric/log axes remained correct, and the 1,134-row
 CSV and complete JSON downloads matched the evidence. The 390px mobile layout
 had no horizontal overflow; no JavaScript errors were observed.
+
+## Tree inspection and single-row explanations / 决策树输出与解释
+
+TDD first produced missing-method compilation errors in the C++ inspection
+test, Python `AttributeError` failures, and an unsupported-command CLI failure.
+A separate red test exposed invalid JSON when an extreme saved-model leaf
+overflowed the float32 prediction. The implementation now rejects that case
+and preserves existing output files.
+
+Python tests independently traverse exported JSON trees and reconstruct actual
+regression predictions and binary probabilities. They check every path step,
+threshold equality, learned left/right NaN routing, raw leaf values and scaled
+contributions. Root-only trees, multi-level paths, selected-tree IDs, 1/4-thread
+export parity, Unicode/control escaping and native query/write failures are
+included. Native tests also load existing version-1 models, preserve stream
+locale/precision, exercise undersized caller-owned C buffers and inspect one
+immutable model from eight concurrent readers under ThreadSanitizer.
+
+Local validation for this change:
+
+| Check | Result |
+| --- | --- |
+| Native CTest | 6/6 targets passed, including the new `dump` target |
+| Python estimator and inspection contracts | 43/43 passed |
+| CLI | 16/16 passed |
+| Performance and ownership checks | 2/2 passed |
+| Benchmark preparation/metadata | 10/10 passed |
+| ASan/UBSan/LSan | 6/6 native targets and 16/16 CLI cases passed |
+| ThreadSanitizer | 6/6 native targets passed |
+| Native source line coverage | 1688/1688 = 100%; no new exclusion markers |
+| Python API statement coverage | 195/195 = 100% |
+| Installed wheel outside checkout | Both estimator types export UTF-8 labels and explanations |
+| English/Chinese Python and C++ guide examples | Executed; base 0.5 + contribution 0.25 = prediction 0.75 |
+
+The public API, C ABI and CLI share one native serializer and path traversal.
+Explanation structs and output buffers are allocated on demand; the fitted
+node layout and persistence format do not store additional path caches or
+training statistics. These outputs are exact paths and per-tree contributions,
+not SHAP feature attribution. See [the English guide](explain.md) or
+[中文指南](explain.zh-CN.md) for examples and score semantics.

@@ -813,6 +813,54 @@ void Gbdt::PredictInto(MatrixView features, float* output) const {
   PredictUnchecked(features, output);
 }
 
+PredictionExplanation Gbdt::ExplainPrediction(MatrixView sample) const {
+  if (sample.rows != 1)
+    throw std::invalid_argument("explanation requires exactly one sample");
+  ValidatePredictionInput(sample);
+  PredictionExplanation result;
+  result.objective = parameters_.objective;
+  result.base_score = base_score_;
+  result.learning_rate = parameters_.learning_rate;
+  result.margin = base_score_;
+  result.trees.reserve(trees_.size());
+  for (std::size_t t = 0; t < trees_.size(); ++t) {
+    const auto& tree = trees_[t];
+    TreeExplanation explanation;
+    explanation.tree_index = t;
+    int index = 0;
+    while (tree[index].feature >= 0) {
+      const auto& node = tree[index];
+      const float value = sample.data[node.feature];
+      const bool left =
+          std::isnan(value) ? node.missing_left : value <= node.threshold;
+      const int next = left ? node.left : node.right;
+      DecisionStep step{};
+      step.node_id = index;
+      step.feature_index = node.feature;
+      step.threshold = node.threshold;
+      step.feature_value = value;
+      step.missing_left = node.missing_left;
+      step.next_node_id = next;
+      explanation.path.push_back(step);
+      index = next;
+    }
+    explanation.leaf_id = index;
+    explanation.leaf_value = tree[index].value;
+    explanation.contribution =
+        parameters_.learning_rate * explanation.leaf_value;
+    result.margin += explanation.contribution;
+    result.trees.push_back(std::move(explanation));
+  }
+  result.prediction =
+      static_cast<float>(parameters_.objective == Objective::kBinaryLogistic
+                             ? Sigmoid(result.margin)
+                             : result.margin);
+  if (!std::isfinite(result.margin) || !std::isfinite(result.prediction))
+    throw std::overflow_error(
+        "explanation margin and prediction must be finite");
+  return result;
+}
+
 void Gbdt::PredictUnchecked(MatrixView features, float* output) const {
   constexpr std::size_t kBatch = 64;
   if (executor_ && features.rows >= 512 && trees_.size() >= 8) {

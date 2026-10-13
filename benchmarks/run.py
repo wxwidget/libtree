@@ -331,7 +331,7 @@ def main(args):
                              "min_leaf": args.min_leaf, "rate": args.rate, "l2": args.l2, "min_gain": args.min_gain},
               "cpu": next((line.strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown'),
               "source_sha256": {str(path): hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
-                                for path in ("src/gbdt.cc", "src/parallel.h", "src/c_api.cc", "src/model.cc", "src/cli.cc", "include/libtree/gbdt.h", "python/libtree/__init__.py", "benchmarks/native.cc", "benchmarks/run.py", "CMakeLists.txt", "setup.py")},
+                                for path in ("src/gbdt.cc", "src/parallel.h", "src/c_api.cc", "src/model.cc", "src/dump.cc", "src/cli.cc", "include/libtree/gbdt.h", "include/libtree/c_api.h", "python/libtree/__init__.py", "benchmarks/native.cc", "benchmarks/run.py", "CMakeLists.txt", "setup.py")},
               "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
               "sources": sources, "results": results}
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n")

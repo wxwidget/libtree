@@ -1,6 +1,7 @@
 """Deterministic histogram GBDT backed by a C++17 library."""
 
 import ctypes as ct
+import json
 import os
 from pathlib import Path
 import weakref
@@ -37,6 +38,13 @@ def _library():
         lib.LtLossCount.restype = ct.c_size_t
         lib.LtLoss.argtypes = [ct.c_void_p, ct.POINTER(ct.c_double), ct.c_size_t]
         lib.LtLoss.restype = ct.c_int
+        inspection_output = [ct.POINTER(ct.c_char_p), ct.c_size_t,
+                             ct.c_char_p, ct.c_size_t, ct.POINTER(ct.c_size_t)]
+        lib.LtDumpModel.argtypes = [ct.c_void_p, ct.c_int, ct.c_int, *inspection_output]
+        lib.LtDumpModel.restype = ct.c_int
+        lib.LtExplainPrediction.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t,
+                                           ct.c_int, *inspection_output]
+        lib.LtExplainPrediction.restype = ct.c_int
         _LIB = lib
     return _LIB
 
@@ -138,6 +146,66 @@ class GBDTRegressor:
 
     def predict(self, x):
         return self._predict_values(x)
+
+    def _inspection(self, operation, arguments, format, feature_names):
+        if self._handle is None:
+            raise RuntimeError("model is not fitted or is closed")
+        if format not in ('text', 'json'):
+            raise ValueError("format must be text or json")
+        names = None
+        count = 0
+        if feature_names is not None:
+            if isinstance(feature_names, str):
+                raise ValueError("feature_names must be a sequence of strings")
+            labels = tuple(feature_names)
+            if any(not isinstance(name, str) or '\0' in name for name in labels):
+                raise ValueError("feature names must be strings without NUL")
+            count = len(labels)
+            names = (ct.c_char_p * count)(*(name.encode('utf-8') for name in labels))
+        lib = _library()
+        function = getattr(lib, operation)
+        required = ct.c_size_t()
+        arguments = arguments(0 if format == 'text' else 1)
+        if function(self._handle, *arguments, names, count, None, 0, ct.byref(required)):
+            raise ValueError(lib.LtLastError().decode())
+        output = ct.create_string_buffer(required.value)
+        if function(self._handle, *arguments, names, count, output, len(output), ct.byref(required)):
+            raise RuntimeError(lib.LtLastError().decode())
+        return output.value.decode('utf-8')
+
+    def dump_model(self, format='text', tree_index=None, feature_names=None):
+        """Return a text/JSON string; indices are zero-based, None exports all trees.
+
+        Labels are supplied in input-column order; defaults are f0, f1, ...
+        Leaf contribution is learning_rate * leaf_value on the margin scale.
+        This is an inspection format, not a loadable model file.
+        """
+        index = -1
+        if tree_index is not None:
+            if (not isinstance(tree_index, (int, np.integer))
+                    or not 0 <= tree_index < 2**31):
+                raise ValueError("tree_index must be a nonnegative 32-bit integer")
+            index = int(tree_index)
+        return self._inspection('LtDumpModel', lambda format: (format, index),
+                                format, feature_names)
+
+    def explain(self, sample, feature_names=None, format='json'):
+        """Explain one row: a dict for json, or a human-readable string for text.
+
+        Input shape is (features,) or (1, features). Each path records the
+        split comparison or missing-value route, plus the reached leaf.
+        Binary margin is log-odds; prediction is P(class=1), not a class label.
+        """
+        sample = np.asarray(sample, dtype=np.float32)
+        if sample.ndim == 1:
+            sample = sample.reshape(1, -1)
+        if sample.ndim != 2 or sample.shape[0] != 1:
+            raise ValueError("explanation requires exactly one sample")
+        sample = _matrix(sample)
+        text = self._inspection('LtExplainPrediction',
+                                lambda format: (_pointer(sample), sample.shape[1], format),
+                                format, feature_names)
+        return json.loads(text) if format == 'json' else text
 
     @property
     def training_loss_(self):

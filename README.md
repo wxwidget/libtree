@@ -98,6 +98,16 @@ and exposes tree/training parameters. Start with:
 See the [CLI guide](docs/cli.md) for input format, options, missing values, and
 model lifecycle.
 
+### Inspect trees and explain predictions
+
+Fitted models expose `model.dump_model(format="text"|"json")`, with optional
+`tree_index=0` and feature labels. `model.explain(sample)` records the complete
+path and learning-rate-scaled contribution from every tree, plus the base
+score and final prediction. C++ provides `DumpModel` and `ExplainPrediction`;
+the CLI provides `xgbt dump` and `xgbt explain`. The
+[beginner inspection guide](docs/explain.md) includes runnable examples, the
+JSON schema and binary probability semantics.
+
 ## Concepts and learning path
 
 Gradient boosted decision trees add many small trees in sequence. Each new tree
@@ -229,6 +239,7 @@ quality or data splits.
 ## Learning guide and references
 
 - [Interactive GBDT Learning Guide (offline HTML)](docs/LEARNING_GUIDE.html)
+- [Inspect trees and explain one prediction](docs/explain.md)
 - [Algorithm and architecture](docs/design.md)
 - [Command-line guide](docs/cli.md)
 - [Experimental report](benchmarks/EXPERIMENTS.md)

@@ -94,6 +94,14 @@ auto prediction = model.Predict({x.data(), 4, 1});
 不可变模型支持 C++ 并发预测；同一模型不能同时训练、关闭和预测。
 C++ 输入错误抛出标准异常，C ABI 将异常转换为返回码和线程局部错误消息。
 
+## 输出决策树与解释单条预测
+
+训练后的模型支持 `model.dump_model(format="text"|"json")`，可输出全部树或
+用 `tree_index=0` 指定第一棵树。`model.explain(sample)` 返回完整路径与各棵树
+的贡献，可按列顺序提供 `feature_names`，默认名称是 `f0` 等。C++ 提供
+`DumpModel` / `ExplainPrediction`，CLI 提供 `xgbt dump` / `xgbt explain`。
+详见 [新手解释指南](docs/explain.zh-CN.md) 的可运行示例、分数语义和 JSON 字段。
+
 ## 调参和学习路线
 
 | 参数（Python / C++） | 默认值 | 含义 |

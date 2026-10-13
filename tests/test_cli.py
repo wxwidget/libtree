@@ -139,3 +139,78 @@ def test_cli_parse_and_atomic_error_paths(tmp_path):
     result = invoke('train', '--train', train, '--header', '--output', missing_parent)
     assert result.returncode != 0
     assert not missing_parent.exists()
+
+
+def test_dump_and_explain_saved_model(tmp_path):
+    model = tmp_path / 'model.lt'
+    model.write_text('LIBTREE_GBDT 1\n0 2 1 8 1 .5 0 0 1 1.25 2\n3\n'
+                     '0 1 2 .5 0 0\n-1 -1 -1 0 -2 1\n-1 -1 -1 0 2 1\n'
+                     '1\n-1 -1 -1 0 1 1\n')
+    names = tmp_path / 'names.txt'
+    names.write_text('年龄"\\\t\n')
+    result = invoke('dump', '--model', model, '--format', 'json', '--feature-names', names)
+    assert result.returncode == 0, result.stderr
+    dump = json.loads(result.stdout)
+    assert dump['feature_names'] == ['年龄"\\\t']
+    assert len(dump['trees']) == 2
+    assert dump['trees'][0]['nodes'][0]['missing_direction'] == 'right'
+    assert dump['trees'][0]['nodes'][1]['contribution'] == -1
+    out = tmp_path / 'dump.txt'
+    result = invoke('dump', '--model', model, '--tree', 1, '--output', out)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == ''
+    assert 'tree 1' in out.read_text() and 'tree 0' not in out.read_text()
+    for value, expected in (('0', .75), ('.5', .75), ('1', 2.75), ('nan', 2.75)):
+        data = tmp_path / 'sample.csv'
+        data.write_text('value\n' + value + '\n')
+        result = invoke('explain', '--model', model, '--data', data, '--header', '--format', 'json')
+        assert result.returncode == 0, result.stderr
+        explanation = json.loads(result.stdout)
+        assert explanation['prediction'] == expected
+        assert len(explanation['trees']) == 2
+        assert explanation['trees'][0]['path'][0]['condition'] == (
+            'missing' if value == 'nan' else '>' if value == '1' else '<=')
+        assert invoke('explain', '--model', model, '--data', data, '--header',
+                      '--feature-names', names, '--output', out).returncode == 0
+        assert 'contribution' in out.read_text()
+
+
+def test_inspection_cli_rejects_bad_requests_without_overwriting(tmp_path):
+    model = tmp_path / 'model.lt'
+    model.write_text('LIBTREE_GBDT 1\n0 1 0 8 1 .1 0 0 1 3 1\n1\n-1 -1 -1 0 0 1\n')
+    data = tmp_path / 'data.csv'
+    data.write_text('0\n1\n')
+    names = tmp_path / 'names.txt'
+    out = tmp_path / 'out.txt'
+    out.write_text('preserved')
+    for extra in (['--format', 'dot'], ['--tree', '-1'], ['--tree', '1'],
+                  ['--trees', '1'], ['--data', data], ['--header'],
+                  ['--feature-names', tmp_path / 'missing'], ['--threads', '2']):
+        assert invoke('dump', '--model', model, '--output', out, *extra).returncode != 0
+        assert out.read_text() == 'preserved'
+    assert invoke('dump').returncode != 0
+    assert invoke('explain', '--model', model).returncode != 0
+    assert invoke('explain', '--model', model, '--data', data, '--output', out).returncode != 0
+    assert out.read_text() == 'preserved'
+    for text in ('', 'a\nb\n'):
+        names.write_text(text)
+        assert invoke('dump', '--model', model, '--feature-names', names).returncode != 0
+    assert invoke('dump', '--model', model, '--output', model).returncode != 0
+    names.write_text('age\r\n')
+    assert invoke('dump', '--model', model, '--feature-names', names).returncode == 0
+    assert invoke('train', '--train', data, '--feature-names', names).returncode != 0
+
+
+def test_explanation_overflow_does_not_write_invalid_json(tmp_path):
+    model = tmp_path / 'model.lt'
+    model.write_text('LIBTREE_GBDT 1\n0 1 0 8 1 1 0 0 1 0 1\n1\n'
+                     '-1 -1 -1 0 1e308 1\n')
+    sample = tmp_path / 'sample.csv'
+    sample.write_text('0\n')
+    out = tmp_path / 'out.json'
+    out.write_text('preserved')
+    result = invoke('explain', '--model', model, '--data', sample,
+                    '--format', 'json', '--output', out)
+    assert result.returncode != 0
+    assert 'finite' in result.stderr
+    assert out.read_text() == 'preserved'

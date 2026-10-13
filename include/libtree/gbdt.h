@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace libtree {
@@ -12,6 +13,34 @@ namespace internal {
 class ParallelExecutor;
 }
 enum class Objective { kSquaredError, kBinaryLogistic };
+enum class DumpFormat { kText = 0, kJson = 1 };
+
+struct DecisionStep {
+  int node_id;
+  int feature_index;
+  float threshold;
+  float feature_value;  // NaN means the learned missing direction was used.
+  bool missing_left;
+  int next_node_id;
+};
+
+struct TreeExplanation {
+  std::size_t tree_index;
+  std::vector<DecisionStep> path;
+  int leaf_id;
+  double leaf_value;
+  double contribution;  // learning_rate * leaf_value, on the margin scale.
+};
+
+struct PredictionExplanation {
+  Objective objective;
+  double base_score;
+  double learning_rate;
+  std::vector<TreeExplanation> trees;
+  double margin;
+  float prediction;  // Same float32 value returned by Predict; P(class=1) for
+                     // binary.
+};
 
 struct Parameters {
   int num_trees = 100;
@@ -46,6 +75,19 @@ class Gbdt {
   // Versioned text format; failed loads preserve any existing fitted model.
   void SaveModel(std::ostream& output) const;
   void LoadModel(std::istream& input);
+  // Read-only inspection, separate from the versioned persistence format.
+  // tree_index=-1 exports all trees; other indices are zero-based.
+  // Names are UTF-8 display labels in column order; empty means f0, f1, ...
+  void DumpModel(std::ostream& output, DumpFormat format = DumpFormat::kText,
+                 int tree_index = -1,
+                 const std::vector<std::string>& feature_names = {}) const;
+  // Exactly one sample; paths include learned NaN routing and leaf
+  // contributions.
+  PredictionExplanation ExplainPrediction(MatrixView sample) const;
+  void ExplainPrediction(
+      MatrixView sample, std::ostream& output,
+      DumpFormat format = DumpFormat::kText,
+      const std::vector<std::string>& feature_names = {}) const;
   // Runtime configuration, independent of the portable model format.
   // Like Fit, must not run concurrently with predictions on this model.
   void SetNumThreads(int threads);

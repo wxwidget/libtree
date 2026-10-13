@@ -2,6 +2,12 @@
 
 [English](cli.md)
 
+输出树：`xgbt dump --model model.lt [--format text|json] [--tree 0]
+[--output trees.json]`。解释单条样本：`xgbt explain --model model.lt
+--data one-row.csv [--header] [--format text|json] [--output explanation.json]`。
+默认向 stdout 输出文本；可用 `--feature-names names.txt` 提供每行一个 UTF-8
+特征名。完整示例见 [解释指南](explain.zh-CN.md)。
+
 `xgbt` 是本仓库 **LibTree GBDT** 的 C++17 主程序，不是 XGBoost 官方命令。
 编译后无需 Python 即可运行：
 

@@ -2,6 +2,12 @@
 
 [中文](cli.zh-CN.md)
 
+Tree inspection: `xgbt dump --model model.lt [--format text|json] [--tree 0]
+[--output trees.json]`. Single-row explanation: `xgbt explain --model model.lt
+--data one-row.csv [--header] [--format text|json] [--output explanation.json]`.
+Both default to text/stdout and accept `--feature-names names.txt`, one UTF-8
+label per feature. See the [inspection guide](explain.md) for complete examples.
+
 `xgbt` runs **LibTree's GBDT**, not the official XGBoost executable.
 It is a native C++17 program built with the library; no Python runtime is needed.
 

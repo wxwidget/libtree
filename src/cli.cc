@@ -20,6 +20,12 @@ const char kHelp[] =
     "[--output predictions.csv]\n"
     "  xgbt predict --model model.lt --data features.csv --output "
     "predictions.csv\n"
+    "  xgbt dump --model model.lt [--format text|json] [--tree 0] [--output "
+    "tree.txt]\n"
+    "  xgbt explain --model model.lt --data one-row.csv [--format text|json] "
+    "[--output explanation.json]\n"
+    "Inspection: optional --feature-names names.txt (one UTF-8 label per "
+    "line).\n"
     "CSV: numeric, optional --header; first training column is label. "
     "Empty/nan feature = missing.\n"
     "Parameters: --objective regression|binary --trees 100 --depth 4 --bins "
@@ -33,6 +39,8 @@ struct Options {
   std::map<std::string, std::string> paths;
   std::string command;
   bool header = false;
+  libtree::DumpFormat dump_format = libtree::DumpFormat::kText;
+  int tree_index = -1;
 };
 double Number(const std::string& text) {
   std::size_t end = 0;
@@ -51,8 +59,11 @@ int Integer(const std::string& text) {
 Options Parse(int argc, char** argv) {
   Options options;
   options.command = argv[1];
-  if (options.command != "train" && options.command != "predict")
-    throw std::invalid_argument("expected train or predict");
+  if (options.command != "train" && options.command != "predict" &&
+      options.command != "dump" && options.command != "explain")
+    throw std::invalid_argument("expected train, predict, dump or explain");
+  const bool inspection =
+      options.command == "dump" || options.command == "explain";
   std::map<std::string, bool> seen;
   for (int i = 2; i < argc; ++i) {
     std::string flag = argv[i];
@@ -64,22 +75,41 @@ Options Parse(int argc, char** argv) {
     if (seen[flag]) throw std::invalid_argument("duplicate option: " + flag);
     seen[flag] = true;
     if (flag == "--header") {
+      if (options.command == "dump")
+        throw std::invalid_argument("dump does not read CSV headers");
       options.header = true;
       continue;
     }
     if (++i >= argc) throw std::invalid_argument("missing option value");
     const std::string value = argv[i];
     if (flag == "--train" || flag == "--test" || flag == "--model" ||
-        flag == "--output" || flag == "--data") {
+        flag == "--output" || flag == "--data" || flag == "--feature-names") {
+      if (flag == "--feature-names" && !inspection)
+        throw std::invalid_argument("feature names require dump or explain");
       options.paths[flag] = value;
       continue;
     }
     if (flag == "--threads") {
+      if (inspection)
+        throw std::invalid_argument("threads require train or predict");
       options.parameters.num_threads = Integer(value);
       continue;
     }
-    if (options.command == "predict")
-      throw std::invalid_argument("predict parameters come from the model");
+    if (flag == "--format" && inspection) {
+      if (value != "text" && value != "json")
+        throw std::invalid_argument("format must be text or json");
+      options.dump_format = value == "json" ? libtree::DumpFormat::kJson
+                                            : libtree::DumpFormat::kText;
+      continue;
+    }
+    if (flag == "--tree" && options.command == "dump") {
+      options.tree_index = Integer(value);
+      if (options.tree_index < 0)
+        throw std::invalid_argument("tree index must be nonnegative");
+      continue;
+    }
+    if (options.command != "train")
+      throw std::invalid_argument("training parameters require train");
     auto& p = options.parameters;
     if (flag == "--trees")
       p.num_trees = Integer(value);
@@ -108,11 +138,19 @@ Options Parse(int argc, char** argv) {
     if (!paths.count("--train") || paths.count("--data"))
       throw std::invalid_argument(
           "train requires --train and does not accept --data");
+  } else if (options.command == "predict") {
+    if (!paths.count("--model") || !paths.count("--data") ||
+        !paths.count("--output") || paths.count("--train") ||
+        paths.count("--test"))
+      throw std::invalid_argument(
+          "predict requires --model, --data and --output");
+  } else if (options.command == "dump") {
+    if (!paths.count("--model") || paths.count("--train") ||
+        paths.count("--test") || paths.count("--data"))
+      throw std::invalid_argument("dump requires --model and no data paths");
   } else if (!paths.count("--model") || !paths.count("--data") ||
-             !paths.count("--output") || paths.count("--train") ||
-             paths.count("--test")) {
-    throw std::invalid_argument(
-        "predict requires --model, --data and --output");
+             paths.count("--train") || paths.count("--test")) {
+    throw std::invalid_argument("explain requires --model and --data");
   }
   for (const auto& output : paths) {
     if (output.first != "--output" &&
@@ -180,6 +218,19 @@ Csv ReadCsv(const std::string& path, bool labeled, bool header) {
     throw std::invalid_argument("empty or unreadable CSV");
   return result;
 }
+std::vector<std::string> ReadFeatureNames(const std::string& path) {
+  std::ifstream input(path);
+  if (!input) throw std::runtime_error("cannot open feature names: " + path);
+  std::vector<std::string> names;
+  std::string line;
+  while (std::getline(input, line)) {
+    if (!line.empty() && line.back() == '\r') line.pop_back();
+    names.push_back(line);
+  }
+  if (input.bad() || names.empty())
+    throw std::invalid_argument("empty or unreadable feature names");
+  return names;
+}
 void WriteAtomic(const std::string& path,
                  const std::function<void(std::ostream&)>& write) {
   const std::string temporary =
@@ -229,7 +280,27 @@ int main(int argc, char** argv) {
     } else {
       std::ifstream input(options.paths.at("--model"));
       model.LoadModel(input);
-      test = ReadCsv(options.paths.at("--data"), false, options.header);
+      if (options.command != "dump")
+        test = ReadCsv(options.paths.at("--data"), false, options.header);
+    }
+    if (options.command == "dump" || options.command == "explain") {
+      const auto names =
+          options.paths.count("--feature-names")
+              ? ReadFeatureNames(options.paths.at("--feature-names"))
+              : std::vector<std::string>{};
+      const auto write = [&](std::ostream& output) {
+        if (options.command == "dump")
+          model.DumpModel(output, options.dump_format, options.tree_index,
+                          names);
+        else
+          model.ExplainPrediction(test.view(), output, options.dump_format,
+                                  names);
+      };
+      if (options.paths.count("--output"))
+        WriteAtomic(options.paths.at("--output"), write);
+      else
+        write(std::cout);
+      return 0;
     }
     const auto start = std::chrono::steady_clock::now();
     const auto prediction =

@@ -1,9 +1,12 @@
 #include "libtree/c_api.h"
 
 #include <algorithm>
+#include <cstring>
 #include <exception>
+#include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "libtree/gbdt.h"
 
@@ -12,6 +15,27 @@ thread_local std::string last_error;
 libtree::Gbdt& Model(LtModel model) {
   if (model == nullptr) throw std::invalid_argument("null model");
   return *static_cast<libtree::Gbdt*>(model);
+}
+template <typename Function>
+void Inspection(const char* const* names, size_t name_count, char* out,
+                size_t capacity, size_t* required, Function render) {
+  if (required == nullptr) throw std::invalid_argument("null required size");
+  if (names == nullptr && name_count != 0)
+    throw std::invalid_argument("null feature names");
+  std::vector<std::string> labels;
+  labels.reserve(name_count);
+  for (size_t i = 0; i < name_count; ++i) {
+    if (names[i] == nullptr) throw std::invalid_argument("null feature name");
+    labels.emplace_back(names[i]);
+  }
+  std::ostringstream stream;
+  render(stream, labels);
+  const std::string text = stream.str();
+  *required = text.size() + 1;
+  if (out == nullptr && capacity == 0) return;
+  if (out == nullptr || capacity < *required)
+    throw std::invalid_argument("inspection output buffer too small or null");
+  std::memcpy(out, text.c_str(), *required);
 }
 template <typename Function>
 int Guard(Function function) {
@@ -84,6 +108,32 @@ int LtLoss(LtModel model, double* out, size_t count) {
       throw std::invalid_argument("invalid loss output");
     }
     if (count != 0) std::copy(loss.begin(), loss.end(), out);
+  });
+}
+int LtDumpModel(LtModel model, int format, int tree_index,
+                const char* const* names, size_t name_count, char* out,
+                size_t capacity, size_t* required) {
+  return Guard([&] {
+    Inspection(
+        names, name_count, out, capacity, required,
+        [&](std::ostream& output, const std::vector<std::string>& labels) {
+          Model(model).DumpModel(output,
+                                 static_cast<libtree::DumpFormat>(format),
+                                 tree_index, labels);
+        });
+  });
+}
+int LtExplainPrediction(LtModel model, const float* x, size_t cols, int format,
+                        const char* const* names, size_t name_count, char* out,
+                        size_t capacity, size_t* required) {
+  return Guard([&] {
+    Inspection(
+        names, name_count, out, capacity, required,
+        [&](std::ostream& output, const std::vector<std::string>& labels) {
+          Model(model).ExplainPrediction(
+              {x, 1, cols}, output, static_cast<libtree::DumpFormat>(format),
+              labels);
+        });
   });
 }
 }  // extern "C"
