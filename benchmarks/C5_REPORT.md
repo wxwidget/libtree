@@ -2,9 +2,9 @@
 
 The independent C5-style multiclass classifier is implemented. The results below are measured; this is not a compatible C5.0 implementation.
 
-[原始记录](c5-results.json) · [English](C5_REPORT.md) · [中文](C5_REPORT.zh-CN.md) · [方法/引用](../docs/c5.md) · [交互指南](../docs/C5_GUIDE.html)
+[raw measurements](c5-results.json) · [English](C5_REPORT.md) · [中文](C5_REPORT.zh-CN.md) · [methods/citations](../docs/c5.md) · [interactive guide](../docs/C5_GUIDE.html)
 
-## 方法 / Method
+## Method
 
 936 measurements; 6 tasks; seeds 42/2024/7; 3 repetitions per split/configuration; stratified 75/25 train/test; 1 and 4 threads. Arithmetic means are used throughout; raw repeats, population standard deviations and min/max are retained. The three splits overlap and are not nine independent test sets. No test-set tuning.
 
@@ -16,7 +16,7 @@ CPU: AMD EPYC 9V74 80-Core Processor; 5 affinity CPUs; quota 400000 100000. Comp
 
 Timing: fresh models in one imported Python process; native engines run in fresh subprocesses. Startup/data-file I/O are outside native timing; Python includes wrapper/validation costs. Engine order is reproducibly shuffled. No concurrent stress/sanitizer job ran during measurements. No dedicated warm-up is discarded; small timings show noticeable noise. Compare engines within the same interface. sklearn SAMME is serial; its four-thread timings are omitted. Native competitor comparisons cover binary tasks; C5 native/Python parity is checked on all tasks, at each run.
 
-## 效果与性能 / Quality and speed
+## Quality and speed
 
 Python, one thread; means across 3 seeds × 3 repeats. Fit/predict are milliseconds. Repeating a seed measures timing, not additional statistical evidence about accuracy. “Rules” counts retained leaves, including gradient trees; this is a structural proxy, not equivalent global explanations across algorithms.
 
@@ -53,7 +53,7 @@ Python, one thread; means across 3 seeds × 3 repeats. Fit/predict are milliseco
 | synthetic_100k | xgboost | 342.922 | 7.489 | 91.20 | 91.20 | 0.9648 | 480.0 |
 | synthetic_100k | lightgbm | 426.594 | 26.078 | 91.19 | 91.19 | 0.9648 | 480.0 |
 
-## 线程扩展 / Thread scaling
+## Thread scaling
 
 Speedup = mean time at one thread / mean time at four threads. Small C5 models deliberately use no pool; their fluctuations do not establish parallel gains. Show medium/large tasks only.
 
@@ -78,7 +78,7 @@ Speedup = mean time at one thread / mean time at four threads. Small C5 models d
 | synthetic_100k | cpp | xgboost | 1.07× | 1.00× | 324.522 |
 | synthetic_100k | cpp | lightgbm | 2.42× | 3.02× | 174.458 |
 
-## 消融 / Ablations
+## Ablations
 
 All are one-thread, preselected configurations. `c5_single`: one tree; `c5_unpruned`: alpha=0; `c5_entropy`/`c5_gini`: change only the criterion. All other C5 settings stay fixed. Shorter rules always come from actual pruning/merged bounds, not selective export.
 
@@ -115,7 +115,7 @@ All are one-thread, preselected configurations. `c5_single`: one tree; `c5_unpru
 | synthetic_100k | c5_entropy | 92.04 | 92.42 | 0.9683 | 598.140 | 303.0 | 1041.0 |
 | synthetic_100k | c5_gini | 92.35 | 92.77 | 0.9698 | 573.685 | 324.0 | 1132.7 |
 
-## 波动与异常 / Variability and outliers
+## Variability and outliers
 
 | Task | Interface | Threads | C5 fit mean ± std ms | Min–max ms | Predict mean ± std ms |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -144,7 +144,7 @@ All are one-thread, preselected configurations. `c5_single`: one tree; `c5_unpru
 | synthetic_100k | cpp | 1 | 619.623 ± 43.141 | 563.103–699.668 | 9.130 ± 0.688 |
 | synthetic_100k | cpp | 4 | 335.535 ± 15.655 | 311.117–362.728 | 3.783 ± 1.058 |
 
-## 结论与限制 / Conclusions and limits
+## Conclusions and limits
 
 Default gain ratio favors compact rules but does not lead every task. No universal scaling/top1 claim is supported.
 
@@ -164,13 +164,13 @@ Gini improves the synthetic tasks, with more rules, but worsens Pima. Switching 
 
 C5 probabilities use a conservative, uncalibrated normalized-vote softmax, unlike competitor probability transforms. Log loss is retained in raw summaries; calibration is not an advantage claim. Rule counts/merged condition counts are structural proxies; no human comprehension study, official C5.0 comparison, Kaggle leaderboard submission or temporal financial backtest was performed.
 
-## TDD 与验证 / TDD and validation
+## TDD and validation
 
 Tests first failed because C5Classifier did not exist; implementation then made them pass. Independent rule evaluators reproduce predictions/votes; tests cover multiclass, NaN routing, sample weights, pruning, early stop, ties, refit/ownership, errors, thread parity and concurrent readers. Allocation fault injection checks failed refits preserve models. No new coverage exclusion was added.
 
 Release CTest 7/7; Python estimator/inspection/C5 68/68; CLI 16/16; performance/RSS 3/3; benchmark methodology 12/12. ASan/UBSan/LSan: CTest 7/7 and CLI 16/16; TSan CTest 7/7. Native instrumented source lines 2434/2434 (100%); Python package statements 359/359 (100%). CI enforces both 100% gates. Coverage scope: src/*.cc and internal headers, plus python/libtree; benchmark harnesses and interactive guide JavaScript are outside these gates. Existing documented platform/exhaustion exclusions remain. Coverage is not proof of absence of bugs.
 
-## 复现 / Reproduce
+## Reproduce
 
 ```sh
 python -m pip install '.[dev,benchmark]'

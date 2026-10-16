@@ -2,7 +2,7 @@
 
 3 个线程数 × 4 个数据集 × 3 个划分 × C++/Python × 3 个引擎 × 3 次计时，共 **648 次**。
 
-Equal configured thread budgets; independent processes. Each cell uses the arithmetic mean of 9 runs. All LibTree same-split quality metrics are unchanged across configured thread counts.
+各引擎使用相同的配置线程预算，在独立进程中运行。每个单元格取 9 次运行的算术平均值。同一数据划分下，LibTree 的各项效果指标在不同线程配置间保持不变。
 
 训练与预测分开测量。每组 9 次原始计时，时间报告算术平均值±样本标准差并保留范围；效果为三个划分的均值及样本标准差。
 

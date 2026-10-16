@@ -2,7 +2,7 @@
 
 [English](RISK_REPORT.md) · [中文](RISK_REPORT.zh-CN.md) · [raw runs and CV scores](risk-results.json) · [methods/citations](../docs/c5-risk.md)
 
-## 方法 / Method
+## Method
 
 1260 timed interface measurements, 360 inner-CV fits; seeds [42, 2024, 7], 3 repeats per configuration/split, threads [1, 4]. Arithmetic means, population standard deviations and min/max; repeated timings do not add independent test sets. Raw individual runs are retained.
 
@@ -14,7 +14,7 @@ Python 3.12.14; sklearn 1.9.1; XGBoost 3.4.1; LightGBM 4.7.0; CPU quota 400000 1
 
 KS=max absolute empirical bad/good score-distribution difference. Directional KS=max(TPR-FPR); tied scores are grouped. An inverted model can have high absolute KS, so AUC and directional KS must accompany it. Label 1 means bad. These are descriptive held-out statistics; no deployed threshold is picked on the test data. Probabilities are not calibrated; bad recall uses the model argmax/ordinary class decision. Single C5 trees use hard leaf votes, not leaf class-frequency probabilities; their ranking can be constant even with multiple leaves.
 
-## 数据 / Data
+## Data
 
 | Dataset | Rows | Bad fraction | Target/source |
 | --- | ---: | ---: | --- |
@@ -25,7 +25,7 @@ KS=max absolute empirical bad/good score-distribution difference. Directional KS
 
 Taiwan is a real public subset with April features and September late-payment labels; it is not the original full default target. IDs and targets are excluded. Sources and SHA-256 are pinned. Random splits are not temporal backtests or external-lender validation.
 
-## 效果与性能 / Quality and performance
+## Quality and performance
 
 One-thread Python, arithmetic means; fit/predict in milliseconds. selected uses only training CV. The fixed Hellinger row is an ablation, not a configuration selected using these test scores.
 
@@ -60,7 +60,7 @@ One-thread Python, arithmetic means; fit/predict in milliseconds. selected uses 
 | rare_risk_20k | xgboost | 0.7128 | 0.9013 | 0.6774 | 0.4705 | 0.7341 | 97.392 | 4.466 | 1348.0 |
 | rare_risk_20k | lightgbm | 0.7120 | 0.9041 | 0.6837 | 0.4686 | 0.7335 | 119.768 | 18.413 | 1470.0 |
 
-## Boosting 与准则消融 / Ablations
+## Ablations
 
 samme_30→samme_long changes only round count. samme_long→shrinkage changes only rate. shrinkage→hellinger changes only criterion; shrinkage→balanced changes only weighting. balanced→hellinger_balanced isolates the criterion under balancing. shrinkage→less_pruning changes only alpha. Comparisons to samme_30 combine changes.
 
@@ -107,7 +107,7 @@ samme_30→samme_long changes only round count. samme_long→shrinkage changes o
 | rare_risk_20k | entropy | 0.7055 | 0.8940 | 0.6201 | 811.7 | 100.0 |
 | rare_risk_20k | less_pruning | 0.6304 | 0.8648 | 0.5074 | 613.7 | 100.0 |
 
-## 选择稳定性与搜索成本 / Selection and cost
+## Selection and cost
 
 | Task | Seed | Training-CV choice | Search seconds |
 | --- | ---: | --- | ---: |
@@ -124,7 +124,7 @@ samme_30→samme_long changes only round count. samme_long→shrinkage changes o
 | rare_risk_20k | 2024 | hellinger_balanced | 4.853 |
 | rare_risk_20k | 7 | gini | 4.863 |
 
-## C++／Python 扩展与波动 / Scaling and variability
+## Scaling and variability
 
 | Task | Interface | selected KS mean ± std | Fit 1-thread ms | Fit 4-thread ms | Fit speedup |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -139,7 +139,7 @@ samme_30→samme_long changes only round count. samme_long→shrinkage changes o
 
 All mean/std/min/max values for every engine/interface/thread configuration are available in the JSON. Small jobs run serially by design; timing fluctuations are not parallel gains.
 
-## 结论 / Findings
+## Findings
 
 german_credit: baseline KS 0.4800 → train-CV selected 0.4629 (delta -0.0171); AUC 0.7750 → 0.7942. Criterion-only comparison: shrinkage KS 0.5016 → Hellinger 0.4971.
 
@@ -153,11 +153,11 @@ Train-CV selection does not guarantee higher test KS on every task. German selec
 
 Three repetitions add timing evidence, not independent accuracy evidence; the three splits overlap. No statistical-significance or universal-superiority claim is made. XGBoost/LightGBM retain higher KS on rare risk. selected has extra search budget. Rule counts are structural proxies, not a human comprehension study.
 
-## TDD 与验证 / Validation
+## Validation
 
 New tests failed before implementation. Hellinger binary behavior/multiclass rejection, explicit off/one-tree equivalence, balanced/user-weight equivalence, failed-refit preservation, tie-safe/directional KS, per-fold encoders, CV isolation and cache integrity pass. Release CTest 7/7; Python estimator/inspection 70/70; CLI 16/16; performance/RSS 3/3; benchmark methodology 15/15. ASan/UBSan/LSan CTest 7/7 plus CLI 16/16; TSan 7/7. Native lines 2444/2444 and Python statements 371/371: 100%. No new coverage exclusions. Benchmark code is outside production coverage gates.
 
-## 复现 / Reproduce
+## Reproduce
 
 ```sh
 python -m pip install '.[dev,benchmark]'

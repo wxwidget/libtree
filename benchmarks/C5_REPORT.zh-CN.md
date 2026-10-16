@@ -2,175 +2,175 @@
 
 新增 C5 风格多分类器已经实现；以下结果来自真实运行。它不是原版 C5.0 兼容实现。
 
-[原始记录](c5-results.json) · [English](C5_REPORT.md) · [中文](C5_REPORT.zh-CN.md) · [方法/引用](../docs/c5.md) · [交互指南](../docs/C5_GUIDE.html)
+[原始记录](c5-results.json) · [English](C5_REPORT.md) · [中文](C5_REPORT.zh-CN.md) · [方法与引用](../docs/c5.zh-CN.md) · [交互指南](../docs/C5_GUIDE.html)
 
-## 方法 / Method
+## 方法
 
-936 measurements; 6 tasks; seeds 42/2024/7; 3 repetitions per split/configuration; stratified 75/25 train/test; 1 and 4 threads. Arithmetic means are used throughout; raw repeats, population standard deviations and min/max are retained. The three splits overlap and are not nine independent test sets. No test-set tuning.
+共 936 次测量、6 个任务；随机种子为 42/2024/7；每个划分、每种配置重复计时 3 次；按类别分层，以 75/25 划分训练集和测试集；使用 1 和 4 个线程。全文采用算术平均值，保留原始重复记录、总体标准差、最小值和最大值。三个划分存在重叠，不是九个独立测试集；没有使用测试集调参。
 
-Fixed budgets: 30 boosting rounds, max depth 4, 64 histogram bins, min leaf rows 5. C5: SAMME rate 1, alpha .001, gain ratio. sklearn tree/SAMME: entropy, ccp_alpha .001; SAMME rate 1. XGBoost/LightGBM: gradient rate .1, L2=1; LightGBM max 16 leaves/tree. Gradient and discrete boosting rates are not directly interchangeable; these are fixed practical settings, not equal optimized accuracy. XGBoost retains its Hessian-based minimum child weight. The sklearn tree has one estimator; multiclass GBDT can build one tree per class per round.
+固定预算：提升 30 轮，最大深度 4，直方图分箱数 64，叶节点最少 5 行样本。C5 使用 SAMME，学习率 1、剪枝参数 alpha=.001、增益率分裂准则。sklearn 决策树和 SAMME 使用信息熵、ccp_alpha=.001，SAMME 学习率为 1。XGBoost/LightGBM 梯度提升学习率为 .1、L2=1，LightGBM 每棵树最多 16 个叶节点。梯度提升与离散提升的学习率不能直接等同；这里比较固定实用配置，未经同等调优。XGBoost 保留基于 Hessian 的最小子节点权重约束。sklearn 单树只有一个模型；多分类 GBDT 每轮可能为每个类别分别构建一棵树。
 
-Numeric NaN is preserved for native learners. sklearn inputs use training-fitted median imputation plus missingness indicators; transformation costs are timed. Bank categories are one-hot encoded from training data only, before engine timing. Public bank data excludes call duration (post-outcome information); Pima invalid physiological zeros become NaN. Real-source URLs/SHA-256 are recorded. Bank marketing predicts subscriptions, not credit defaults; it is not a temporal backtest. Synthetic 20k/100k tasks have 20 features and fixed 3% label noise. Wine has three classes.
+原生学习器保留数值缺失值 NaN。sklearn 使用训练集拟合的中位数填充，并增加缺失指示特征，转换开销计入时间。银行类别特征仅用训练集拟合独热编码，在引擎计时前处理。公开银行数据删除通话时长字段，因为它包含通话结束后才知道的信息；皮马糖尿病数据中无效的生理指标零值转为 NaN。真实数据的来源网址和 SHA-256 均已记录。银行营销任务预测是否订阅存款产品，不是信用违约预测，也不是时间回测。合成任务分别有 2 万和 10 万行、20 个特征，固定 3% 标签噪声；葡萄酒任务有三个类别。
 
-CPU: AMD EPYC 9V74 80-Core Processor; 5 affinity CPUs; quota 400000 100000. Compiler: g++ (Debian 14.2.0-19) 14.2.0. Python 3.12.14, NumPy 2.5.4, sklearn 1.9.1, XGBoost 3.4.1, LightGBM 4.7.0.
+CPU 型号：AMD EPYC 9V74 80-Core Processor；进程可用逻辑 CPU 数：5；CPU 配额：400000 100000。编译器：g++ (Debian 14.2.0-19) 14.2.0。运行版本：Python 3.12.14，NumPy 2.5.4，sklearn 1.9.1，XGBoost 3.4.1，LightGBM 4.7.0。
 
-Timing: fresh models in one imported Python process; native engines run in fresh subprocesses. Startup/data-file I/O are outside native timing; Python includes wrapper/validation costs. Engine order is reproducibly shuffled. No concurrent stress/sanitizer job ran during measurements. No dedicated warm-up is discarded; small timings show noticeable noise. Compare engines within the same interface. sklearn SAMME is serial; its four-thread timings are omitted. Native competitor comparisons cover binary tasks; C5 native/Python parity is checked on all tasks, at each run.
+计时方法：Python 在已完成导入的同一进程内创建新模型；原生引擎每次在新子进程中运行。原生计时排除启动和数据文件读写；Python 包含封装及校验开销。引擎执行顺序可复现地随机排列。测量期间没有并行运行压力测试或内存、线程检查任务；不专门丢弃预热运行，短耗时测量存在明显噪声。引擎间应在相同接口内比较。sklearn SAMME 为串行实现，省略其四线程计时。原生竞品比较覆盖二分类任务；所有任务每次运行均检查 C5 原生与 Python 接口输出的一致性。
 
-## 效果与性能 / Quality and speed
+## 效果与性能
 
-Python, one thread; means across 3 seeds × 3 repeats. Fit/predict are milliseconds. Repeating a seed measures timing, not additional statistical evidence about accuracy. “Rules” counts retained leaves, including gradient trees; this is a structural proxy, not equivalent global explanations across algorithms.
+下表为 Python 单线程结果，取 3 个种子 × 3 次重复的算术平均值，训练与推理时间单位为毫秒。重复同一种子只增加计时证据，不增加效果的独立统计证据。“规则数”按保留的叶节点统计，也包括梯度提升树的叶节点，仅作为结构复杂度代理，不代表不同算法具有等价的全局解释。平衡准确率为各类别召回率的平均值，适合同时观察不平衡任务。表中括号内标识对应原始 JSON 名称。
 
-| Task | Engine | Fit ms | Predict ms | Accuracy % | Balanced acc % | AUC | Rules |
+| 任务 | 引擎 | 训练毫秒 | 推理毫秒 | 准确率 % | 平衡准确率 % | AUC | 规则数 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| breast_cancer | c5 | 37.759 | 0.191 | 96.27 | 95.87 | 0.9934 | 237.0 |
-| breast_cancer | tree | 6.397 | 0.539 | 92.31 | 91.56 | 0.9463 | 8.7 |
-| breast_cancer | adaboost | 183.078 | 3.308 | 95.80 | 95.50 | 0.9941 | 325.0 |
-| breast_cancer | xgboost | 14.258 | 0.879 | 95.80 | 95.63 | 0.9941 | 272.3 |
-| breast_cancer | lightgbm | 9.804 | 0.926 | 96.74 | 96.37 | 0.9921 | 302.0 |
-| wine | c5 | 11.505 | 0.297 | 97.04 | 97.53 | 0.9998 | 165.7 |
-| wine | tree | 2.220 | 0.384 | 91.11 | 91.60 | 0.9613 | 6.0 |
-| wine | adaboost | 52.741 | 3.495 | 97.78 | 98.02 | 0.9990 | 201.7 |
-| wine | xgboost | 13.915 | 0.802 | 96.30 | 96.54 | 0.9981 | 459.0 |
-| wine | lightgbm | 8.001 | 0.776 | 97.78 | 97.90 | 0.9981 | 439.3 |
-| pima | c5 | 7.281 | 0.140 | 75.87 | 72.58 | 0.8353 | 160.3 |
-| pima | tree | 3.058 | 0.856 | 72.22 | 66.55 | 0.7938 | 14.0 |
-| pima | adaboost | 74.451 | 3.317 | 72.40 | 68.87 | 0.8023 | 317.7 |
-| pima | xgboost | 10.142 | 0.824 | 77.60 | 73.57 | 0.8416 | 394.3 |
-| pima | lightgbm | 7.648 | 0.887 | 76.22 | 71.81 | 0.8409 | 404.3 |
-| bank_marketing | c5 | 831.747 | 2.482 | 89.89 | 60.45 | 0.7960 | 105.7 |
-| bank_marketing | tree | 79.425 | 3.786 | 89.96 | 58.51 | 0.7755 | 8.3 |
-| bank_marketing | adaboost | 1617.481 | 13.229 | 89.97 | 58.65 | 0.7969 | 93.7 |
-| bank_marketing | xgboost | 160.856 | 5.436 | 90.01 | 59.32 | 0.8010 | 469.3 |
-| bank_marketing | lightgbm | 137.508 | 10.329 | 90.01 | 59.07 | 0.8012 | 471.3 |
-| synthetic_20k | c5 | 141.141 | 1.912 | 89.11 | 89.11 | 0.9538 | 211.0 |
-| synthetic_20k | tree | 176.995 | 1.536 | 80.68 | 80.67 | 0.8848 | 16.0 |
-| synthetic_20k | adaboost | 5405.945 | 9.677 | 91.07 | 91.07 | 0.9646 | 399.7 |
-| synthetic_20k | xgboost | 80.324 | 2.159 | 91.02 | 91.02 | 0.9641 | 478.0 |
-| synthetic_20k | lightgbm | 90.867 | 6.974 | 91.07 | 91.06 | 0.9639 | 478.7 |
-| synthetic_100k | c5 | 567.306 | 9.113 | 89.96 | 89.96 | 0.9593 | 219.3 |
-| synthetic_100k | tree | 1001.986 | 4.327 | 81.97 | 81.98 | 0.8939 | 16.0 |
-| synthetic_100k | adaboost | 31429.659 | 35.222 | 91.91 | 91.91 | 0.9673 | 385.7 |
-| synthetic_100k | xgboost | 342.922 | 7.489 | 91.20 | 91.20 | 0.9648 | 480.0 |
-| synthetic_100k | lightgbm | 426.594 | 26.078 | 91.19 | 91.19 | 0.9648 | 480.0 |
+| 乳腺癌（breast_cancer） | C5 默认增益率（c5） | 37.759 | 0.191 | 96.27 | 95.87 | 0.9934 | 237.0 |
+| 乳腺癌（breast_cancer） | sklearn 单棵决策树（tree） | 6.397 | 0.539 | 92.31 | 91.56 | 0.9463 | 8.7 |
+| 乳腺癌（breast_cancer） | sklearn 自适应提升（adaboost） | 183.078 | 3.308 | 95.80 | 95.50 | 0.9941 | 325.0 |
+| 乳腺癌（breast_cancer） | XGBoost | 14.258 | 0.879 | 95.80 | 95.63 | 0.9941 | 272.3 |
+| 乳腺癌（breast_cancer） | LightGBM | 9.804 | 0.926 | 96.74 | 96.37 | 0.9921 | 302.0 |
+| 葡萄酒多分类（wine） | C5 默认增益率（c5） | 11.505 | 0.297 | 97.04 | 97.53 | 0.9998 | 165.7 |
+| 葡萄酒多分类（wine） | sklearn 单棵决策树（tree） | 2.220 | 0.384 | 91.11 | 91.60 | 0.9613 | 6.0 |
+| 葡萄酒多分类（wine） | sklearn 自适应提升（adaboost） | 52.741 | 3.495 | 97.78 | 98.02 | 0.9990 | 201.7 |
+| 葡萄酒多分类（wine） | XGBoost | 13.915 | 0.802 | 96.30 | 96.54 | 0.9981 | 459.0 |
+| 葡萄酒多分类（wine） | LightGBM | 8.001 | 0.776 | 97.78 | 97.90 | 0.9981 | 439.3 |
+| 皮马糖尿病（pima） | C5 默认增益率（c5） | 7.281 | 0.140 | 75.87 | 72.58 | 0.8353 | 160.3 |
+| 皮马糖尿病（pima） | sklearn 单棵决策树（tree） | 3.058 | 0.856 | 72.22 | 66.55 | 0.7938 | 14.0 |
+| 皮马糖尿病（pima） | sklearn 自适应提升（adaboost） | 74.451 | 3.317 | 72.40 | 68.87 | 0.8023 | 317.7 |
+| 皮马糖尿病（pima） | XGBoost | 10.142 | 0.824 | 77.60 | 73.57 | 0.8416 | 394.3 |
+| 皮马糖尿病（pima） | LightGBM | 7.648 | 0.887 | 76.22 | 71.81 | 0.8409 | 404.3 |
+| 银行营销（bank_marketing） | C5 默认增益率（c5） | 831.747 | 2.482 | 89.89 | 60.45 | 0.7960 | 105.7 |
+| 银行营销（bank_marketing） | sklearn 单棵决策树（tree） | 79.425 | 3.786 | 89.96 | 58.51 | 0.7755 | 8.3 |
+| 银行营销（bank_marketing） | sklearn 自适应提升（adaboost） | 1617.481 | 13.229 | 89.97 | 58.65 | 0.7969 | 93.7 |
+| 银行营销（bank_marketing） | XGBoost | 160.856 | 5.436 | 90.01 | 59.32 | 0.8010 | 469.3 |
+| 银行营销（bank_marketing） | LightGBM | 137.508 | 10.329 | 90.01 | 59.07 | 0.8012 | 471.3 |
+| 合成数据（synthetic_20k） | C5 默认增益率（c5） | 141.141 | 1.912 | 89.11 | 89.11 | 0.9538 | 211.0 |
+| 合成数据（synthetic_20k） | sklearn 单棵决策树（tree） | 176.995 | 1.536 | 80.68 | 80.67 | 0.8848 | 16.0 |
+| 合成数据（synthetic_20k） | sklearn 自适应提升（adaboost） | 5405.945 | 9.677 | 91.07 | 91.07 | 0.9646 | 399.7 |
+| 合成数据（synthetic_20k） | XGBoost | 80.324 | 2.159 | 91.02 | 91.02 | 0.9641 | 478.0 |
+| 合成数据（synthetic_20k） | LightGBM | 90.867 | 6.974 | 91.07 | 91.06 | 0.9639 | 478.7 |
+| 合成数据（synthetic_100k） | C5 默认增益率（c5） | 567.306 | 9.113 | 89.96 | 89.96 | 0.9593 | 219.3 |
+| 合成数据（synthetic_100k） | sklearn 单棵决策树（tree） | 1001.986 | 4.327 | 81.97 | 81.98 | 0.8939 | 16.0 |
+| 合成数据（synthetic_100k） | sklearn 自适应提升（adaboost） | 31429.659 | 35.222 | 91.91 | 91.91 | 0.9673 | 385.7 |
+| 合成数据（synthetic_100k） | XGBoost | 342.922 | 7.489 | 91.20 | 91.20 | 0.9648 | 480.0 |
+| 合成数据（synthetic_100k） | LightGBM | 426.594 | 26.078 | 91.19 | 91.19 | 0.9648 | 480.0 |
 
-## 线程扩展 / Thread scaling
+## 线程扩展
 
-Speedup = mean time at one thread / mean time at four threads. Small C5 models deliberately use no pool; their fluctuations do not establish parallel gains. Show medium/large tasks only.
+加速比＝单线程平均耗时／四线程平均耗时。小型 C5 模型按设计不使用线程池，其计时波动不能作为并行收益。下表只展示中、大规模任务。
 
-| Task | Interface | Engine | Fit speedup | Predict speedup | Fit at 4 threads ms |
+| 任务 | 接口 | 引擎 | 训练加速比 | 推理加速比 | 四线程训练毫秒 |
 | --- | --- | --- | ---: | ---: | ---: |
-| bank_marketing | python | c5 | 2.59× | 2.15× | 320.851 |
-| bank_marketing | python | xgboost | 0.92× | 1.18× | 174.491 |
-| bank_marketing | python | lightgbm | 1.71× | 2.42× | 80.560 |
-| bank_marketing | cpp | c5 | 2.44× | 1.60× | 338.964 |
-| bank_marketing | cpp | xgboost | 0.95× | 0.95× | 154.450 |
-| bank_marketing | cpp | lightgbm | 1.60× | 2.37× | 81.846 |
-| synthetic_20k | python | c5 | 1.44× | 2.28× | 98.130 |
-| synthetic_20k | python | xgboost | 1.01× | 1.04× | 79.166 |
-| synthetic_20k | python | lightgbm | 2.02× | 2.41× | 44.925 |
-| synthetic_20k | cpp | c5 | 1.52× | 2.45× | 100.574 |
-| synthetic_20k | cpp | xgboost | 0.96× | 0.84× | 76.355 |
-| synthetic_20k | cpp | lightgbm | 2.41× | 3.11× | 36.503 |
-| synthetic_100k | python | c5 | 1.83× | 2.84× | 310.133 |
-| synthetic_100k | python | xgboost | 1.03× | 1.03× | 334.400 |
-| synthetic_100k | python | lightgbm | 2.54× | 2.87× | 167.867 |
-| synthetic_100k | cpp | c5 | 1.85× | 2.41× | 335.535 |
-| synthetic_100k | cpp | xgboost | 1.07× | 1.00× | 324.522 |
-| synthetic_100k | cpp | lightgbm | 2.42× | 3.02× | 174.458 |
+| 银行营销（bank_marketing） | Python | C5 默认增益率（c5） | 2.59× | 2.15× | 320.851 |
+| 银行营销（bank_marketing） | Python | XGBoost | 0.92× | 1.18× | 174.491 |
+| 银行营销（bank_marketing） | Python | LightGBM | 1.71× | 2.42× | 80.560 |
+| 银行营销（bank_marketing） | C++ | C5 默认增益率（c5） | 2.44× | 1.60× | 338.964 |
+| 银行营销（bank_marketing） | C++ | XGBoost | 0.95× | 0.95× | 154.450 |
+| 银行营销（bank_marketing） | C++ | LightGBM | 1.60× | 2.37× | 81.846 |
+| 合成数据（synthetic_20k） | Python | C5 默认增益率（c5） | 1.44× | 2.28× | 98.130 |
+| 合成数据（synthetic_20k） | Python | XGBoost | 1.01× | 1.04× | 79.166 |
+| 合成数据（synthetic_20k） | Python | LightGBM | 2.02× | 2.41× | 44.925 |
+| 合成数据（synthetic_20k） | C++ | C5 默认增益率（c5） | 1.52× | 2.45× | 100.574 |
+| 合成数据（synthetic_20k） | C++ | XGBoost | 0.96× | 0.84× | 76.355 |
+| 合成数据（synthetic_20k） | C++ | LightGBM | 2.41× | 3.11× | 36.503 |
+| 合成数据（synthetic_100k） | Python | C5 默认增益率（c5） | 1.83× | 2.84× | 310.133 |
+| 合成数据（synthetic_100k） | Python | XGBoost | 1.03× | 1.03× | 334.400 |
+| 合成数据（synthetic_100k） | Python | LightGBM | 2.54× | 2.87× | 167.867 |
+| 合成数据（synthetic_100k） | C++ | C5 默认增益率（c5） | 1.85× | 2.41× | 335.535 |
+| 合成数据（synthetic_100k） | C++ | XGBoost | 1.07× | 1.00× | 324.522 |
+| 合成数据（synthetic_100k） | C++ | LightGBM | 2.42× | 3.02× | 174.458 |
 
-## 消融 / Ablations
+## 消融实验
 
-All are one-thread, preselected configurations. `c5_single`: one tree; `c5_unpruned`: alpha=0; `c5_entropy`/`c5_gini`: change only the criterion. All other C5 settings stay fixed. Shorter rules always come from actual pruning/merged bounds, not selective export.
+所有配置均预先确定，使用单线程。c5_single 表示单棵树；c5_unpruned 将 alpha 设为 0、关闭剪枝；c5_entropy 和 c5_gini 仅改变分裂准则，其他 C5 参数不变。规则缩短来自实际剪枝或条件边界合并，不是选择性隐藏导出的规则。
 
-| Task | Variant | Accuracy % | Train accuracy % | AUC | Fit ms | Rules | Conditions |
+| 任务 | 配置 | 准确率 % | 训练准确率 % | AUC | 训练毫秒 | 规则数 | 条件数 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| breast_cancer | c5_single | 94.41 | 97.03 | 0.9362 | 2.089 | 5.7 | 15.3 |
-| breast_cancer | c5_unpruned | 96.74 | 100.00 | 0.9916 | 37.492 | 293.7 | 1003.3 |
-| breast_cancer | c5 | 96.27 | 100.00 | 0.9934 | 37.759 | 237.0 | 757.3 |
-| breast_cancer | c5_entropy | 96.50 | 100.00 | 0.9959 | 35.145 | 267.0 | 873.7 |
-| breast_cancer | c5_gini | 96.97 | 100.00 | 0.9936 | 17.659 | 285.7 | 954.7 |
-| wine | c5_single | 92.59 | 97.24 | 0.9487 | 0.553 | 5.0 | 12.7 |
-| wine | c5_unpruned | 96.30 | 100.00 | 0.9986 | 8.925 | 186.7 | 571.7 |
-| wine | c5 | 97.04 | 100.00 | 0.9998 | 11.505 | 165.7 | 433.7 |
-| wine | c5_entropy | 98.52 | 100.00 | 0.9998 | 9.544 | 169.0 | 435.0 |
-| wine | c5_gini | 98.52 | 100.00 | 0.9995 | 5.093 | 171.3 | 446.3 |
-| pima | c5_single | 70.83 | 75.06 | 0.6548 | 1.001 | 7.0 | 17.3 |
-| pima | c5_unpruned | 76.56 | 83.45 | 0.8324 | 7.599 | 196.3 | 522.0 |
-| pima | c5 | 75.87 | 83.04 | 0.8353 | 7.281 | 160.3 | 393.7 |
-| pima | c5_entropy | 74.31 | 96.76 | 0.8153 | 9.114 | 257.3 | 749.3 |
-| pima | c5_gini | 71.87 | 99.65 | 0.7975 | 5.820 | 309.7 | 971.0 |
-| bank_marketing | c5_single | 89.73 | 89.75 | 0.5866 | 74.574 | 2.0 | 2.0 |
-| bank_marketing | c5_unpruned | 89.91 | 90.14 | 0.7966 | 836.581 | 355.3 | 1260.7 |
-| bank_marketing | c5 | 89.89 | 89.95 | 0.7960 | 831.747 | 105.7 | 238.3 |
-| bank_marketing | c5_entropy | 89.95 | 90.19 | 0.8016 | 841.616 | 175.3 | 495.0 |
-| bank_marketing | c5_gini | 89.95 | 90.14 | 0.8023 | 817.795 | 189.0 | 532.7 |
-| synthetic_20k | c5_single | 76.23 | 76.50 | 0.7623 | 35.463 | 9.3 | 28.3 |
-| synthetic_20k | c5_unpruned | 88.97 | 90.42 | 0.9527 | 145.027 | 407.3 | 1474.3 |
-| synthetic_20k | c5 | 89.11 | 90.22 | 0.9538 | 141.141 | 211.0 | 629.3 |
-| synthetic_20k | c5_entropy | 91.79 | 93.45 | 0.9685 | 145.417 | 319.0 | 1117.7 |
-| synthetic_20k | c5_gini | 91.88 | 93.58 | 0.9665 | 127.850 | 348.3 | 1228.3 |
-| synthetic_100k | c5_single | 76.89 | 77.20 | 0.7689 | 183.673 | 10.0 | 31.7 |
-| synthetic_100k | c5_unpruned | 89.92 | 90.24 | 0.9584 | 615.926 | 438.7 | 1610.7 |
-| synthetic_100k | c5 | 89.96 | 90.27 | 0.9593 | 567.306 | 219.3 | 659.0 |
-| synthetic_100k | c5_entropy | 92.04 | 92.42 | 0.9683 | 598.140 | 303.0 | 1041.0 |
-| synthetic_100k | c5_gini | 92.35 | 92.77 | 0.9698 | 573.685 | 324.0 | 1132.7 |
+| 乳腺癌（breast_cancer） | C5 单棵树（c5_single） | 94.41 | 97.03 | 0.9362 | 2.089 | 5.7 | 15.3 |
+| 乳腺癌（breast_cancer） | C5 不剪枝（c5_unpruned） | 96.74 | 100.00 | 0.9916 | 37.492 | 293.7 | 1003.3 |
+| 乳腺癌（breast_cancer） | C5 默认增益率（c5） | 96.27 | 100.00 | 0.9934 | 37.759 | 237.0 | 757.3 |
+| 乳腺癌（breast_cancer） | C5 信息熵（c5_entropy） | 96.50 | 100.00 | 0.9959 | 35.145 | 267.0 | 873.7 |
+| 乳腺癌（breast_cancer） | C5 基尼准则（c5_gini） | 96.97 | 100.00 | 0.9936 | 17.659 | 285.7 | 954.7 |
+| 葡萄酒多分类（wine） | C5 单棵树（c5_single） | 92.59 | 97.24 | 0.9487 | 0.553 | 5.0 | 12.7 |
+| 葡萄酒多分类（wine） | C5 不剪枝（c5_unpruned） | 96.30 | 100.00 | 0.9986 | 8.925 | 186.7 | 571.7 |
+| 葡萄酒多分类（wine） | C5 默认增益率（c5） | 97.04 | 100.00 | 0.9998 | 11.505 | 165.7 | 433.7 |
+| 葡萄酒多分类（wine） | C5 信息熵（c5_entropy） | 98.52 | 100.00 | 0.9998 | 9.544 | 169.0 | 435.0 |
+| 葡萄酒多分类（wine） | C5 基尼准则（c5_gini） | 98.52 | 100.00 | 0.9995 | 5.093 | 171.3 | 446.3 |
+| 皮马糖尿病（pima） | C5 单棵树（c5_single） | 70.83 | 75.06 | 0.6548 | 1.001 | 7.0 | 17.3 |
+| 皮马糖尿病（pima） | C5 不剪枝（c5_unpruned） | 76.56 | 83.45 | 0.8324 | 7.599 | 196.3 | 522.0 |
+| 皮马糖尿病（pima） | C5 默认增益率（c5） | 75.87 | 83.04 | 0.8353 | 7.281 | 160.3 | 393.7 |
+| 皮马糖尿病（pima） | C5 信息熵（c5_entropy） | 74.31 | 96.76 | 0.8153 | 9.114 | 257.3 | 749.3 |
+| 皮马糖尿病（pima） | C5 基尼准则（c5_gini） | 71.87 | 99.65 | 0.7975 | 5.820 | 309.7 | 971.0 |
+| 银行营销（bank_marketing） | C5 单棵树（c5_single） | 89.73 | 89.75 | 0.5866 | 74.574 | 2.0 | 2.0 |
+| 银行营销（bank_marketing） | C5 不剪枝（c5_unpruned） | 89.91 | 90.14 | 0.7966 | 836.581 | 355.3 | 1260.7 |
+| 银行营销（bank_marketing） | C5 默认增益率（c5） | 89.89 | 89.95 | 0.7960 | 831.747 | 105.7 | 238.3 |
+| 银行营销（bank_marketing） | C5 信息熵（c5_entropy） | 89.95 | 90.19 | 0.8016 | 841.616 | 175.3 | 495.0 |
+| 银行营销（bank_marketing） | C5 基尼准则（c5_gini） | 89.95 | 90.14 | 0.8023 | 817.795 | 189.0 | 532.7 |
+| 合成数据（synthetic_20k） | C5 单棵树（c5_single） | 76.23 | 76.50 | 0.7623 | 35.463 | 9.3 | 28.3 |
+| 合成数据（synthetic_20k） | C5 不剪枝（c5_unpruned） | 88.97 | 90.42 | 0.9527 | 145.027 | 407.3 | 1474.3 |
+| 合成数据（synthetic_20k） | C5 默认增益率（c5） | 89.11 | 90.22 | 0.9538 | 141.141 | 211.0 | 629.3 |
+| 合成数据（synthetic_20k） | C5 信息熵（c5_entropy） | 91.79 | 93.45 | 0.9685 | 145.417 | 319.0 | 1117.7 |
+| 合成数据（synthetic_20k） | C5 基尼准则（c5_gini） | 91.88 | 93.58 | 0.9665 | 127.850 | 348.3 | 1228.3 |
+| 合成数据（synthetic_100k） | C5 单棵树（c5_single） | 76.89 | 77.20 | 0.7689 | 183.673 | 10.0 | 31.7 |
+| 合成数据（synthetic_100k） | C5 不剪枝（c5_unpruned） | 89.92 | 90.24 | 0.9584 | 615.926 | 438.7 | 1610.7 |
+| 合成数据（synthetic_100k） | C5 默认增益率（c5） | 89.96 | 90.27 | 0.9593 | 567.306 | 219.3 | 659.0 |
+| 合成数据（synthetic_100k） | C5 信息熵（c5_entropy） | 92.04 | 92.42 | 0.9683 | 598.140 | 303.0 | 1041.0 |
+| 合成数据（synthetic_100k） | C5 基尼准则（c5_gini） | 92.35 | 92.77 | 0.9698 | 573.685 | 324.0 | 1132.7 |
 
-## 波动与异常 / Variability and outliers
+## 波动与异常
 
-| Task | Interface | Threads | C5 fit mean ± std ms | Min–max ms | Predict mean ± std ms |
+| 任务 | 接口 | 线程数 | C5 训练均值 ± 标准差（毫秒） | 训练最小–最大值（毫秒） | 推理均值 ± 标准差（毫秒） |
 | --- | --- | ---: | ---: | ---: | ---: |
-| breast_cancer | python | 1 | 37.759 ± 3.999 | 34.289–45.401 | 0.191 ± 0.046 |
-| breast_cancer | python | 4 | 36.312 ± 4.297 | 32.357–47.518 | 0.168 ± 0.009 |
-| breast_cancer | cpp | 1 | 36.289 ± 1.594 | 34.185–38.744 | 0.115 ± 0.070 |
-| breast_cancer | cpp | 4 | 36.900 ± 3.005 | 32.928–40.906 | 0.092 ± 0.012 |
-| wine | python | 1 | 11.505 ± 2.290 | 9.152–16.191 | 0.297 ± 0.441 |
-| wine | python | 4 | 10.928 ± 1.018 | 9.590–12.775 | 0.090 ± 0.015 |
-| wine | cpp | 1 | 10.722 ± 1.497 | 8.816–12.887 | 0.026 ± 0.002 |
-| wine | cpp | 4 | 11.512 ± 1.323 | 9.579–13.876 | 0.035 ± 0.024 |
-| pima | python | 1 | 7.281 ± 1.327 | 6.022–10.731 | 0.140 ± 0.043 |
-| pima | python | 4 | 7.575 ± 0.899 | 6.093–9.631 | 0.125 ± 0.032 |
-| pima | cpp | 1 | 6.923 ± 0.676 | 5.842–8.334 | 0.067 ± 0.004 |
-| pima | cpp | 4 | 6.962 ± 0.482 | 6.472–8.039 | 0.086 ± 0.035 |
-| bank_marketing | python | 1 | 831.747 ± 63.071 | 758.291–925.976 | 2.482 ± 0.315 |
-| bank_marketing | python | 4 | 320.851 ± 14.914 | 298.783–343.256 | 1.152 ± 0.168 |
-| bank_marketing | cpp | 1 | 828.677 ± 73.521 | 755.564–999.979 | 2.540 ± 0.325 |
-| bank_marketing | cpp | 4 | 338.964 ± 23.953 | 308.356–379.500 | 1.589 ± 0.344 |
-| synthetic_20k | python | 1 | 141.141 ± 14.548 | 124.796–178.258 | 1.912 ± 0.229 |
-| synthetic_20k | python | 4 | 98.130 ± 8.368 | 85.132–109.095 | 0.837 ± 0.063 |
-| synthetic_20k | cpp | 1 | 152.956 ± 13.395 | 133.962–179.986 | 1.801 ± 0.166 |
-| synthetic_20k | cpp | 4 | 100.574 ± 10.654 | 86.921–115.183 | 0.734 ± 0.102 |
-| synthetic_100k | python | 1 | 567.306 ± 32.552 | 519.445–608.987 | 9.113 ± 0.967 |
-| synthetic_100k | python | 4 | 310.133 ± 18.134 | 281.339–346.667 | 3.203 ± 0.237 |
-| synthetic_100k | cpp | 1 | 619.623 ± 43.141 | 563.103–699.668 | 9.130 ± 0.688 |
-| synthetic_100k | cpp | 4 | 335.535 ± 15.655 | 311.117–362.728 | 3.783 ± 1.058 |
+| 乳腺癌（breast_cancer） | Python | 1 | 37.759 ± 3.999 | 34.289–45.401 | 0.191 ± 0.046 |
+| 乳腺癌（breast_cancer） | Python | 4 | 36.312 ± 4.297 | 32.357–47.518 | 0.168 ± 0.009 |
+| 乳腺癌（breast_cancer） | C++ | 1 | 36.289 ± 1.594 | 34.185–38.744 | 0.115 ± 0.070 |
+| 乳腺癌（breast_cancer） | C++ | 4 | 36.900 ± 3.005 | 32.928–40.906 | 0.092 ± 0.012 |
+| 葡萄酒多分类（wine） | Python | 1 | 11.505 ± 2.290 | 9.152–16.191 | 0.297 ± 0.441 |
+| 葡萄酒多分类（wine） | Python | 4 | 10.928 ± 1.018 | 9.590–12.775 | 0.090 ± 0.015 |
+| 葡萄酒多分类（wine） | C++ | 1 | 10.722 ± 1.497 | 8.816–12.887 | 0.026 ± 0.002 |
+| 葡萄酒多分类（wine） | C++ | 4 | 11.512 ± 1.323 | 9.579–13.876 | 0.035 ± 0.024 |
+| 皮马糖尿病（pima） | Python | 1 | 7.281 ± 1.327 | 6.022–10.731 | 0.140 ± 0.043 |
+| 皮马糖尿病（pima） | Python | 4 | 7.575 ± 0.899 | 6.093–9.631 | 0.125 ± 0.032 |
+| 皮马糖尿病（pima） | C++ | 1 | 6.923 ± 0.676 | 5.842–8.334 | 0.067 ± 0.004 |
+| 皮马糖尿病（pima） | C++ | 4 | 6.962 ± 0.482 | 6.472–8.039 | 0.086 ± 0.035 |
+| 银行营销（bank_marketing） | Python | 1 | 831.747 ± 63.071 | 758.291–925.976 | 2.482 ± 0.315 |
+| 银行营销（bank_marketing） | Python | 4 | 320.851 ± 14.914 | 298.783–343.256 | 1.152 ± 0.168 |
+| 银行营销（bank_marketing） | C++ | 1 | 828.677 ± 73.521 | 755.564–999.979 | 2.540 ± 0.325 |
+| 银行营销（bank_marketing） | C++ | 4 | 338.964 ± 23.953 | 308.356–379.500 | 1.589 ± 0.344 |
+| 合成数据（synthetic_20k） | Python | 1 | 141.141 ± 14.548 | 124.796–178.258 | 1.912 ± 0.229 |
+| 合成数据（synthetic_20k） | Python | 4 | 98.130 ± 8.368 | 85.132–109.095 | 0.837 ± 0.063 |
+| 合成数据（synthetic_20k） | C++ | 1 | 152.956 ± 13.395 | 133.962–179.986 | 1.801 ± 0.166 |
+| 合成数据（synthetic_20k） | C++ | 4 | 100.574 ± 10.654 | 86.921–115.183 | 0.734 ± 0.102 |
+| 合成数据（synthetic_100k） | Python | 1 | 567.306 ± 32.552 | 519.445–608.987 | 9.113 ± 0.967 |
+| 合成数据（synthetic_100k） | Python | 4 | 310.133 ± 18.134 | 281.339–346.667 | 3.203 ± 0.237 |
+| 合成数据（synthetic_100k） | C++ | 1 | 619.623 ± 43.141 | 563.103–699.668 | 9.130 ± 0.688 |
+| 合成数据（synthetic_100k） | C++ | 4 | 335.535 ± 15.655 | 311.117–362.728 | 3.783 ± 1.058 |
 
-## 结论与限制 / Conclusions and limits
+## 结论与限制
 
-默认 gain ratio 更偏向紧凑规则，但不是全面第一，不能宣称全规模 scaling top1。
+默认增益率准则更偏向紧凑规则，但不是全面第一，不能宣称所有规模的线程扩展性均为最优。
 
-Bank pruning: rules 355.3 → 105.7; accuracy 89.91% → 89.89%.
+银行营销任务剪枝前后：规则数 355.3 → 105.7；准确率 89.91% → 89.89%。
 
-Python bank_marketing scaling: c5: 2.59× fit, 2.15× predict; xgboost: 0.92× fit, 1.18× predict; lightgbm: 1.71× fit, 2.42× predict.
+Python 银行营销（bank_marketing）从单线程到四线程的加速比：C5 默认增益率（c5）：训练 2.59×，推理 2.15×；XGBoost：训练 0.92×，推理 1.18×；LightGBM：训练 1.71×，推理 2.42×。
 
-Python synthetic_100k scaling: c5: 1.83× fit, 2.84× predict; xgboost: 1.03× fit, 1.03× predict; lightgbm: 2.54× fit, 2.87× predict.
+Python 合成数据（synthetic_100k）从单线程到四线程的加速比：C5 默认增益率（c5）：训练 1.83×，推理 2.84×；XGBoost：训练 1.03×，推理 1.03×；LightGBM：训练 2.54×，推理 2.87×。
 
-synthetic_20k accuracy: c5_gini: 91.88%; c5: 89.11%; xgboost: 91.02%; lightgbm: 91.07%.
+合成数据（synthetic_20k）准确率：C5 基尼准则（c5_gini）：91.88%；C5 默认增益率（c5）：89.11%；XGBoost：91.02%；LightGBM：91.07%。
 
-synthetic_100k accuracy: c5_gini: 92.35%; c5: 89.96%; xgboost: 91.20%; lightgbm: 91.19%.
+合成数据（synthetic_100k）准确率：C5 基尼准则（c5_gini）：92.35%；C5 默认增益率（c5）：89.96%；XGBoost：91.20%；LightGBM：91.19%。
 
-pima accuracy: c5_gini: 71.87%; c5: 75.87%; xgboost: 77.60%; lightgbm: 76.22%.
+皮马糖尿病（pima）准确率：C5 基尼准则（c5_gini）：71.87%；C5 默认增益率（c5）：75.87%；XGBoost：77.60%；LightGBM：76.22%。
 
-预设 Gini 在合成任务效果更好，但规则更多，Pima 则更差。不能根据测试结果切换默认准则再把同一测试集当独立证据。小样本训练准确率接近100%，需要交叉验证和更强的简化；银行类别不均衡，应看 balanced accuracy/AUC。
+预设基尼准则在合成任务效果更好，但规则更多，在皮马糖尿病任务上则更差。不能根据测试结果切换默认准则再把同一测试集当独立证据。小样本训练准确率接近 100%，需要交叉验证和更强的简化；银行类别不均衡，应看平衡准确率和 AUC。
 
-C5 probabilities use a conservative, uncalibrated normalized-vote softmax, unlike competitor probability transforms. Log loss is retained in raw summaries; calibration is not an advantage claim. Rule counts/merged condition counts are structural proxies; no human comprehension study, official C5.0 comparison, Kaggle leaderboard submission or temporal financial backtest was performed.
+C5 将归一化投票经 softmax 转换为较保守、未经校准的概率，与竞品的概率变换不同。原始汇总保留对数损失，不宣称概率校准优势。规则数和合并后的条件数仅作为结构复杂度代理；未进行用户理解实验、原版 C5.0 对比、Kaggle 榜单提交或金融时间回测。
 
-## TDD 与验证 / TDD and validation
+## 测试驱动开发与验证
 
-Tests first failed because C5Classifier did not exist; implementation then made them pass. Independent rule evaluators reproduce predictions/votes; tests cover multiclass, NaN routing, sample weights, pruning, early stop, ties, refit/ownership, errors, thread parity and concurrent readers. Allocation fault injection checks failed refits preserve models. No new coverage exclusion was added.
+测试先因 C5Classifier 尚未实现而失败，再由实现使其通过。独立规则求值器能复现预测与投票；测试覆盖多分类、NaN 路由、样本权重、剪枝、提前停止、平局、重新拟合与资源所有权、异常、跨线程一致性及并发读取。通过内存分配故障注入，检查重新拟合失败后旧模型仍保留。没有新增覆盖排除项。
 
-Release CTest 7/7; Python estimator/inspection/C5 68/68; CLI 16/16; performance/RSS 3/3; benchmark methodology 12/12. ASan/UBSan/LSan: CTest 7/7 and CLI 16/16; TSan CTest 7/7. Native instrumented source lines 2434/2434 (100%); Python package statements 359/359 (100%). CI enforces both 100% gates. Coverage scope: src/*.cc and internal headers, plus python/libtree; benchmark harnesses and interactive guide JavaScript are outside these gates. Existing documented platform/exhaustion exclusions remain. Coverage is not proof of absence of bugs.
+该次评测记录的验证结果：发布构建 CTest 7/7；Python 模型、结构解释与 C5 测试 68/68；命令行测试 16/16；性能与常驻内存测试 3/3；评测方法测试 12/12。ASan/UBSan/LSan 检查：CTest 7/7、命令行 16/16；TSan 检查：CTest 7/7。原生源码行覆盖 2434/2434（100%）；Python 包语句覆盖 359/359（100%）。持续集成强制执行这两个 100% 门槛。覆盖范围为 src/*.cc、内部头文件及 python/libtree；评测框架与交互指南的 JavaScript 不在范围内。保留已有文档说明的平台和资源耗尽排除项。覆盖率不能证明没有缺陷。
 
-## 复现 / Reproduce
+## 复现
 
 ```sh
 python -m pip install '.[dev,benchmark]'
@@ -184,4 +184,4 @@ PYTHONPATH=python:. python benchmarks/c5_report.py
 ```
 
 
-Measured implementation/source SHA-256: `873243a5a2e8299e097e0656409428002b148210fc27e5685ea0a175f96ad146`. Downloaded data/builds/temporary predictions are ignored by git; raw results, report scripts and these reports are tracked. Complete per-group arithmetic mean/std/min/max values and per-run metrics remain in the JSON.
+被测实现与源码 SHA-256：`873243a5a2e8299e097e0656409428002b148210fc27e5685ea0a175f96ad146`。下载数据、构建产物和临时预测文件由 git 忽略；原始结果、报告脚本及报告文件纳入版本控制。每组完整的算术平均值、标准差、最小值、最大值以及每次测量的指标都保留在 JSON 中。

@@ -1,163 +1,163 @@
-# C5 风险评测：Boosting、Hellinger 与 KS
+# C5 风险评测：提升学习、Hellinger 与 KS
 
-[English](RISK_REPORT.md) · [中文](RISK_REPORT.zh-CN.md) · [raw runs and CV scores](risk-results.json) · [methods/citations](../docs/c5-risk.md)
+[English](RISK_REPORT.md) · [中文](RISK_REPORT.zh-CN.md) · [原始测量与交叉验证分数](risk-results.json) · [方法与引用](../docs/c5-risk.zh-CN.md)
 
-## 方法 / Method
+## 方法
 
-1260 timed interface measurements, 360 inner-CV fits; seeds [42, 2024, 7], 3 repeats per configuration/split, threads [1, 4]. Arithmetic means, population standard deviations and min/max; repeated timings do not add independent test sets. Raw individual runs are retained.
+共 1260 次接口计时、360 次内层交叉验证拟合；随机种子为 [42, 2024, 7]，每个配置、每次划分重复计时 3 次，线程数为 [1, 4]。采用算术平均值，保留总体标准差、最小值、最大值和每次原始记录。重复计时不会增加独立测试集的数量。
 
-Outer stratified 75/25 holdouts; train-only stratified CV, with encoders refit per inner fold. Select by mean directional KS, then AUC, then fewer rules. Require .01 KS gain over samme_30 or keep baseline. Refit on complete outer training data; evaluate outer test only afterward. No test-set choice of configurations/thresholds. The ten candidates are declared before the run.
+外层按类别分层，以 75/25 划分训练集和测试集；仅在外层训练集上进行分层交叉验证，每个内层折都重新拟合编码器。先按平均方向性 KS 选择，再依次比较 AUC 和规则数（越少越优）。相对 samme_30 基线的 KS 增益至少为 .01，否则保留基线。选定后在完整外层训练集上重新拟合，最后才评估外层测试集。十个候选配置在运行前确定，不用测试集选择配置或阈值。
 
-Depth 4, bins 64, minimum leaf rows 5. samme_30 uses 30 rounds/rate 1; long variants use 100 rounds. Shrinkage uses rate .3; balancing uses inverse-frequency weights; default alpha=.001, less_pruning=.0002. Competitors use the same maximum round budget, rate 1 for sklearn SAMME and .1 for gradient boosters; L2=1 for gradient boosters. Learning rates/pruning units differ by algorithm. The selected C5 has an additional search budget; its search cost is shown separately.
+最大深度 4，直方图分箱数 64，叶节点最少 5 行样本。samme_30 使用 30 轮、学习率 1；增加轮数的配置使用 100 轮。学习率收缩配置使用 .3；类别平衡使用类别频率倒数权重；默认剪枝参数 alpha=.001，减弱剪枝配置为 .0002。竞品使用相同最大轮数预算，sklearn SAMME 学习率为 1，梯度提升模型学习率为 .1、L2=1。不同算法的学习率和剪枝参数量纲不同。训练集交叉验证选择的 C5 额外使用了搜索预算，搜索耗时单独列出。
 
-Python 3.12.14; sklearn 1.9.1; XGBoost 3.4.1; LightGBM 4.7.0; CPU quota 400000 100000. Python times include wrappers/validation. Native timings exclude process startup/file I/O. Fresh models; reproducibly shuffled order; no simultaneous stress/coverage build during measurements. Preprocessing for outer comparisons is common and outside fit timing, except sklearn imputation, which is included. Native/Python probability parity is checked for every non-sklearn measured model. sklearn SAMME is serial and has no standalone C++ comparison.
+Python 3.12.14；sklearn 1.9.1；XGBoost 3.4.1；LightGBM 4.7.0；CPU 配额 400000 100000。Python 计时包含封装和输入校验；C++ 原生计时排除进程启动及文件读写。每次使用新模型，以可复现方式随机排列执行顺序；测量期间不同时运行压力测试或覆盖率构建。外层比较共用预处理，预处理不计入训练时间；sklearn 缺失值填充除外，其开销计入时间。每个非 sklearn 被测模型都检查原生与 Python 接口输出概率的一致性。sklearn SAMME 为串行实现，没有独立 C++ 对比。
 
-KS=max absolute empirical bad/good score-distribution difference. Directional KS=max(TPR-FPR); tied scores are grouped. An inverted model can have high absolute KS, so AUC and directional KS must accompany it. Label 1 means bad. These are descriptive held-out statistics; no deployed threshold is picked on the test data. Probabilities are not calibrated; bad recall uses the model argmax/ordinary class decision. Single C5 trees use hard leaf votes, not leaf class-frequency probabilities; their ranking can be constant even with multiple leaves.
+KS 是坏样本与好样本评分经验分布差的最大绝对值；方向性 KS=max(TPR-FPR)，其中 TPR 为坏样本召回率，FPR 为好样本误报率，相同分数合并计算。模型排序颠倒时绝对 KS 也可能很高，因此必须同时查看 AUC 和方向性 KS。标签 1 代表坏样本。指标用于描述留出集表现，不在测试集上选择上线阈值。概率未经校准；坏样本召回率按模型最大概率类别或常规分类决策计算。单棵 C5 树使用叶节点类别的硬投票，不使用叶内类别频率作为概率；即使有多个叶节点，也可能产生常数评分。AP 为平均精确率，用于衡量不平衡任务的排序质量；平衡准确率为各类别召回率的平均值。
 
-## 数据 / Data
+## 数据
 
-| Dataset | Rows | Bad fraction | Target/source |
+| 数据集 | 行数 | 坏样本比例 | 预测目标与来源说明 |
 | --- | ---: | ---: | --- |
-| german_credit | 1000 | 30.00% | bad credit risk; source credit_risk=0 (300/1000) |
-| credit_status | 4454 | 28.15% | Status=bad; missing predictors retained; identifier removed |
-| taiwan_late_payment | 30000 | 22.73% | late September 2005 payment; predictors April late flag/bill and age; not the original default target |
-| rare_risk_20k | 20000 | 3.50% | explicitly synthetic rare-risk classification |
+| 德国信用风险（german_credit） | 1000 | 30.00% | 坏信用风险；原始 credit_risk=0（300/1000） |
+| 信用状态（credit_status） | 4454 | 28.15% | Status=bad；保留特征缺失值，删除标识符 |
+| 台湾逾期付款（taiwan_late_payment） | 30000 | 22.73% | 2005 年 9 月逾期；特征为 4 月逾期标记、账单和年龄；不是原始完整违约目标 |
+| 合成稀少风险（rare_risk_20k） | 20000 | 3.50% | 明确为合成的稀少风险分类任务 |
 
-Taiwan is a real public subset with April features and September late-payment labels; it is not the original full default target. IDs and targets are excluded. Sources and SHA-256 are pinned. Random splits are not temporal backtests or external-lender validation.
+台湾任务来自真实公开数据的子集，以 4 月信息预测 9 月是否逾期，并非原始数据的完整违约目标。输入已排除标识符和目标字段；固定数据来源及 SHA-256 校验和。随机划分不等同于时间回测，也不等同于在其他放贷机构的数据上验证。
 
-## 效果与性能 / Quality and performance
+## 效果与性能
 
-One-thread Python, arithmetic means; fit/predict in milliseconds. selected uses only training CV. The fixed Hellinger row is an ablation, not a configuration selected using these test scores.
+下表为 Python 单线程结果的算术平均值，训练与推理时间单位为毫秒。selected 配置仅由训练集交叉验证选出。固定 Hellinger 配置用于消融分析，并非根据这些测试分数挑选。
 
-| Task | Model | KS | AUC | AP | Bad recall | Balanced accuracy | Fit ms | Predict ms | Rules |
+| 任务 | 模型 | KS | AUC | AP | 坏样本召回率 | 平衡准确率 | 训练毫秒 | 推理毫秒 | 规则数 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| german_credit | single | 0.0305 | 0.5152 | 0.3103 | 0.0667 | 0.5152 | 1.729 | 0.043 | 6.7 |
-| german_credit | samme_30 | 0.4800 | 0.7750 | 0.5781 | 0.5289 | 0.6902 | 17.825 | 0.176 | 217.3 |
-| german_credit | hellinger | 0.4971 | 0.8009 | 0.6206 | 0.5467 | 0.7029 | 58.153 | 0.535 | 818.7 |
-| german_credit | selected | 0.4629 | 0.7942 | 0.6239 | 0.6267 | 0.7057 | 56.676 | 0.540 | 863.0 |
-| german_credit | adaboost | 0.4552 | 0.7757 | 0.6131 | 0.5644 | 0.7041 | 283.291 | 8.649 | 1198.7 |
-| german_credit | xgboost | 0.4686 | 0.7928 | 0.6240 | 0.4978 | 0.6803 | 20.522 | 0.962 | 1244.0 |
-| german_credit | lightgbm | 0.4616 | 0.7910 | 0.6191 | 0.5111 | 0.6879 | 20.121 | 1.691 | 1289.0 |
-| credit_status | single | 0.3868 | 0.6934 | 0.4399 | 0.5510 | 0.6934 | 4.379 | 0.111 | 7.3 |
-| credit_status | samme_30 | 0.5392 | 0.8267 | 0.6662 | 0.5658 | 0.7275 | 40.941 | 0.463 | 202.7 |
-| credit_status | hellinger | 0.5595 | 0.8436 | 0.6911 | 0.5541 | 0.7275 | 122.108 | 1.800 | 743.3 |
-| credit_status | selected | 0.5541 | 0.8419 | 0.6906 | 0.5913 | 0.7309 | 129.510 | 1.675 | 685.0 |
-| credit_status | adaboost | 0.5258 | 0.8208 | 0.6439 | 0.5446 | 0.7127 | 650.814 | 8.932 | 706.7 |
-| credit_status | xgboost | 0.5508 | 0.8396 | 0.6790 | 0.5435 | 0.7180 | 52.510 | 1.987 | 1439.7 |
-| credit_status | lightgbm | 0.5456 | 0.8401 | 0.6824 | 0.5340 | 0.7166 | 39.866 | 4.704 | 1461.0 |
-| taiwan_late_payment | single | 0.2301 | 0.6151 | 0.3389 | 0.2787 | 0.6151 | 7.447 | 0.373 | 2.0 |
-| taiwan_late_payment | samme_30 | 0.2925 | 0.6836 | 0.4323 | 0.2762 | 0.6142 | 45.354 | 1.375 | 87.3 |
-| taiwan_late_payment | hellinger | 0.2938 | 0.6843 | 0.4299 | 0.2423 | 0.6011 | 142.929 | 3.927 | 255.0 |
-| taiwan_late_payment | selected | 0.2925 | 0.6836 | 0.4323 | 0.2762 | 0.6142 | 50.620 | 1.480 | 87.3 |
-| taiwan_late_payment | adaboost | 0.2836 | 0.6773 | 0.3999 | 0.2787 | 0.6151 | 692.909 | 6.673 | 51.7 |
-| taiwan_late_payment | xgboost | 0.2936 | 0.6819 | 0.4345 | 0.2527 | 0.6057 | 68.903 | 6.279 | 1367.0 |
-| taiwan_late_payment | lightgbm | 0.2919 | 0.6819 | 0.4341 | 0.2509 | 0.6051 | 86.164 | 15.404 | 1373.7 |
-| rare_risk_20k | single | 0.0000 | 0.5000 | 0.0350 | 0.0000 | 0.5000 | 21.964 | 0.313 | 1.0 |
-| rare_risk_20k | samme_30 | 0.6118 | 0.8706 | 0.4783 | 0.2667 | 0.6318 | 86.002 | 1.606 | 206.7 |
-| rare_risk_20k | hellinger | 0.6860 | 0.8910 | 0.6078 | 0.3505 | 0.6743 | 216.141 | 6.288 | 719.7 |
-| rare_risk_20k | selected | 0.6859 | 0.8874 | 0.6128 | 0.5181 | 0.7417 | 208.387 | 6.729 | 875.3 |
-| rare_risk_20k | adaboost | 0.6815 | 0.8940 | 0.6395 | 0.4800 | 0.7383 | 10205.176 | 27.671 | 1250.0 |
-| rare_risk_20k | xgboost | 0.7128 | 0.9013 | 0.6774 | 0.4705 | 0.7341 | 97.392 | 4.466 | 1348.0 |
-| rare_risk_20k | lightgbm | 0.7120 | 0.9041 | 0.6837 | 0.4686 | 0.7335 | 119.768 | 18.413 | 1470.0 |
+| 德国信用风险（german_credit） | 单棵树（single） | 0.0305 | 0.5152 | 0.3103 | 0.0667 | 0.5152 | 1.729 | 0.043 | 6.7 |
+| 德国信用风险（german_credit） | 基线提升（samme_30） | 0.4800 | 0.7750 | 0.5781 | 0.5289 | 0.6902 | 17.825 | 0.176 | 217.3 |
+| 德国信用风险（german_credit） | Hellinger 准则（hellinger） | 0.4971 | 0.8009 | 0.6206 | 0.5467 | 0.7029 | 58.153 | 0.535 | 818.7 |
+| 德国信用风险（german_credit） | 训练集交叉验证选择（selected） | 0.4629 | 0.7942 | 0.6239 | 0.6267 | 0.7057 | 56.676 | 0.540 | 863.0 |
+| 德国信用风险（german_credit） | sklearn 自适应提升（adaboost） | 0.4552 | 0.7757 | 0.6131 | 0.5644 | 0.7041 | 283.291 | 8.649 | 1198.7 |
+| 德国信用风险（german_credit） | XGBoost | 0.4686 | 0.7928 | 0.6240 | 0.4978 | 0.6803 | 20.522 | 0.962 | 1244.0 |
+| 德国信用风险（german_credit） | LightGBM | 0.4616 | 0.7910 | 0.6191 | 0.5111 | 0.6879 | 20.121 | 1.691 | 1289.0 |
+| 信用状态（credit_status） | 单棵树（single） | 0.3868 | 0.6934 | 0.4399 | 0.5510 | 0.6934 | 4.379 | 0.111 | 7.3 |
+| 信用状态（credit_status） | 基线提升（samme_30） | 0.5392 | 0.8267 | 0.6662 | 0.5658 | 0.7275 | 40.941 | 0.463 | 202.7 |
+| 信用状态（credit_status） | Hellinger 准则（hellinger） | 0.5595 | 0.8436 | 0.6911 | 0.5541 | 0.7275 | 122.108 | 1.800 | 743.3 |
+| 信用状态（credit_status） | 训练集交叉验证选择（selected） | 0.5541 | 0.8419 | 0.6906 | 0.5913 | 0.7309 | 129.510 | 1.675 | 685.0 |
+| 信用状态（credit_status） | sklearn 自适应提升（adaboost） | 0.5258 | 0.8208 | 0.6439 | 0.5446 | 0.7127 | 650.814 | 8.932 | 706.7 |
+| 信用状态（credit_status） | XGBoost | 0.5508 | 0.8396 | 0.6790 | 0.5435 | 0.7180 | 52.510 | 1.987 | 1439.7 |
+| 信用状态（credit_status） | LightGBM | 0.5456 | 0.8401 | 0.6824 | 0.5340 | 0.7166 | 39.866 | 4.704 | 1461.0 |
+| 台湾逾期付款（taiwan_late_payment） | 单棵树（single） | 0.2301 | 0.6151 | 0.3389 | 0.2787 | 0.6151 | 7.447 | 0.373 | 2.0 |
+| 台湾逾期付款（taiwan_late_payment） | 基线提升（samme_30） | 0.2925 | 0.6836 | 0.4323 | 0.2762 | 0.6142 | 45.354 | 1.375 | 87.3 |
+| 台湾逾期付款（taiwan_late_payment） | Hellinger 准则（hellinger） | 0.2938 | 0.6843 | 0.4299 | 0.2423 | 0.6011 | 142.929 | 3.927 | 255.0 |
+| 台湾逾期付款（taiwan_late_payment） | 训练集交叉验证选择（selected） | 0.2925 | 0.6836 | 0.4323 | 0.2762 | 0.6142 | 50.620 | 1.480 | 87.3 |
+| 台湾逾期付款（taiwan_late_payment） | sklearn 自适应提升（adaboost） | 0.2836 | 0.6773 | 0.3999 | 0.2787 | 0.6151 | 692.909 | 6.673 | 51.7 |
+| 台湾逾期付款（taiwan_late_payment） | XGBoost | 0.2936 | 0.6819 | 0.4345 | 0.2527 | 0.6057 | 68.903 | 6.279 | 1367.0 |
+| 台湾逾期付款（taiwan_late_payment） | LightGBM | 0.2919 | 0.6819 | 0.4341 | 0.2509 | 0.6051 | 86.164 | 15.404 | 1373.7 |
+| 合成稀少风险（rare_risk_20k） | 单棵树（single） | 0.0000 | 0.5000 | 0.0350 | 0.0000 | 0.5000 | 21.964 | 0.313 | 1.0 |
+| 合成稀少风险（rare_risk_20k） | 基线提升（samme_30） | 0.6118 | 0.8706 | 0.4783 | 0.2667 | 0.6318 | 86.002 | 1.606 | 206.7 |
+| 合成稀少风险（rare_risk_20k） | Hellinger 准则（hellinger） | 0.6860 | 0.8910 | 0.6078 | 0.3505 | 0.6743 | 216.141 | 6.288 | 719.7 |
+| 合成稀少风险（rare_risk_20k） | 训练集交叉验证选择（selected） | 0.6859 | 0.8874 | 0.6128 | 0.5181 | 0.7417 | 208.387 | 6.729 | 875.3 |
+| 合成稀少风险（rare_risk_20k） | sklearn 自适应提升（adaboost） | 0.6815 | 0.8940 | 0.6395 | 0.4800 | 0.7383 | 10205.176 | 27.671 | 1250.0 |
+| 合成稀少风险（rare_risk_20k） | XGBoost | 0.7128 | 0.9013 | 0.6774 | 0.4705 | 0.7341 | 97.392 | 4.466 | 1348.0 |
+| 合成稀少风险（rare_risk_20k） | LightGBM | 0.7120 | 0.9041 | 0.6837 | 0.4686 | 0.7335 | 119.768 | 18.413 | 1470.0 |
 
-## Boosting 与准则消融 / Ablations
+## 提升学习与分裂准则消融
 
-samme_30→samme_long changes only round count. samme_long→shrinkage changes only rate. shrinkage→hellinger changes only criterion; shrinkage→balanced changes only weighting. balanced→hellinger_balanced isolates the criterion under balancing. shrinkage→less_pruning changes only alpha. Comparisons to samme_30 combine changes.
+samme_30→samme_long 只改变提升轮数；samme_long→shrinkage 只改变学习率；shrinkage→hellinger 只改变分裂准则；shrinkage→balanced 只改变权重；balanced→hellinger_balanced 在类别平衡条件下单独比较准则；shrinkage→less_pruning 只改变剪枝参数 alpha。将后面这些配置直接与 samme_30 比较，会同时包含多项改动的影响。表中括号内标识与原始 JSON 配置名对应。
 
-| Task | Configuration | KS | AUC | AP | Rules | Accepted trees |
+| 任务 | 配置 | KS | AUC | AP | 规则数 | 实际保留树数 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| german_credit | single | 0.0305 | 0.5152 | 0.3103 | 6.7 | 1.0 |
-| german_credit | samme_30 | 0.4800 | 0.7750 | 0.5781 | 217.3 | 30.0 |
-| german_credit | samme_long | 0.4673 | 0.7773 | 0.6058 | 767.7 | 100.0 |
-| german_credit | shrinkage | 0.5016 | 0.7932 | 0.6015 | 754.0 | 100.0 |
-| german_credit | balanced | 0.4895 | 0.7933 | 0.6051 | 809.0 | 100.0 |
-| german_credit | hellinger | 0.4971 | 0.8009 | 0.6206 | 818.7 | 100.0 |
-| german_credit | hellinger_balanced | 0.4806 | 0.8002 | 0.6418 | 839.7 | 100.0 |
-| german_credit | gini | 0.4679 | 0.7991 | 0.6129 | 949.7 | 100.0 |
-| german_credit | entropy | 0.4730 | 0.7916 | 0.6241 | 848.7 | 100.0 |
-| german_credit | less_pruning | 0.4787 | 0.7833 | 0.5822 | 787.3 | 100.0 |
-| credit_status | single | 0.3868 | 0.6934 | 0.4399 | 7.3 | 1.0 |
-| credit_status | samme_30 | 0.5392 | 0.8267 | 0.6662 | 202.7 | 30.0 |
-| credit_status | samme_long | 0.5368 | 0.8303 | 0.6765 | 606.3 | 100.0 |
-| credit_status | shrinkage | 0.5430 | 0.8404 | 0.6919 | 594.3 | 100.0 |
-| credit_status | balanced | 0.5426 | 0.8428 | 0.6908 | 599.3 | 100.0 |
-| credit_status | hellinger | 0.5595 | 0.8436 | 0.6911 | 743.3 | 100.0 |
-| credit_status | hellinger_balanced | 0.5582 | 0.8444 | 0.6906 | 731.7 | 100.0 |
-| credit_status | gini | 0.5506 | 0.8416 | 0.6873 | 898.3 | 100.0 |
-| credit_status | entropy | 0.5503 | 0.8408 | 0.6831 | 831.0 | 100.0 |
-| credit_status | less_pruning | 0.5486 | 0.8400 | 0.6899 | 804.7 | 100.0 |
-| taiwan_late_payment | single | 0.2301 | 0.6151 | 0.3389 | 2.0 | 1.0 |
-| taiwan_late_payment | samme_30 | 0.2925 | 0.6836 | 0.4323 | 87.3 | 26.3 |
-| taiwan_late_payment | samme_long | 0.2925 | 0.6836 | 0.4323 | 134.0 | 73.0 |
-| taiwan_late_payment | shrinkage | 0.2938 | 0.6831 | 0.4288 | 213.0 | 100.0 |
-| taiwan_late_payment | balanced | 0.2932 | 0.6817 | 0.4323 | 195.7 | 100.0 |
-| taiwan_late_payment | hellinger | 0.2938 | 0.6843 | 0.4299 | 255.0 | 100.0 |
-| taiwan_late_payment | hellinger_balanced | 0.2916 | 0.6849 | 0.4393 | 286.3 | 100.0 |
-| taiwan_late_payment | gini | 0.2944 | 0.6844 | 0.4301 | 253.0 | 100.0 |
-| taiwan_late_payment | entropy | 0.2942 | 0.6843 | 0.4298 | 245.3 | 100.0 |
-| taiwan_late_payment | less_pruning | 0.2928 | 0.6828 | 0.4316 | 759.0 | 100.0 |
-| rare_risk_20k | single | 0.0000 | 0.5000 | 0.0350 | 1.0 | 1.0 |
-| rare_risk_20k | samme_30 | 0.6118 | 0.8706 | 0.4783 | 206.7 | 30.0 |
-| rare_risk_20k | samme_long | 0.6403 | 0.8730 | 0.5289 | 708.7 | 100.0 |
-| rare_risk_20k | shrinkage | 0.6423 | 0.8686 | 0.5062 | 535.0 | 100.0 |
-| rare_risk_20k | balanced | 0.6473 | 0.8710 | 0.4782 | 647.3 | 100.0 |
-| rare_risk_20k | hellinger | 0.6860 | 0.8910 | 0.6078 | 719.7 | 100.0 |
-| rare_risk_20k | hellinger_balanced | 0.6771 | 0.8933 | 0.6050 | 793.3 | 100.0 |
-| rare_risk_20k | gini | 0.6922 | 0.8867 | 0.6198 | 877.3 | 100.0 |
-| rare_risk_20k | entropy | 0.7055 | 0.8940 | 0.6201 | 811.7 | 100.0 |
-| rare_risk_20k | less_pruning | 0.6304 | 0.8648 | 0.5074 | 613.7 | 100.0 |
+| 德国信用风险（german_credit） | 单棵树（single） | 0.0305 | 0.5152 | 0.3103 | 6.7 | 1.0 |
+| 德国信用风险（german_credit） | 基线提升（samme_30） | 0.4800 | 0.7750 | 0.5781 | 217.3 | 30.0 |
+| 德国信用风险（german_credit） | 增加提升轮数（samme_long） | 0.4673 | 0.7773 | 0.6058 | 767.7 | 100.0 |
+| 德国信用风险（german_credit） | 学习率收缩（shrinkage） | 0.5016 | 0.7932 | 0.6015 | 754.0 | 100.0 |
+| 德国信用风险（german_credit） | 类别平衡（balanced） | 0.4895 | 0.7933 | 0.6051 | 809.0 | 100.0 |
+| 德国信用风险（german_credit） | Hellinger 准则（hellinger） | 0.4971 | 0.8009 | 0.6206 | 818.7 | 100.0 |
+| 德国信用风险（german_credit） | Hellinger 与类别平衡（hellinger_balanced） | 0.4806 | 0.8002 | 0.6418 | 839.7 | 100.0 |
+| 德国信用风险（german_credit） | 基尼准则（gini） | 0.4679 | 0.7991 | 0.6129 | 949.7 | 100.0 |
+| 德国信用风险（german_credit） | 信息熵准则（entropy） | 0.4730 | 0.7916 | 0.6241 | 848.7 | 100.0 |
+| 德国信用风险（german_credit） | 减弱剪枝（less_pruning） | 0.4787 | 0.7833 | 0.5822 | 787.3 | 100.0 |
+| 信用状态（credit_status） | 单棵树（single） | 0.3868 | 0.6934 | 0.4399 | 7.3 | 1.0 |
+| 信用状态（credit_status） | 基线提升（samme_30） | 0.5392 | 0.8267 | 0.6662 | 202.7 | 30.0 |
+| 信用状态（credit_status） | 增加提升轮数（samme_long） | 0.5368 | 0.8303 | 0.6765 | 606.3 | 100.0 |
+| 信用状态（credit_status） | 学习率收缩（shrinkage） | 0.5430 | 0.8404 | 0.6919 | 594.3 | 100.0 |
+| 信用状态（credit_status） | 类别平衡（balanced） | 0.5426 | 0.8428 | 0.6908 | 599.3 | 100.0 |
+| 信用状态（credit_status） | Hellinger 准则（hellinger） | 0.5595 | 0.8436 | 0.6911 | 743.3 | 100.0 |
+| 信用状态（credit_status） | Hellinger 与类别平衡（hellinger_balanced） | 0.5582 | 0.8444 | 0.6906 | 731.7 | 100.0 |
+| 信用状态（credit_status） | 基尼准则（gini） | 0.5506 | 0.8416 | 0.6873 | 898.3 | 100.0 |
+| 信用状态（credit_status） | 信息熵准则（entropy） | 0.5503 | 0.8408 | 0.6831 | 831.0 | 100.0 |
+| 信用状态（credit_status） | 减弱剪枝（less_pruning） | 0.5486 | 0.8400 | 0.6899 | 804.7 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | 单棵树（single） | 0.2301 | 0.6151 | 0.3389 | 2.0 | 1.0 |
+| 台湾逾期付款（taiwan_late_payment） | 基线提升（samme_30） | 0.2925 | 0.6836 | 0.4323 | 87.3 | 26.3 |
+| 台湾逾期付款（taiwan_late_payment） | 增加提升轮数（samme_long） | 0.2925 | 0.6836 | 0.4323 | 134.0 | 73.0 |
+| 台湾逾期付款（taiwan_late_payment） | 学习率收缩（shrinkage） | 0.2938 | 0.6831 | 0.4288 | 213.0 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | 类别平衡（balanced） | 0.2932 | 0.6817 | 0.4323 | 195.7 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | Hellinger 准则（hellinger） | 0.2938 | 0.6843 | 0.4299 | 255.0 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | Hellinger 与类别平衡（hellinger_balanced） | 0.2916 | 0.6849 | 0.4393 | 286.3 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | 基尼准则（gini） | 0.2944 | 0.6844 | 0.4301 | 253.0 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | 信息熵准则（entropy） | 0.2942 | 0.6843 | 0.4298 | 245.3 | 100.0 |
+| 台湾逾期付款（taiwan_late_payment） | 减弱剪枝（less_pruning） | 0.2928 | 0.6828 | 0.4316 | 759.0 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | 单棵树（single） | 0.0000 | 0.5000 | 0.0350 | 1.0 | 1.0 |
+| 合成稀少风险（rare_risk_20k） | 基线提升（samme_30） | 0.6118 | 0.8706 | 0.4783 | 206.7 | 30.0 |
+| 合成稀少风险（rare_risk_20k） | 增加提升轮数（samme_long） | 0.6403 | 0.8730 | 0.5289 | 708.7 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | 学习率收缩（shrinkage） | 0.6423 | 0.8686 | 0.5062 | 535.0 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | 类别平衡（balanced） | 0.6473 | 0.8710 | 0.4782 | 647.3 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | Hellinger 准则（hellinger） | 0.6860 | 0.8910 | 0.6078 | 719.7 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | Hellinger 与类别平衡（hellinger_balanced） | 0.6771 | 0.8933 | 0.6050 | 793.3 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | 基尼准则（gini） | 0.6922 | 0.8867 | 0.6198 | 877.3 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | 信息熵准则（entropy） | 0.7055 | 0.8940 | 0.6201 | 811.7 | 100.0 |
+| 合成稀少风险（rare_risk_20k） | 减弱剪枝（less_pruning） | 0.6304 | 0.8648 | 0.5074 | 613.7 | 100.0 |
 
-## 选择稳定性与搜索成本 / Selection and cost
+## 选择稳定性与搜索成本
 
-| Task | Seed | Training-CV choice | Search seconds |
+| 任务 | 随机种子 | 训练集交叉验证选择 | 搜索秒数 |
 | --- | ---: | --- | ---: |
-| german_credit | 42 | gini | 1.601 |
-| german_credit | 2024 | hellinger_balanced | 1.506 |
-| german_credit | 7 | hellinger_balanced | 1.630 |
-| credit_status | 42 | shrinkage | 2.687 |
-| credit_status | 2024 | hellinger_balanced | 2.657 |
-| credit_status | 7 | less_pruning | 2.710 |
-| taiwan_late_payment | 42 | samme_30 | 3.053 |
-| taiwan_late_payment | 2024 | samme_30 | 2.860 |
-| taiwan_late_payment | 7 | samme_30 | 2.955 |
-| rare_risk_20k | 42 | gini | 4.458 |
-| rare_risk_20k | 2024 | hellinger_balanced | 4.853 |
-| rare_risk_20k | 7 | gini | 4.863 |
+| 德国信用风险（german_credit） | 42 | 基尼准则（gini） | 1.601 |
+| 德国信用风险（german_credit） | 2024 | Hellinger 与类别平衡（hellinger_balanced） | 1.506 |
+| 德国信用风险（german_credit） | 7 | Hellinger 与类别平衡（hellinger_balanced） | 1.630 |
+| 信用状态（credit_status） | 42 | 学习率收缩（shrinkage） | 2.687 |
+| 信用状态（credit_status） | 2024 | Hellinger 与类别平衡（hellinger_balanced） | 2.657 |
+| 信用状态（credit_status） | 7 | 减弱剪枝（less_pruning） | 2.710 |
+| 台湾逾期付款（taiwan_late_payment） | 42 | 基线提升（samme_30） | 3.053 |
+| 台湾逾期付款（taiwan_late_payment） | 2024 | 基线提升（samme_30） | 2.860 |
+| 台湾逾期付款（taiwan_late_payment） | 7 | 基线提升（samme_30） | 2.955 |
+| 合成稀少风险（rare_risk_20k） | 42 | 基尼准则（gini） | 4.458 |
+| 合成稀少风险（rare_risk_20k） | 2024 | Hellinger 与类别平衡（hellinger_balanced） | 4.853 |
+| 合成稀少风险（rare_risk_20k） | 7 | 基尼准则（gini） | 4.863 |
 
-## C++／Python 扩展与波动 / Scaling and variability
+## C++／Python 线程扩展与波动
 
-| Task | Interface | selected KS mean ± std | Fit 1-thread ms | Fit 4-thread ms | Fit speedup |
+| 任务 | 接口 | 交叉验证所选模型 KS 均值 ± 标准差 | 单线程训练毫秒 | 四线程训练毫秒 | 训练加速比 |
 | --- | --- | ---: | ---: | ---: | ---: |
-| german_credit | python | 0.4629 ± 0.0270 | 56.676 | 55.496 | 1.02× |
-| german_credit | cpp | 0.4629 ± 0.0270 | 64.393 | 56.329 | 1.14× |
-| credit_status | python | 0.5541 ± 0.0065 | 129.510 | 87.686 | 1.48× |
-| credit_status | cpp | 0.5541 ± 0.0065 | 127.014 | 91.144 | 1.39× |
-| taiwan_late_payment | python | 0.2925 ± 0.0129 | 50.620 | 44.867 | 1.13× |
-| taiwan_late_payment | cpp | 0.2925 ± 0.0129 | 50.434 | 49.649 | 1.02× |
-| rare_risk_20k | python | 0.6859 ± 0.0137 | 208.387 | 169.687 | 1.23× |
-| rare_risk_20k | cpp | 0.6859 ± 0.0137 | 217.187 | 173.807 | 1.25× |
+| 德国信用风险（german_credit） | Python | 0.4629 ± 0.0270 | 56.676 | 55.496 | 1.02× |
+| 德国信用风险（german_credit） | C++ | 0.4629 ± 0.0270 | 64.393 | 56.329 | 1.14× |
+| 信用状态（credit_status） | Python | 0.5541 ± 0.0065 | 129.510 | 87.686 | 1.48× |
+| 信用状态（credit_status） | C++ | 0.5541 ± 0.0065 | 127.014 | 91.144 | 1.39× |
+| 台湾逾期付款（taiwan_late_payment） | Python | 0.2925 ± 0.0129 | 50.620 | 44.867 | 1.13× |
+| 台湾逾期付款（taiwan_late_payment） | C++ | 0.2925 ± 0.0129 | 50.434 | 49.649 | 1.02× |
+| 合成稀少风险（rare_risk_20k） | Python | 0.6859 ± 0.0137 | 208.387 | 169.687 | 1.23× |
+| 合成稀少风险（rare_risk_20k） | C++ | 0.6859 ± 0.0137 | 217.187 | 173.807 | 1.25× |
 
-All mean/std/min/max values for every engine/interface/thread configuration are available in the JSON. Small jobs run serially by design; timing fluctuations are not parallel gains.
+每个引擎、接口、线程配置的均值、标准差、最小值和最大值均保留在 JSON 中。训练加速比为单线程平均耗时除以四线程平均耗时。小任务按设计串行执行，计时波动不能作为并行收益。
 
-## 结论 / Findings
+## 结论
 
-german_credit: baseline KS 0.4800 → train-CV selected 0.4629 (delta -0.0171); AUC 0.7750 → 0.7942. Criterion-only comparison: shrinkage KS 0.5016 → Hellinger 0.4971.
+德国信用风险（german_credit）：基线 KS 0.4800 → 训练集交叉验证所选模型 0.4629（变化 -0.0171）；AUC 0.7750 → 0.7942。仅改变准则的比较：学习率收缩配置 KS 0.5016 → Hellinger 0.4971。
 
-credit_status: baseline KS 0.5392 → train-CV selected 0.5541 (delta +0.0148); AUC 0.8267 → 0.8419. Criterion-only comparison: shrinkage KS 0.5430 → Hellinger 0.5595.
+信用状态（credit_status）：基线 KS 0.5392 → 训练集交叉验证所选模型 0.5541（变化 +0.0148）；AUC 0.8267 → 0.8419。仅改变准则的比较：学习率收缩配置 KS 0.5430 → Hellinger 0.5595。
 
-taiwan_late_payment: baseline KS 0.2925 → train-CV selected 0.2925 (delta +0.0000); AUC 0.6836 → 0.6836. Criterion-only comparison: shrinkage KS 0.2938 → Hellinger 0.2938.
+台湾逾期付款（taiwan_late_payment）：基线 KS 0.2925 → 训练集交叉验证所选模型 0.2925（变化 +0.0000）；AUC 0.6836 → 0.6836。仅改变准则的比较：学习率收缩配置 KS 0.2938 → Hellinger 0.2938。
 
-rare_risk_20k: baseline KS 0.6118 → train-CV selected 0.6859 (delta +0.0741); AUC 0.8706 → 0.8874. Criterion-only comparison: shrinkage KS 0.6423 → Hellinger 0.6860.
+合成稀少风险（rare_risk_20k）：基线 KS 0.6118 → 训练集交叉验证所选模型 0.6859（变化 +0.0741）；AUC 0.8706 → 0.8874。仅改变准则的比较：学习率收缩配置 KS 0.6423 → Hellinger 0.6860。
 
-训练集 CV 选择没有保证每个测试任务的 KS 都提高。德国信用的 selected KS 低于基线，但 AUC 更高；台湾保持基线；信用状态和稀少风险任务的 selected KS 更高。没有据测试成绩更改默认准则。更多轮数并非总更好；Hellinger 的单因素消融在信用状态/稀少风险上更好，在德国则 KS 略低。平衡权重明显提高坏样本召回，但不保证 KS/AP 提升；应同时看误报与精度。
+训练集交叉验证选择不能保证每个测试任务的 KS 都提高。德国信用任务中所选模型的 KS 低于基线，但 AUC 更高；台湾保持基线；信用状态和稀少风险任务中所选模型的 KS 更高。没有据测试成绩更改默认准则。更多轮数并非总更好；Hellinger 的单因素消融在信用状态/稀少风险上更好，在德国则 KS 略低。平衡权重明显提高坏样本召回，但不保证 KS/AP 提升；应同时看误报与精度。
 
-三次重复只增加计时证据，不增加独立效果证据；三个划分也重叠，不能宣称统计显著或普遍第一。稀少风险任务中 XGBoost/LightGBM 的 KS 仍更高。selected 多用了搜索预算，不能当成与未调参竞品同预算的排名。规则数仅是结构复杂度代理；尚无用户理解实验。
+三次重复只增加计时证据，不增加独立效果证据；三个划分也重叠，不能宣称统计显著或普遍第一。稀少风险任务中 XGBoost/LightGBM 的 KS 仍更高。交叉验证所选模型多用了搜索预算，不能当成与未调参竞品同预算的排名。规则数仅是结构复杂度代理；尚无用户理解实验。
 
-## TDD 与验证 / Validation
+## 测试驱动开发与验证
 
-New tests failed before implementation. Hellinger binary behavior/multiclass rejection, explicit off/one-tree equivalence, balanced/user-weight equivalence, failed-refit preservation, tie-safe/directional KS, per-fold encoders, CV isolation and cache integrity pass. Release CTest 7/7; Python estimator/inspection 70/70; CLI 16/16; performance/RSS 3/3; benchmark methodology 15/15. ASan/UBSan/LSan CTest 7/7 plus CLI 16/16; TSan 7/7. Native lines 2444/2444 and Python statements 371/371: 100%. No new coverage exclusions. Benchmark code is outside production coverage gates.
+新增测试先于实现失败，再由实现使其通过。测试覆盖 Hellinger 二分类行为及多分类拒绝、显式关闭提升与单树等价、类别平衡与用户权重等价、重新拟合失败时保留旧模型、同分合并与方向性 KS、逐折编码、交叉验证隔离以及缓存完整性。发布构建 CTest 7/7；Python 模型与结构解释测试 70/70；命令行测试 16/16；性能与常驻内存测试 3/3；评测方法测试 15/15。ASan/UBSan/LSan 检查通过 CTest 7/7 和命令行 16/16；TSan 检查 7/7。原生代码行覆盖 2444/2444，Python 语句覆盖 371/371，均为 100%。未新增覆盖排除项；评测脚本不在生产代码覆盖率门槛范围内。以上为该次评测记录的验证结果。
 
-## 复现 / Reproduce
+## 复现
 
 ```sh
 python -m pip install '.[dev,benchmark]'
@@ -171,4 +171,4 @@ PYTHONPATH=python:. python benchmarks/risk_report.py
 ```
 
 
-Measured source SHA-256: `7e1d4b7b56c059749876fbb0e873b0b0e6c39bfa92b5619ae7d9007ebe190c4c`. Source URLs/checksums, all per-fold CV scores, chosen parameters and raw repeated measurements are in the JSON. Downloaded data and prepared predictions remain ignored by git.
+被测源码 SHA-256：`7e1d4b7b56c059749876fbb0e873b0b0e6c39bfa92b5619ae7d9007ebe190c4c`。数据来源网址、校验和、每个内层折的交叉验证分数、所选参数以及每次重复测量均保留在 JSON 中。下载的数据和临时预测文件仍由 git 忽略。

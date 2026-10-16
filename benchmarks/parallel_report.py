@@ -171,8 +171,8 @@ def main():
     (ROOT / 'parallel-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
     lines = ['# LibTree CPU 多线程实测', '',
              f'{len(raw["threads"])} 个线程数 × {len(raw["split_reports"][0]["sources"])} 个数据集 × {len(raw["seeds"])} 个划分 × C++/Python × 3 个引擎 × {raw["timing_repeats_per_split"]} 次计时，共 **{runs} 次**。', '',
-              f"Equal configured thread budgets; independent processes. Each cell uses the arithmetic mean of {len(raw['seeds']) * raw['timing_repeats_per_split']} runs. "
-             'All LibTree same-split quality metrics are unchanged across configured thread counts.', '',
+              f"各引擎使用相同的配置线程预算，在独立进程中运行。每个单元格取 {len(raw['seeds']) * raw['timing_repeats_per_split']} 次运行的算术平均值。"
+              '同一数据划分下，LibTree 的各项效果指标在不同线程配置间保持不变。', '',
              f"训练与预测分开测量。每组 {len(raw['seeds']) * raw['timing_repeats_per_split']} 次原始计时，时间报告算术平均值±样本标准差并保留范围；效果为三个划分的均值及样本标准差。", '',
              f"可用逻辑 CPU：{raw['split_reports'][0]['metadata']['available_cpus']}；cgroup CPU 配额：{raw['split_reports'][0]['metadata']['cpu_quota'] or '未知'}；种子：{raw['seeds']}。线程数为预算，小任务可串行。", '',
              '| 数据集 | 接口 | 引擎 | 线程 | 训练 ms 平均±SD | 推理 ms 平均±SD | 训练加速 | 推理加速 | 指标 | 测试效果 |',

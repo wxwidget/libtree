@@ -1,7 +1,9 @@
 """Behavioral guards for leakage-safe benchmark preparation and cache integrity."""
 from argparse import Namespace
+import importlib
 import json
 from pathlib import Path
+import re
 
 import numpy as np
 import pandas as pd
@@ -160,3 +162,45 @@ def test_risk_data_corruption_is_rejected(tmp_path, monkeypatch):
     (tmp_path / 'german_credit.csv').write_text('corrupted')
     with pytest.raises(ValueError, match='checksum'):
         risk.dataset('german_credit')
+
+
+@pytest.mark.parametrize('study', ['c5', 'risk'])
+def test_report_languages_preserve_measurements_and_commands(study):
+    root = Path(__file__).resolve().parents[1] / 'benchmarks'
+    data = json.loads((root / f'{study}-results.json').read_text(encoding='utf-8'))
+    render = importlib.import_module(f'benchmarks.{study}_report').render
+    english, chinese = render(data), render(data, chinese=True)
+    in_code = False
+    for line in chinese.splitlines():
+        if line.startswith('```'):
+            in_code = not in_code
+        elif line.strip() and not in_code and not re.fullmatch(r'[| :\-]+', line):
+            assert re.search(r'[\u4e00-\u9fff]', line), f'Untranslated Chinese report: {line}'
+    for line in english.splitlines():
+        if line.startswith('#'):
+            assert not re.search(r'[\u4e00-\u9fff]', line), line
+
+    def numeric_cells(report):
+        return [cell.strip() for line in report.splitlines() if line.startswith('|')
+                for cell in line.strip('|').split('|')
+                if re.fullmatch(r'\s*[\d.,%±×+–—/\s]+\s*', cell)]
+
+    assert numeric_cells(chinese) == numeric_cells(english)
+    assert re.findall(r'```sh\n(.*?)```', chinese, re.S) == re.findall(
+        r'```sh\n(.*?)```', english, re.S)
+    assert data['metadata']['code_sha256'] in chinese
+    assert f'../docs/{"c5-risk" if study == "risk" else "c5"}.zh-CN.md' in chinese
+    assert (root / f'{study.upper()}_REPORT.zh-CN.md').read_text(encoding='utf-8') == chinese
+    assert (root / f'{study.upper()}_REPORT.txt').read_text(encoding='utf-8') == chinese
+    assert (root / f'{study.upper()}_REPORT.md').read_text(encoding='utf-8') == english
+
+
+def test_chinese_report_prose_is_chinese():
+    root = Path(__file__).resolve().parents[1] / 'benchmarks'
+    for path in root.glob('*.zh-CN.md'):
+        in_code = False
+        for line in path.read_text(encoding='utf-8').splitlines():
+            if line.startswith('```'):
+                in_code = not in_code
+            elif line.strip() and not in_code and not line.startswith('|'):
+                assert re.search(r'[\u4e00-\u9fff]', line), f'{path.name}: {line}'
