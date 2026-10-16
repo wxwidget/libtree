@@ -49,9 +49,16 @@ int Winner(const std::vector<double>& counts) {
 class C5Classifier::Builder {
  public:
   Builder(C5Classifier* model, MatrixView x, const std::vector<int>& y)
-      : model_(model), x_(x), y_(y), cuts_(x.cols), bins_(x.rows * x.cols) {
+      : model_(model),
+        x_(x),
+        y_(y),
+        cuts_(x.cols),
+        bins_(x.rows * x.cols),
+        histograms_(x.cols),
+        predictions_(x.rows) {
     const auto build = [&](int, std::size_t f) {
       std::vector<float> values;
+      values.reserve(x.rows);
       for (std::size_t r = 0; r < x.rows; ++r)
         if (!std::isnan(x.data[r * x.cols + f]))
           values.push_back(x.data[r * x.cols + f]);
@@ -99,6 +106,7 @@ class C5Classifier::Builder {
     copy(0);
     return compact;
   }
+  const std::vector<int>& predictions() const { return predictions_; }
 
  private:
   struct Split {
@@ -111,6 +119,10 @@ class C5Classifier::Builder {
     double error;
     int leaves;
   };
+  struct Histogram {
+    std::vector<double> values, left, right, candidate;
+    std::vector<std::size_t> counts;
+  };
   template <typename Function>
   void Dispatch(std::size_t rows, Function function) {
     if (model_->executor_ && rows * x_.cols >= kParallelWork)
@@ -119,11 +131,22 @@ class C5Classifier::Builder {
       for (std::size_t f = 0; f < x_.cols; ++f) function(0, f);
   }
   Split FeatureSplit(const std::vector<std::size_t>& rows, std::size_t f,
-                     const std::vector<double>& total, double weight) const {
+                     const std::vector<double>& total, double parent) {
+    if (cuts_[f].empty()) return {};
     const std::size_t k = model_->num_classes_, regular = cuts_[f].size() + 1;
-    std::vector<double> hist((regular + 1) * k), left(k), right(k),
-        candidate(k);
-    std::vector<std::size_t> counts(regular + 1);
+    // One reusable workspace per feature, exclusively owned during dispatch.
+    // Reuse storage across nodes/boosting rounds without changing sum order.
+    auto& workspace = histograms_[f];
+    auto& hist = workspace.values;
+    auto& left = workspace.left;
+    auto& right = workspace.right;
+    auto& candidate = workspace.candidate;
+    auto& counts = workspace.counts;
+    hist.assign((regular + 1) * k, 0.);
+    left.assign(k, 0.);
+    right.resize(k);
+    candidate.resize(k);
+    counts.assign(regular + 1, 0);
     for (std::size_t r : rows) {
       const auto bin = bins_[f * x_.rows + r];
       hist[bin * k + y_[r]] += (*weights_)[r];
@@ -132,13 +155,15 @@ class C5Classifier::Builder {
     Split best;
     const bool hellinger =
         model_->parameters_.criterion == SplitCriterion::kHellinger;
-    const double parent =
-        hellinger ? 0 : Impurity(total, weight, model_->parameters_.criterion);
     std::size_t left_count = 0;
     for (std::size_t b = 0; b + 1 < regular; ++b) {
       left_count += counts[b];
       for (std::size_t c = 0; c < k; ++c) left[c] += hist[b * k + c];
       for (bool missing_left : {true, false}) {
+        // Both directions are identical without missing rows; the existing
+        // tie rule keeps the first (left). Do not evaluate the same split
+        // twice.
+        if (!missing_left && counts[regular] == 0) continue;
         const std::size_t count =
             left_count + (missing_left ? counts[regular] : 0);
         if (count < static_cast<std::size_t>(
@@ -196,13 +221,21 @@ class C5Classifier::Builder {
     node.purity = weight > 0 ? total[node.label] / weight : 0;
     tree->nodes.push_back(node);
     const double leaf_error = weight - total[node.label];
+    const auto finish_leaf = [&] {
+      for (std::size_t r : rows) predictions_[r] = node.label;
+      return Risk{leaf_error, 1};
+    };
     if (depth >= model_->parameters_.max_depth || leaf_error <= 1e-15 ||
         rows.size() / 2 <
             static_cast<std::size_t>(model_->parameters_.min_samples_leaf))
-      return {leaf_error, 1};
+      return finish_leaf();
     std::vector<Split> splits(x_.cols);
+    const double parent =
+        model_->parameters_.criterion == SplitCriterion::kHellinger
+            ? 0
+            : Impurity(total, weight, model_->parameters_.criterion);
     Dispatch(rows.size(), [&](int, std::size_t f) {
-      splits[f] = FeatureSplit(rows, f, total, weight);
+      splits[f] = FeatureSplit(rows, f, total, parent);
     });
     double mean_gain = 0;
     std::size_t candidates = 0;
@@ -219,7 +252,7 @@ class C5Classifier::Builder {
         continue;
       if (split.score > best.score) best = split;
     }
-    if (best.feature < 0) return {leaf_error, 1};
+    if (best.feature < 0) return finish_leaf();
     std::vector<std::size_t> left, right;
     for (std::size_t r : rows) {
       const float v = x_.data[r * x_.cols + best.feature];
@@ -234,7 +267,7 @@ class C5Classifier::Builder {
     const double alpha = model_->parameters_.pruning_alpha;
     if (alpha > 0 &&
         leaf_error + alpha <= subtree.error + alpha * subtree.leaves)
-      return {leaf_error, 1};
+      return finish_leaf();
     tree->nodes[id].feature = best.feature;
     tree->nodes[id].threshold = best.threshold;
     tree->nodes[id].missing_left = best.missing_left;
@@ -247,6 +280,8 @@ class C5Classifier::Builder {
   const std::vector<int>& y_;
   std::vector<std::vector<float>> cuts_;
   std::vector<std::uint16_t> bins_;
+  std::vector<Histogram> histograms_;
+  std::vector<int> predictions_;
   const std::vector<double>* weights_ = nullptr;
 };
 
@@ -315,7 +350,9 @@ void C5Classifier::Train(MatrixView x, const std::vector<int>& y,
     std::vector<bool> wrong(x.rows);
     double error = 0;
     for (std::size_t r = 0; r < x.rows; ++r) {
-      wrong[r] = tree.nodes[Leaf(tree, x.data + r * x.cols)].label != y[r];
+      // Grow already visits each retained leaf's rows, including pruned roots.
+      // Reuse those labels instead of traversing the tree again for every row.
+      wrong[r] = builder.predictions()[r] != y[r];
       if (wrong[r]) error += weights[r];
     }
     const bool weak = error >= 1 - 1. / num_classes_ - 1e-15;
@@ -396,70 +433,65 @@ void C5Classifier::Validate(MatrixView x) const {
   if (x.cols != num_features_)
     throw std::invalid_argument("feature count mismatch");
 }
-void C5Classifier::FillVotes(const float* row,
-                             std::vector<double>* votes) const {
-  std::fill(votes->begin(), votes->end(), 0.);
-  for (const auto& tree : learners_)
-    (*votes)[tree.nodes[Leaf(tree, row)].label] += tree.vote;
-}
-std::vector<double> C5Classifier::Probabilities(
-    const std::vector<double>& votes) const {
-  const double sum = std::accumulate(votes.begin(), votes.end(), 0.);
-  const double best = *std::max_element(votes.begin(), votes.end());
-  std::vector<double> probability(num_classes_);
+void C5Classifier::NormalizeVotes(const double* votes,
+                                  double* probability) const {
+  const double sum = std::accumulate(votes, votes + num_classes_, 0.);
+  const double best = *std::max_element(votes, votes + num_classes_);
   for (std::size_t c = 0; c < num_classes_; ++c)
-    probability[c] = std::exp((votes[c] - best) / sum);
+    probability[c] = votes[c] == best ? 1 : std::exp((votes[c] - best) / sum);
   const double normalizer =
-      std::accumulate(probability.begin(), probability.end(), 0.);
-  for (double& value : probability) value /= normalizer;
-  return probability;
+      std::accumulate(probability, probability + num_classes_, 0.);
+  for (std::size_t c = 0; c < num_classes_; ++c) probability[c] /= normalizer;
 }
-std::vector<int> C5Classifier::Predict(MatrixView x) const {
-  Validate(x);
-  std::vector<int> output(x.rows);
-  std::vector<std::vector<double>> scratch(
-      executor_ ? parameters_.num_threads : 1,
-      std::vector<double>(num_classes_));
+void C5Classifier::PredictRows(MatrixView x, double* probabilities,
+                               int* labels) const {
+  if (x.rows == 0) return;
+  // One allocation per call, rather than one per worker. A 64-byte gap keeps
+  // adjacent vote buffers off the same 64-byte cache line even when the base
+  // pointer is not cache-line aligned. Call-local storage permits readers to
+  // share a model safely. Static row ranges also balance small/deep ensembles.
+  constexpr std::size_t kCacheLineDoubles = 64 / sizeof(double);
+  const std::size_t stride = num_classes_ + kCacheLineDoubles;
+  std::vector<double> scratch((executor_ ? parameters_.num_threads : 1) *
+                              stride);
   const auto predict = [&](int worker, std::size_t r) {
-    FillVotes(x.data + r * x.cols, &scratch[worker]);
-    output[r] = Winner(scratch[worker]);
+    double* votes = scratch.data() + worker * stride;
+    std::fill(votes, votes + num_classes_, 0.);
+    for (const auto& tree : learners_)
+      votes[tree.nodes[Leaf(tree, x.data + r * x.cols)].label] += tree.vote;
+    if (labels)
+      labels[r] = static_cast<int>(
+          std::max_element(votes, votes + num_classes_) - votes);
+    if (probabilities) NormalizeVotes(votes, probabilities + r * num_classes_);
   };
   if (executor_ && x.rows * learners_.size() >= kParallelWork)
     executor_->For(x.rows, predict);
   else
     for (std::size_t r = 0; r < x.rows; ++r) predict(0, r);
+}
+std::vector<int> C5Classifier::Predict(MatrixView x) const {
+  Validate(x);
+  std::vector<int> output(x.rows);
+  PredictRows(x, nullptr, output.data());
   return output;
+}
+void C5Classifier::PredictInto(MatrixView x, int* output) const {
+  Validate(x);
+  if (x.rows != 0 && output == nullptr)
+    throw std::invalid_argument("null prediction output");
+  PredictRows(x, nullptr, output);
 }
 std::vector<double> C5Classifier::PredictProba(MatrixView x) const {
   Validate(x);
   std::vector<double> output(x.rows * num_classes_);
-  PredictProbaInto(x, output.data());
+  PredictRows(x, output.data(), nullptr);
   return output;
 }
 void C5Classifier::PredictProbaInto(MatrixView x, double* output) const {
   Validate(x);
   if (x.rows != 0 && output == nullptr)
     throw std::invalid_argument("null probability output");
-  std::vector<std::vector<double>> scratch(
-      executor_ ? parameters_.num_threads : 1,
-      std::vector<double>(num_classes_));
-  const auto predict = [&](int worker, std::size_t r) {
-    auto& votes = scratch[worker];
-    FillVotes(x.data + r * x.cols, &votes);
-    const double sum = std::accumulate(votes.begin(), votes.end(), 0.);
-    const double best = *std::max_element(votes.begin(), votes.end());
-    double* probability = output + r * num_classes_;
-    double normalizer = 0;
-    for (std::size_t c = 0; c < num_classes_; ++c) {
-      probability[c] = std::exp((votes[c] - best) / sum);
-      normalizer += probability[c];
-    }
-    for (std::size_t c = 0; c < num_classes_; ++c) probability[c] /= normalizer;
-  };
-  if (executor_ && x.rows * learners_.size() >= kParallelWork)
-    executor_->For(x.rows, predict);
-  else
-    for (std::size_t r = 0; r < x.rows; ++r) predict(0, r);
+  PredictRows(x, output, nullptr);
 }
 const std::vector<ClassificationRule>& C5Classifier::rules() const {
   RequireFitted();
@@ -475,12 +507,32 @@ RuleExplanation C5Classifier::Explain(MatrixView sample) const {
     throw std::invalid_argument("explanation requires one sample");
   RuleExplanation explanation;
   explanation.votes.resize(num_classes_);
-  FillVotes(sample.data, &explanation.votes);
+  for (std::size_t i = 0; i < learners_.size(); ++i) {
+    const auto& tree = learners_[i];
+    ClassificationPath path;
+    path.estimator_index = i;
+    path.vote = tree.vote;
+    std::size_t id = 0;
+    while (tree.nodes[id].feature >= 0) {
+      const auto& node = tree.nodes[id];
+      const float value = sample.data[node.feature];
+      const bool left =
+          std::isnan(value) ? node.missing_left : value <= node.threshold;
+      const auto next = static_cast<std::size_t>(left ? node.left : node.right);
+      path.steps.push_back({id, next, node.feature, value, node.threshold,
+                            node.missing_left, left});
+      id = next;
+    }
+    path.leaf_id = id;
+    path.rule_id = tree.nodes[id].rule_id;
+    path.class_index = tree.nodes[id].label;
+    explanation.votes[path.class_index] += tree.vote;
+    explanation.matched_rules.push_back(rules_[path.rule_id]);
+    explanation.paths.push_back(std::move(path));
+  }
   explanation.prediction = Winner(explanation.votes);
-  explanation.probabilities = Probabilities(explanation.votes);
-  for (const auto& tree : learners_)
-    explanation.matched_rules.push_back(
-        rules_[tree.nodes[Leaf(tree, sample.data)].rule_id]);
+  explanation.probabilities.resize(num_classes_);
+  NormalizeVotes(explanation.votes.data(), explanation.probabilities.data());
   return explanation;
 }
 }  // namespace libtree

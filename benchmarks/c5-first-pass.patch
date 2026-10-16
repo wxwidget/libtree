@@ -1,0 +1,56 @@
+--- a/src/c5.cc
++++ b/src/c5.cc
+@@ -446,28 +446,34 @@
+ void C5Classifier::PredictRows(MatrixView x, double* probabilities,
+                                int* labels) const {
+   if (x.rows == 0) return;
+-  // One allocation per call, rather than one per worker. A 64-byte gap keeps
+-  // adjacent vote buffers off the same 64-byte cache line even when the base
+-  // pointer is not cache-line aligned. Call-local storage permits readers to
+-  // share a model safely. Static row ranges also balance small/deep ensembles.
+-  constexpr std::size_t kCacheLineDoubles = 64 / sizeof(double);
+-  const std::size_t stride = num_classes_ + kCacheLineDoubles;
+-  std::vector<double> scratch((executor_ ? parameters_.num_threads : 1) *
+-                              stride);
+-  const auto predict = [&](int worker, std::size_t r) {
+-    double* votes = scratch.data() + worker * stride;
+-    std::fill(votes, votes + num_classes_, 0.);
+-    for (const auto& tree : learners_)
+-      votes[tree.nodes[Leaf(tree, x.data + r * x.cols)].label] += tree.vote;
+-    if (labels)
+-      labels[r] = static_cast<int>(
+-          std::max_element(votes, votes + num_classes_) - votes);
+-    if (probabilities) NormalizeVotes(votes, probabilities + r * num_classes_);
++  // Batch scheduling amortizes executor dispatch. Keep row-major traversal and
++  // vote addition order; scratch is call-local for concurrent readers.
++  constexpr std::size_t kBatchRows = 64;
++  const std::size_t batch_rows = std::min(kBatchRows, x.rows);
++  std::vector<std::vector<double>> scratch(
++      executor_ ? parameters_.num_threads : 1,
++      std::vector<double>(num_classes_));
++  const auto predict = [&](int worker, std::size_t batch) {
++    const std::size_t begin = batch * batch_rows;
++    const std::size_t end = std::min(begin + batch_rows, x.rows);
++    auto& votes = scratch[worker];
++    for (std::size_t r = begin; r < end; ++r) {
++      std::fill(votes.begin(), votes.end(), 0.);
++      for (const auto& tree : learners_)
++        votes[tree.nodes[Leaf(tree, x.data + r * x.cols)].label] += tree.vote;
++      const double* row_votes = votes.data();
++      if (labels)
++        labels[r] = static_cast<int>(
++            std::max_element(row_votes, row_votes + num_classes_) - row_votes);
++      if (probabilities)
++        NormalizeVotes(row_votes, probabilities + r * num_classes_);
++    }
+   };
++  const std::size_t batches = (x.rows + batch_rows - 1) / batch_rows;
+   if (executor_ && x.rows * learners_.size() >= kParallelWork)
+-    executor_->For(x.rows, predict);
++    executor_->For(batches, predict);
+   else
+-    for (std::size_t r = 0; r < x.rows; ++r) predict(0, r);
++    for (std::size_t batch = 0; batch < batches; ++batch) predict(0, batch);
+ }
+ std::vector<int> C5Classifier::Predict(MatrixView x) const {
+   Validate(x);

@@ -7,13 +7,18 @@ missing (`NaN`) values.
 
 An independent **C5-style multiclass classifier** adds SAMME boosting, pruned
 IF–THEN rules, gain ratio/entropy/Gini criteria, sample weights and faithful
-single-sample explanations. Start with the [C5 guide](docs/c5.md), the
+single-sample explanations. Full pruned trees export as text/JSON, and each
+prediction exposes the actual node-by-node paths and tree votes. Start with the [C5 guide](docs/c5.md), the
 [interactive rule explorer](docs/C5_GUIDE.html), and the
 [measured comparison/ablation report](benchmarks/C5_REPORT.md).
 
 Risk scoring adds explicit boosting controls, class balancing, binary Hellinger
 splits and tie-safe KS. See [methods and research citations](docs/c5-risk.md)
 and the [credit-risk comparison](benchmarks/RISK_REPORT.md).
+
+The [latest C5 performance study](benchmarks/C5_PERFORMANCE_REPORT.md) compares
+the optimized implementation with commit `60f003d`, XGBoost and LightGBM across
+seven tasks, C++/Python and one/four threads, with exact C5 output checks.
 
 This README is the standalone English project guide. The [Chinese README](README.zh-CN.md)
 is maintained separately. New to machine learning or decision trees? Start with
@@ -149,6 +154,12 @@ of generalization. The learning guide covers this distinction and data leakage.
 
 ## Optimization changelog
 
+- **C5 performance and tree inspection:** reuse histogram workspaces and leaf
+  training labels, skip redundant split calculations, avoid duplicate native
+  validation, and send Python class prediction directly to native voting.
+  `C5Classifier.dump_model()`/C++ `DumpModel()` export retained trees; `explain()`
+  adds actual node paths. See the [paired performance report](benchmarks/C5_PERFORMANCE_REPORT.md)
+  for arithmetic means, variability, competitors and regressions.
 - **C5-style rules:** independent multiclass SAMME, cost-complexity pruning,
   gain ratio/entropy/Gini, repeated-condition merging, exact matched-rule
   explanations and workload-adaptive parallel histograms. See the

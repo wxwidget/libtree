@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -71,6 +72,8 @@ int main(int argc, char** argv) {
     const auto trained = std::chrono::steady_clock::now();
     const auto prediction = model.PredictProba({test.data(), test_rows, cols});
     const auto predicted = std::chrono::steady_clock::now();
+    const auto classes = model.Predict({test.data(), test_rows, cols});
+    const auto classified = std::chrono::steady_clock::now();
     std::ofstream output(argv[2], std::ios::binary);
     output.write(reinterpret_cast<const char*>(prediction.data()),
                  prediction.size() * sizeof(double));
@@ -83,12 +86,24 @@ int main(int argc, char** argv) {
     train_output.close();
     if (!output || !train_output)
       throw std::runtime_error("prediction output failed");
+    std::ofstream rules_output(std::string(argv[2]) + ".rules.json");
+    model.DumpRules(rules_output, libtree::DumpFormat::kJson);
+    rules_output.close();
+    if (!rules_output) throw std::runtime_error("rule output failed");
+    for (std::size_t r = 0; r < test_rows; ++r) {
+      const auto begin = prediction.begin() + r * model.num_classes();
+      if (classes[r] !=
+          std::max_element(begin, begin + model.num_classes()) - begin)
+        throw std::runtime_error("class/probability prediction mismatch");
+    }
     std::size_t conditions = 0;
     for (const auto& rule : model.rules()) conditions += rule.conditions.size();
     std::cout << std::setprecision(17) << "{\"fit_seconds\":"
               << std::chrono::duration<double>(trained - start).count()
               << ",\"predict_seconds\":"
               << std::chrono::duration<double>(predicted - trained).count()
+              << ",\"predict_label_seconds\":"
+              << std::chrono::duration<double>(classified - predicted).count()
               << ",\"rules\":" << model.rules().size()
               << ",\"conditions\":" << conditions
               << ",\"estimators\":" << model.estimator_errors().size() << "}\n";

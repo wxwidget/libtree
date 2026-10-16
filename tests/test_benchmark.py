@@ -164,10 +164,10 @@ def test_risk_data_corruption_is_rejected(tmp_path, monkeypatch):
         risk.dataset('german_credit')
 
 
-@pytest.mark.parametrize('study', ['c5', 'risk'])
+@pytest.mark.parametrize('study', ['c5', 'risk', 'c5_performance'])
 def test_report_languages_preserve_measurements_and_commands(study):
     root = Path(__file__).resolve().parents[1] / 'benchmarks'
-    data = json.loads((root / f'{study}-results.json').read_text(encoding='utf-8'))
+    data = json.loads((root / f'{study.replace("_", "-")}-results.json').read_text(encoding='utf-8'))
     render = importlib.import_module(f'benchmarks.{study}_report').render
     english, chinese = render(data), render(data, chinese=True)
     in_code = False
@@ -204,3 +204,22 @@ def test_chinese_report_prose_is_chinese():
                 in_code = not in_code
             elif line.strip() and not in_code and not line.startswith('|'):
                 assert re.search(r'[\u4e00-\u9fff]', line), f'{path.name}: {line}'
+
+
+def test_c5_performance_requires_exact_complete_before_after_pairs():
+    from benchmarks.c5_performance import validate, summarize
+    rows = [dict(dataset='tiny', seed=42, threads=1, interface='python', repeat=i,
+                 variant=variant, probability_sha256='probability',
+                 train_probability_sha256='training', rules_sha256='rules', fit_seconds=timing)
+            for i, timing in enumerate((1., 1., 10.)) for variant in ('before', 'after')]
+    validate(rows)
+    stats = summarize(rows)[0]['fit_seconds']
+    assert stats['mean'] == 4 and stats['min'] == 1 and stats['max'] == 10
+    with pytest.raises(ValueError, match='incomplete'):
+        validate(rows[:-1])
+    with pytest.raises(ValueError, match='duplicate'):
+        validate(rows + rows[:1])
+    for field in ('probability_sha256', 'train_probability_sha256', 'rules_sha256'):
+        changed = rows[:-1] + [rows[-1] | {field: 'regression'}]
+        with pytest.raises(ValueError, match='output changed'):
+            validate(changed)

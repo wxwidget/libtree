@@ -1,5 +1,37 @@
 # Benchmark Guide and Latest Results
 
+The latest [C5 performance/tree-inspection study](C5_PERFORMANCE_REPORT.md)
+([中文](C5_PERFORMANCE_REPORT.zh-CN.md), [raw runs](c5-performance-results.json))
+compares commit `60f003d` with the optimized implementation, XGBoost and LightGBM.
+Seven tasks cover small multiclass, real credit risk, 20k/100k rows and missing
+values. All reported timings use arithmetic means and retain variability.
+
+```sh
+python -m pip install '.[dev,benchmark]'
+make all
+git worktree add --detach /tmp/libtree-c5-before 60f003d
+cmake -S /tmp/libtree-c5-before -B /tmp/libtree-c5-before/build -DCMAKE_BUILD_TYPE=Release
+cmake --build /tmp/libtree-c5-before/build -j4
+PYTHONPATH=python:. python benchmarks/c5_performance.py --baseline /tmp/libtree-c5-before \
+  --seeds 42 2024 7 --threads 1 4 --repeats 3 --rounds 30
+PYTHONPATH=python:. python benchmarks/c5_performance_report.py
+```
+
+The runner compiles the same native driver against each static library and
+imports each checkout's own Python wrapper/library in separate processes.
+It rejects changed C5 rule JSON, training/test probabilities, missing pairs and
+thread/repeat drift. Compilers/hardware can change floating-point results, so
+build both versions with the same toolchain. Tree/rule exports are inspection
+formats; see the [tree/path API guide](../docs/c5.md#inspect-the-tree-before-reading-the-rules).
+The original C5 and risk studies below remain historical measurements.
+
+The [first optimization candidate](c5-performance-first-pass.json) is also
+archived, including its slower timings and a 4.03 ms prediction spike. Apply
+the [reconstruction patch](c5-first-pass.patch) in a separate checkout of this
+measured snapshot to rebuild that candidate. It predates the final one-allocation
+contract; the corresponding newer resource-budget test rejects it. Comparisons
+between measurement phases are exploratory, rather than isolated causal ablations.
+
 Credit-risk evaluation now includes three real credit/late-payment datasets,
 rare-event synthetic data, KS/directional KS/AP, explicit boosting controls,
 class balancing and Hellinger ablations. Read the [risk report](RISK_REPORT.md)

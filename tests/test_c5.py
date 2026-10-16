@@ -18,6 +18,104 @@ def matches(rule, row):
     return True
 
 
+@pytest.mark.parametrize('criterion', ['gain_ratio', 'entropy', 'gini', 'hellinger'])
+def test_exported_trees_and_paths_reproduce_votes(criterion):
+    rng = np.random.default_rng(42)
+    x = rng.normal(size=(4100, 20)).astype('f4')
+    y = np.where(x[:, 0] < -.4, 0, np.where(x[:, 1] > .3, 1, 2))
+    if criterion == 'hellinger':
+        y = (y == 0).astype(int)
+    x[::7, 0] = np.nan
+    names = ['年龄"\\\n'] + [f'feature_{i}' for i in range(1, 20)]
+    with C5Classifier(n_estimators=5, max_depth=3, pruning_alpha=0,
+                      criterion=criterion, n_jobs=4) as model:
+        model.fit(x, y)
+        before = model.predict_proba(x[:33])
+        doc = json.loads(model.dump_model('json', feature_names=names))
+        assert doc['schema_version'] == 1
+        assert doc['algorithm'] == 'c5_style_samme'
+        assert doc['feature_names'] == names
+        assert doc['class_labels'] == model.classes_.tolist()
+        assert doc['estimators'] == len(doc['trees']) == len(model.estimator_errors_)
+        assert json.loads(model.dump_model('json', tree_index=0))['trees'][0]['tree_index'] == 0
+        assert len(json.loads(model.dump_model('json', tree_index=0))['trees']) == 1
+        text = model.dump_model(feature_names=names)
+        assert 'Tree 0' in text and 'node 0' in text and 'missing ->' in text
+        for row_index, row in enumerate(x[:33]):
+            explanation = model.explain(row, feature_names=names)
+            votes = np.zeros(len(model.classes_))
+            assert len(explanation['paths']) == len(doc['trees'])
+            for tree, path, rule in zip(doc['trees'], explanation['paths'], explanation['matched_rules']):
+                nodes = {node['node_id']: node for node in tree['nodes']}
+                assert nodes[0]['support'] == len(x)
+                node_id, steps = 0, []
+                while not nodes[node_id]['is_leaf']:
+                    node = nodes[node_id]
+                    assert nodes[node['left_child']]['support'] + nodes[node['right_child']]['support'] == node['support']
+                    value = row[node['feature_index']]
+                    left = node['missing_direction'] == 'left' if np.isnan(value) else value <= node['threshold']
+                    direction = 'left' if left else 'right'
+                    next_id = node[f'{direction}_child']
+                    steps.append((node_id, direction, next_id))
+                    node_id = next_id
+                leaf = nodes[node_id]
+                assert [(s['node_id'], s['direction'], s['next_node_id']) for s in path['steps']] == steps
+                for step in path['steps']:
+                    assert step['feature_name'] == names[step['feature_index']]
+                    value = row[step['feature_index']]
+                    assert step['value'] is None if np.isnan(value) else step['value'] == float(value)
+                assert path['estimator_index'] == tree['tree_index']
+                assert path['leaf_id'] == node_id and path['rule_id'] == leaf['rule_id'] == rule['rule_id']
+                assert path['class_index'] == leaf['class_index'] == rule['class_index']
+                assert path['vote'] == tree['vote'] == rule['vote']
+                votes[leaf['class_index']] += tree['vote']
+            np.testing.assert_array_equal(votes, explanation['votes'])
+            np.testing.assert_allclose(explanation['probabilities'], before[row_index], rtol=1e-15)
+        np.testing.assert_array_equal(model.predict_proba(x[:33]), before)
+        assert 'Path for tree 0' in model.explain(x[0], format='text')
+
+
+def test_tree_export_validation_and_leaf_only_model():
+    with C5Classifier(max_depth=0) as model:
+        with pytest.raises(RuntimeError):
+            model.dump_model()
+        model.fit([[np.nan], [0]], ['only', 'only'])
+        for index in (-1, 1, 1.5, 2**40, '0'):
+            with pytest.raises(ValueError):
+                model.dump_model(tree_index=index)
+        with pytest.raises(ValueError):
+            model.dump_model(format='yaml')
+        with pytest.raises(ValueError):
+            model.dump_model(feature_names=['a', 'b'])
+        tree = json.loads(model.dump_model('json'))['trees'][0]
+        assert len(tree['nodes']) == 1 and tree['nodes'][0]['is_leaf']
+        path = model.explain([np.nan])['paths'][0]
+        assert path['steps'] == [] and path['leaf_id'] == 0
+        assert 'THEN class 0' in model.dump_model()
+
+
+def test_predict_uses_native_class_votes_without_probability_transform(monkeypatch):
+    from libtree import _library
+    with C5Classifier(min_samples_leaf=1) as model:
+        model.fit([[0], [1]], ['no', 'yes'])
+        monkeypatch.setattr(_library(), 'LtC5PredictProba', lambda *args: -1)
+        np.testing.assert_array_equal(model.predict([[0], [1]]), ['no', 'yes'])
+
+
+def test_vote_workspace_handles_maximum_classes_and_failed_refit():
+    x = np.tile(np.arange(256, dtype='f4')[:, None], (1, 256))
+    with C5Classifier(max_depth=0, n_estimators=1, n_jobs=4) as model:
+        model.fit(x, np.arange(256))
+        probability = model.predict_proba(x[:3])
+        assert probability.shape == (3, 256)
+        np.testing.assert_allclose(probability.sum(axis=1), 1)
+        np.testing.assert_array_equal(model.predict(x[:3]), probability.argmax(axis=1))
+        np.testing.assert_allclose(model.explain(x[0])['probabilities'], probability[0])
+        with pytest.raises(ValueError, match='class index'):
+            model.fit(np.arange(257, dtype='f4')[:, None], np.arange(257))
+        np.testing.assert_array_equal(model.predict_proba(x[:3]), probability)
+
+
 @pytest.mark.parametrize('criterion', ['gain_ratio', 'entropy', 'gini'])
 def test_multiclass_rules_are_faithful(criterion):
     rng = np.random.default_rng(7)
@@ -82,12 +180,13 @@ def test_parallel_determinism_and_missing():
     for jobs in (1, 4):
         with C5Classifier(n_estimators=4, max_depth=3, n_jobs=jobs) as m:
             m.fit(x, y)
-            docs.append((m.dump_rules('json'), m.predict(x), m.predict_proba(x)))
+            docs.append((m.dump_rules('json'), m.predict(x), m.predict_proba(x), m.dump_model('json')))
             assert m.predict(np.empty((0, 20))).shape == (0,)
             assert m.predict_proba(np.empty((0, 20))).shape == (0, 2)
     assert docs[0][0] == docs[1][0]
     np.testing.assert_array_equal(docs[0][1], docs[1][1])
     np.testing.assert_array_equal(docs[0][2], docs[1][2])
+    assert docs[0][3] == docs[1][3]
 
 
 @pytest.mark.parametrize('params', [
@@ -117,7 +216,7 @@ def test_invalid_fit(x, y, w):
 def test_lifecycle_validation_and_native_error(monkeypatch):
     from libtree import _library
     m = C5Classifier(n_estimators=1, min_samples_leaf=1)
-    for operation in (lambda: m.predict([[0]]), lambda: m.estimator_errors_,
+    for operation in (lambda: m.predict([[0]]), lambda: m.predict_proba([[0]]), lambda: m.estimator_errors_,
                       lambda: m.dump_rules(), lambda: m.explain([0])):
         with pytest.raises(RuntimeError):
             operation()
@@ -128,6 +227,8 @@ def test_lifecycle_validation_and_native_error(monkeypatch):
     for x in ([[0, 1]], [[np.inf]]):
         with pytest.raises(ValueError):
             m.predict(x)
+        with pytest.raises(ValueError):
+            m.predict_proba(x)
     for y in ([], [[0]], [0, 1]):
         with pytest.raises(ValueError):
             m.score([[0]], y)
@@ -209,11 +310,17 @@ def test_command_line(tmp_path, monkeypatch, capsys):
     main()
     assert json.loads(capsys.readouterr().out)['rules']
     for format in ('json', 'text'):
+        monkeypatch.setattr(sys, 'argv', [*common, 'trees', '--tree', '0', '--format', format])
+        main()
+        output = capsys.readouterr().out
+        assert json.loads(output)['trees'][0]['tree_index'] == 0 if format == 'json' else 'Tree 0' in output
+    for format in ('json', 'text'):
         monkeypatch.setattr(sys, 'argv', [*common, 'explain', '--sample', '3', '--format', format])
         main()
         output = capsys.readouterr().out
         assert ('"predicted_label": 1.0' if format == 'json' else 'Predicted class: 1') in output
-    for extra in (['explain'], ['explain', '--sample', 'bad'], ['rules', '--rounds', '0']):
+    for extra in (['explain'], ['explain', '--sample', 'bad'], ['rules', '--rounds', '0'],
+                  ['trees', '--tree', '999'], ['rules', '--tree', '0']):
         monkeypatch.setattr(sys, 'argv', [*common, *extra])
         with pytest.raises(SystemExit) as error:
             main()

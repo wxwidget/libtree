@@ -55,6 +55,9 @@ def _library():
         lib.LtC5PredictProba.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t, ct.c_size_t,
                                          ct.POINTER(ct.c_double)]
         lib.LtC5PredictProba.restype = ct.c_int
+        lib.LtC5Predict.argtypes = [ct.c_void_p, _FLOAT, ct.c_size_t, ct.c_size_t,
+                                   ct.POINTER(ct.c_int)]
+        lib.LtC5Predict.restype = ct.c_int
         for name in ('LtC5ClassCount', 'LtC5ErrorCount'):
             function = getattr(lib, name)
             function.argtypes = [ct.c_void_p]
@@ -63,6 +66,8 @@ def _library():
         lib.LtC5Errors.restype = ct.c_int
         lib.LtC5DumpRules.argtypes = [ct.c_void_p, ct.c_int, *inspection_output]
         lib.LtC5DumpRules.restype = ct.c_int
+        lib.LtC5DumpModel.argtypes = lib.LtDumpModel.argtypes
+        lib.LtC5DumpModel.restype = ct.c_int
         lib.LtC5Explain.argtypes = lib.LtExplainPrediction.argtypes
         lib.LtC5Explain.restype = ct.c_int
         _LIB = lib

@@ -121,6 +121,7 @@ void Errors() {
   Throws([&] { m.rules(); });
   Throws([&] { m.estimator_errors(); });
   Throws([&] { m.DumpRules(out); });
+  Throws([&] { m.DumpModel(out); });
   for (auto bad : {libtree::MatrixView{x, 4, 0},
                    {nullptr, 4, 1},
                    {x, 100000001, 1},
@@ -143,15 +144,21 @@ void Errors() {
   Check(m.Predict(view) == before);
   Throws([&] { m.Predict({x, 2, 2}); });
   Throws([&] { m.PredictProbaInto(view, nullptr); });
+  Throws([&] { m.PredictInto(view, nullptr); });
   Throws([&] { m.Explain({x, 0, 1}); });
   Throws([&] { m.Explain(view); });
   Throws([&] { m.DumpRules(out, static_cast<libtree::DumpFormat>(4)); });
   Throws([&] { m.DumpRules(out, libtree::DumpFormat::kJson, {"a", "b"}); });
+  Throws([&] { m.DumpModel(out, libtree::DumpFormat::kJson, -2); });
+  Throws([&] { m.DumpModel(out, libtree::DumpFormat::kJson, 1); });
+  Throws([&] { m.DumpModel(out, static_cast<libtree::DumpFormat>(4)); });
   std::ostringstream broken;
   broken.setstate(std::ios::badbit);
   Throws([&] { m.DumpRules(broken); });
   Throws([&] { m.Explain({x, 1, 1}, broken); });
+  Throws([&] { m.DumpModel(broken); });
   m.PredictProbaInto({nullptr, 0, 1}, nullptr);
+  m.PredictInto({nullptr, 0, 1}, nullptr);
   Check(m.Predict({nullptr, 0, 1}).empty());
   Check(m.PredictProba({nullptr, 0, 1}).empty());
 }
@@ -212,6 +219,9 @@ void ParallelAndRules() {
     libtree::C5Classifier m(p);
     m.Fit({x.data(), rows, cols}, y);
     const auto prediction = m.Predict({x.data(), rows, cols});
+    std::vector<int> into(rows);
+    m.PredictInto({x.data(), rows, cols}, into.data());
+    Check(into == prediction);
     std::ostringstream json;
     m.DumpRules(json, libtree::DumpFormat::kJson);
     if (threads == 1) {
@@ -239,6 +249,20 @@ void ParallelAndRules() {
     std::vector<float> large;
     for (int i = 0; i < 4; ++i) large.insert(large.end(), x.begin(), x.end());
     auto expected = m.Predict({large.data(), rows * 4, cols});
+    // Caller-owned outputs need at most one temporary allocation per call,
+    // independent of the configured worker count, including parallel dispatch.
+    std::vector<int> bounded_labels(rows * 4);
+    std::vector<double> bounded_probabilities(rows * 4 * m.num_classes());
+    allocation_budget = 1;
+    m.PredictInto({large.data(), rows * 4, cols}, bounded_labels.data());
+    allocation_budget = -1;
+    Check(bounded_labels == expected);
+    allocation_budget = 1;
+    m.PredictProbaInto({large.data(), rows * 4, cols},
+                       bounded_probabilities.data());
+    allocation_budget = -1;
+    Check(std::equal(probability.begin(), probability.end(),
+                     bounded_probabilities.begin()));
     std::vector<std::future<void>> clients;
     for (int i = 0; i < 4; ++i)
       clients.push_back(std::async(std::launch::async, [&] {
@@ -248,6 +272,7 @@ void ParallelAndRules() {
             std::equal(probability.begin(), probability.end(), proba.begin()));
         std::ostringstream text;
         m.Explain({x.data(), 1, cols}, text);
+        m.DumpModel(text, libtree::DumpFormat::kJson);
       }));
     for (auto& client : clients) client.get();
   }
@@ -268,6 +293,11 @@ void Abi() {
   double proba[8], error;
   Check(LtC5PredictProba(handle, x, 4, 1, proba) == 0);
   Check(LtC5PredictProba(handle, x, 4, 1, nullptr) == -1);
+  int predicted[4];
+  Check(LtC5Predict(handle, x, 4, 1, predicted) == 0);
+  Check(std::equal(std::begin(predicted), std::end(predicted), std::begin(y)));
+  Check(LtC5Predict(handle, x, 4, 1, nullptr) == -1);
+  Check(LtC5Predict(nullptr, x, 4, 1, predicted) == -1);
   Check(LtC5Errors(handle, &error, 1) == 0 && error == 0);
   Check(LtC5Errors(handle, nullptr, 1) == -1);
   Check(LtC5Errors(handle, &error, 2) == -1);
@@ -277,13 +307,15 @@ void Abi() {
   Check(LtC5DumpRules(handle, 1, nullptr, 0, output.data(), output.size(),
                       &needed) == 0);
   const char* name[] = {"age\"\\\n\1"};
-  for (bool explain : {false, true}) {
+  for (int operation : {0, 1, 2}) {
     auto inspection = [&](const char* const* names, size_t count, char* buffer,
                           size_t capacity, size_t* size) {
-      return explain ? LtC5Explain(handle, x, 1, 1, names, count, buffer,
-                                   capacity, size)
-                     : LtC5DumpRules(handle, 1, names, count, buffer, capacity,
-                                     size);
+      if (operation == 0)
+        return LtC5Explain(handle, x, 1, 1, names, count, buffer, capacity,
+                           size);
+      if (operation == 1)
+        return LtC5DumpRules(handle, 1, names, count, buffer, capacity, size);
+      return LtC5DumpModel(handle, 1, -1, names, count, buffer, capacity, size);
     };
     Check(inspection(nullptr, 1, nullptr, 0, &needed) == -1);
     Check(inspection(nullptr, 0, nullptr, 1, &needed) == -1);
@@ -293,6 +325,9 @@ void Abi() {
     char sentinel = 'X';
     Check(inspection(nullptr, 0, &sentinel, 1, &needed) == -1 &&
           sentinel == 'X');
+    Check(inspection(name, 1, nullptr, 0, &needed) == 0);
+    output.resize(needed);
+    Check(inspection(name, 1, output.data(), output.size(), &needed) == 0);
   }
   Check(LtC5Explain(handle, nullptr, 1, 1, nullptr, 0, nullptr, 0, &needed) ==
         -1);
@@ -314,7 +349,7 @@ void AllocationFailures() {
   libtree::MatrixView view{x, 6, 1};
   model.Fit(view, y);
   auto before = model.Predict(view);
-  for (int operation = 0; operation < 5; ++operation) {
+  for (int operation = 0; operation < 8; ++operation) {
     bool completed = false;
     for (int budget = 0; budget < 4096 && !completed; ++budget) {
       try {
@@ -326,6 +361,9 @@ void AllocationFailures() {
         if (operation == 3) model.DumpRules(out, libtree::DumpFormat::kJson);
         if (operation == 4)
           model.Explain({x, 1, 1}, out, libtree::DumpFormat::kJson);
+        if (operation == 5) model.DumpModel(out, libtree::DumpFormat::kJson);
+        if (operation == 6) model.DumpModel(out);
+        if (operation == 7) model.Predict(view);
         allocation_budget = -1;
         completed = true;
       } catch (const std::exception&) {

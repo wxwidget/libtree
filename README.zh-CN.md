@@ -7,6 +7,11 @@
 gain ratio/entropy/gini、样本权重与单条预测解释。参阅[C5 新手指南](docs/c5.zh-CN.md)、
 [交互规则演示](docs/C5_GUIDE.html)和[实测竞品比较与消融](benchmarks/C5_REPORT.zh-CN.md)。
 
+C5 现支持完整剪枝树的文本／JSON 导出、逐节点预测路径及各棵树的票数。
+本轮复用直方图与训练叶标签，消除重复分裂计算和原生校验，Python 类别预测直接使用原生投票。
+参阅[最新 C5 性能报告](benchmarks/C5_PERFORMANCE_REPORT.zh-CN.md)：七个任务、C++／Python、
+单／四线程，包含旧版本和竞品对比、算术平均值、波动及退化结果，并检查模型输出逐位一致。
+
 [English](README.md) · [原理与性能设计](docs/design.zh-CN.md) · [实测基准](benchmarks/README.md)
 
 一个简洁、确定性的 **C++17 直方图 GBDT**，提供 NumPy/Python 接口。

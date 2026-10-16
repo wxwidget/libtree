@@ -106,7 +106,14 @@ class C5Classifier(_OwnedModel):
         return out
 
     def predict(self, x):
-        indices = self.predict_proba(x).argmax(axis=1)
+        if self._handle is None:
+            raise RuntimeError('model is not fitted or is closed')
+        x = _matrix(x)
+        indices = np.empty(len(x), dtype=np.int32)
+        lib = _library()
+        if lib.LtC5Predict(self._handle, _pointer(x), *x.shape,
+                          indices.ctypes.data_as(ct.POINTER(ct.c_int))):
+            raise ValueError(lib.LtLastError().decode())
         return self.classes_[indices]
 
     def score(self, x, y):
@@ -128,6 +135,19 @@ class C5Classifier(_OwnedModel):
     def dump_rules(self, format='text', feature_names=None):
         """Return text or a JSON string. Class indices refer to classes_."""
         text = self._inspection('LtC5DumpRules', lambda f: (f,), format, feature_names)
+        return self._labelled(text, format)
+
+    def dump_model(self, format='text', tree_index=None, feature_names=None):
+        """Return retained trees as text or a JSON string; None exports all trees.
+
+        Includes split thresholds, missing routes, leaf rule IDs, support,
+        weighted purity and each tree's SAMME vote. Inspection is read-only.
+        """
+        if tree_index is None:
+            tree_index = -1
+        elif not isinstance(tree_index, (int, np.integer)) or not 0 <= tree_index < 2**31:
+            raise ValueError('tree_index must be a nonnegative 32-bit integer or None')
+        text = self._inspection('LtC5DumpModel', lambda f: (f, tree_index), format, feature_names)
         return self._labelled(text, format)
 
     def _labelled(self, text, format):

@@ -38,10 +38,23 @@ struct ClassificationRule {
   double purity = 0, vote = 0;
   std::vector<RuleCondition> conditions;
 };
+struct ClassificationStep {
+  std::size_t node_id = 0, next_node_id = 0;
+  int feature_index = 0;
+  float value = 0, threshold = 0;  // NaN value means missing.
+  bool missing_left = true, took_left = true;
+};
+struct ClassificationPath {
+  std::size_t estimator_index = 0, leaf_id = 0, rule_id = 0;
+  int class_index = 0;
+  double vote = 0;
+  std::vector<ClassificationStep> steps;
+};
 struct RuleExplanation {
   int prediction = 0;
   std::vector<double> votes, probabilities;
   std::vector<ClassificationRule> matched_rules;
+  std::vector<ClassificationPath> paths;
 };
 // C5-inspired histogram trees + discrete multiclass SAMME, not C5.0 compatible.
 // Numeric features/NaN only. Labels are contiguous integers 0..K-1 (K<=256).
@@ -53,6 +66,8 @@ class C5Classifier {
   void Fit(MatrixView x, const std::vector<int>& y,
            const std::vector<double>& sample_weight = {});
   std::vector<int> Predict(MatrixView x) const;
+  // Output capacity is x.rows integers; output must not overlap x.
+  void PredictInto(MatrixView x, int* output) const;
   // Row-major rows * num_classes doubles, normalized vote softmax,
   // uncalibrated.
   std::vector<double> PredictProba(MatrixView x) const;
@@ -61,6 +76,10 @@ class C5Classifier {
   const std::vector<double>& estimator_errors() const;
   std::size_t num_classes() const { return num_classes_; }
   RuleExplanation Explain(MatrixView sample) const;
+  // Retained, pruned trees; tree_index=-1 means all estimators.
+  void DumpModel(std::ostream& output, DumpFormat format = DumpFormat::kText,
+                 int tree_index = -1,
+                 const std::vector<std::string>& feature_names = {}) const;
   void DumpRules(std::ostream& output, DumpFormat format = DumpFormat::kText,
                  const std::vector<std::string>& feature_names = {}) const;
   void Explain(MatrixView sample, std::ostream& output,
@@ -85,8 +104,8 @@ class C5Classifier {
   void Validate(MatrixView x) const;
   void RequireFitted() const;
   std::size_t Leaf(const Learner& tree, const float* row) const;
-  void FillVotes(const float* row, std::vector<double>* votes) const;
-  std::vector<double> Probabilities(const std::vector<double>& votes) const;
+  void PredictRows(MatrixView x, double* probabilities, int* labels) const;
+  void NormalizeVotes(const double* votes, double* probabilities) const;
   void ExtractRules(Learner* tree, std::size_t estimator);
   C5Parameters parameters_;
   std::size_t num_features_ = 0, num_classes_ = 0;

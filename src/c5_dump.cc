@@ -1,4 +1,5 @@
 #include <cmath>
+#include <functional>
 #include <iomanip>
 #include <limits>
 #include <locale>
@@ -87,11 +88,139 @@ void Array(std::ostream& out, const std::vector<double>& values) {
   }
   out << ']';
 }
+void JsonPath(std::ostream& out, const ClassificationPath& path,
+              const std::vector<std::string>& names) {
+  out << "{\"estimator_index\":" << path.estimator_index
+      << ",\"leaf_id\":" << path.leaf_id << ",\"rule_id\":" << path.rule_id
+      << ",\"class_index\":" << path.class_index << ",\"vote\":" << path.vote
+      << ",\"steps\":[";
+  for (std::size_t i = 0; i < path.steps.size(); ++i) {
+    if (i) out << ',';
+    const auto& step = path.steps[i];
+    out << "{\"node_id\":" << step.node_id
+        << ",\"feature_index\":" << step.feature_index
+        << ",\"feature_name\":" << Quote(Name(step.feature_index, names))
+        << ",\"value\":";
+    if (std::isnan(step.value))
+      out << "null";
+    else
+      out << step.value;
+    out << ",\"threshold\":" << step.threshold << ",\"missing_direction\":\""
+        << (step.missing_left ? "left" : "right") << "\",\"direction\":\""
+        << (step.took_left ? "left" : "right")
+        << "\",\"next_node_id\":" << step.next_node_id << '}';
+  }
+  out << "]}";
+}
+void TextPath(std::ostream& out, const ClassificationPath& path,
+              const std::vector<std::string>& names) {
+  out << std::setprecision(std::numeric_limits<float>::max_digits10);
+  out << "Path for tree " << path.estimator_index << ":\n";
+  for (const auto& step : path.steps) {
+    out << "  node " << step.node_id << ": "
+        << Quote(Name(step.feature_index, names));
+    if (std::isnan(step.value))
+      out << " IS MISSING";
+    else
+      out << '=' << step.value << (step.took_left ? " <= " : " > ")
+          << step.threshold;
+    out << " -> " << (step.took_left ? "left" : "right") << " (node "
+        << step.next_node_id << ")\n";
+  }
+  out << "  leaf " << path.leaf_id << ": THEN class " << path.class_index
+      << std::setprecision(4) << " [vote=" << path.vote << ", rule=R"
+      << path.rule_id << "]\n";
+}
 void Write(std::ostream& output, const std::string& text) {
   output << text;
   if (!output) throw std::runtime_error("rule output write failed");
 }
 }  // namespace
+void C5Classifier::DumpModel(std::ostream& output, DumpFormat format,
+                             int tree_index,
+                             const std::vector<std::string>& names) const {
+  RequireFitted();
+  if (tree_index < -1 ||
+      (tree_index >= 0 &&
+       static_cast<std::size_t>(tree_index) >= learners_.size()))
+    throw std::invalid_argument("tree index outside fitted estimators");
+  std::ostringstream out;
+  Configure(out, format, num_features_, names);
+  const std::size_t begin =
+      tree_index < 0 ? 0 : static_cast<std::size_t>(tree_index);
+  const std::size_t end = tree_index < 0 ? learners_.size() : begin + 1;
+  if (format == DumpFormat::kJson) {
+    out << "{\"schema_version\":1,\"algorithm\":\"c5_style_samme\",\"classes\":"
+        << num_classes_ << ",\"estimators\":" << learners_.size()
+        << ",\"feature_names\":[";
+    for (std::size_t f = 0; f < num_features_; ++f) {
+      if (f) out << ',';
+      out << Quote(Name(static_cast<int>(f), names));
+    }
+    out << "],\"trees\":[";
+    for (std::size_t i = begin; i < end; ++i) {
+      if (i != begin) out << ',';
+      const auto& tree = learners_[i];
+      out << "{\"tree_index\":" << i << ",\"vote\":" << tree.vote
+          << ",\"weighted_error\":" << errors_[i] << ",\"nodes\":[";
+      for (std::size_t id = 0; id < tree.nodes.size(); ++id) {
+        if (id) out << ',';
+        const auto& node = tree.nodes[id];
+        out << "{\"node_id\":" << id
+            << ",\"is_leaf\":" << (node.feature < 0 ? "true" : "false")
+            << ",\"class_index\":" << node.label
+            << ",\"support\":" << node.support
+            << ",\"weighted_purity\":" << node.purity;
+        if (node.feature < 0) {
+          out << ",\"rule_id\":" << node.rule_id;
+        } else {
+          out << ",\"feature_index\":" << node.feature
+              << ",\"feature_name\":" << Quote(Name(node.feature, names))
+              << ",\"threshold\":" << node.threshold
+              << ",\"missing_direction\":\""
+              << (node.missing_left ? "left" : "right")
+              << "\",\"left_child\":" << node.left
+              << ",\"right_child\":" << node.right;
+        }
+        out << '}';
+      }
+      out << "]}";
+    }
+    out << "]}\n";
+  } else {
+    out << "C5-style SAMME trees: " << learners_.size() << " estimators, "
+        << num_classes_ << " classes.\n"
+        << "Finite values <= threshold go left; NaN follows the learned "
+           "missing direction.\n";
+    for (std::size_t i = begin; i < end; ++i) {
+      const auto& tree = learners_[i];
+      out << std::setprecision(4) << "Tree " << i << " [vote=" << tree.vote
+          << ", weighted error=" << errors_[i] << "]\n";
+      std::function<void(int, int, const char*)> walk =
+          [&](int id, int depth, const char* branch) {
+            const auto& node = tree.nodes[id];
+            out << std::setprecision(std::numeric_limits<float>::max_digits10);
+            out << std::string(static_cast<std::size_t>(depth) * 2, ' ')
+                << branch << " node " << id << ": ";
+            if (node.feature < 0) {
+              out << "THEN class " << node.label << " [rule=R" << node.rule_id;
+            } else {
+              out << "IF " << Quote(Name(node.feature, names))
+                  << " <= " << node.threshold << " [missing -> "
+                  << (node.missing_left ? "left" : "right");
+            }
+            out << ", support=" << node.support << std::setprecision(4)
+                << ", weighted purity=" << node.purity << "]\n";
+            if (node.feature >= 0) {
+              walk(node.left, depth + 1, "left");
+              walk(node.right, depth + 1, "right");
+            }
+          };
+      walk(0, 0, "root");
+    }
+  }
+  Write(output, out.str());
+}
 void C5Classifier::DumpRules(std::ostream& output, DumpFormat format,
                              const std::vector<std::string>& names) const {
   RequireFitted();
@@ -136,6 +265,11 @@ void C5Classifier::Explain(MatrixView sample, std::ostream& output,
       if (i) out << ',';
       JsonRule(out, explanation.matched_rules[i], names);
     }
+    out << "],\"paths\":[";
+    for (std::size_t i = 0; i < explanation.paths.size(); ++i) {
+      if (i) out << ',';
+      JsonPath(out, explanation.paths[i], names);
+    }
     out << "],\"observations\":[";
     bool comma = false;
     for (int f : used) {
@@ -160,6 +294,7 @@ void C5Classifier::Explain(MatrixView sample, std::ostream& output,
         out << sample.data[f];
     }
     out << '\n';
+    for (const auto& path : explanation.paths) TextPath(out, path, names);
     for (const auto& rule : explanation.matched_rules)
       TextRule(out, rule, names);
     out << "Total class votes: ";
