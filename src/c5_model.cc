@@ -62,6 +62,7 @@ void C5Classifier::LoadModel(std::istream& input) {
   parsed.num_features_ = features;
   parsed.num_classes_ = classes;
   std::size_t total = 0;
+  double total_vote = 0;
   for (std::size_t t = 0; t < trees; ++t) {
     Learner tree;
     double error = 0;
@@ -70,6 +71,9 @@ void C5Classifier::LoadModel(std::istream& input) {
     Require(std::isfinite(tree.vote) && tree.vote > 0 && std::isfinite(error) &&
             error >= 0 && error <= 1 + 1e-12 && count > 0 &&
             count <= kMaxNodes - total);
+    total_vote += tree.vote;
+    // Leave headroom when prediction regroups these positive votes by class.
+    Require(total_vote <= std::numeric_limits<double>::max() / 2);
     total += count;
     tree.nodes.resize(count);
     std::vector<int> parents(count, 0), depth(count, 0);

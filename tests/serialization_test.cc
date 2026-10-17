@@ -84,7 +84,9 @@ void C5Roundtrip() {
         "LIBTREE_C5 1\n1 1 8 1 1 0 0 0 1 2 1 0\n1 0 1\n-1 -1 -1 0",
         "LIBTREE_C5 1\n1 1 8 1 1 0 0 0 1 2 1 0\n1 0 1\n-1 -1 -1 2 0 1 4 1",
         "LIBTREE_C5 1\n1 1 8 1 1 0 0 0 1 2 1 0\n1 0 1\n-1 0 -1 0 0 1 4 1",
-        "LIBTREE_C5 1\n1 1 8 1 1 0 0 0 1 2 1 0\n1 0 1\n0 0 0 0 0 1 4 1"}) {
+        "LIBTREE_C5 1\n1 1 8 1 1 0 0 0 1 2 1 0\n1 0 1\n0 0 0 0 0 1 4 1",
+        "LIBTREE_C5 1\n2 0 8 1 1 0 0 0 1 2 2 0\n"
+        "1e308 0 1\n-1 -1 -1 0 0 1 4 1\n1e308 0 1\n-1 -1 -1 0 0 1 4 1"}) {
     std::istringstream input(invalid);
     Throws([&] { restored.LoadModel(input); });
     Check(restored.Predict(large_view) == parallel.Predict(large_view));

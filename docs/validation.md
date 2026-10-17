@@ -265,7 +265,9 @@ The compatibility change covers `GBDTRegressor`, `GBDTClassifier` and
 C5 persistence methods. Regression tests then exercised actual process-based
 Voting, Stacking and Bagging; snapshots reconstruct independent native models
 without storing training matrices or refitting. Failed snapshots/loads and
-failed classifier refits preserve the original owner and predictions.
+failed classifier refits preserve the original owner and predictions. A
+malformed-snapshot regression also rejects extreme votes before accumulation
+can overflow and produce non-finite probabilities.
 
 SHAP Exact and Permutation explain numeric predictions or all class
 probabilities, including multiclass C5, NaN routes, final ensemble outputs and
@@ -284,7 +286,7 @@ background validation. The adapter uses public SHAP APIs and returns standard
 | Performance/RSS ownership guards | 4/4 passed; 300 ownership cycles per model, including 100 snapshot round trips |
 | Benchmark methodology | 20/20 passed |
 | Python production statement coverage | 505/505 = 100% |
-| Native source line coverage | 2787/2787 = 100%; no new exclusion markers |
+| Native source line coverage | 2790/2790 = 100%; no new exclusion markers |
 | ASan/UBSan/LSan | 8/8 native targets and 16/16 CLI cases passed |
 | ThreadSanitizer | 8/8 native targets passed |
 | sklearn 1.9.1 / SHAP 0.54.1 / NumPy 2.5.4 | 20/20 integration cases passed |
