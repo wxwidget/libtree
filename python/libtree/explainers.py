@@ -40,7 +40,7 @@ def shap_explainer(model, background, *, algorithm='auto', feature_names=None,
     if hasattr(model, '__sklearn_is_fitted__') and not model.__sklearn_is_fitted__():
         raise RuntimeError('model is not fitted or is closed')
     if feature_names is None and hasattr(background, 'columns'):
-        feature_names = list(background.columns)
+        feature_names = [str(name) for name in background.columns]
     values = np.asarray(background, dtype=np.float64)
     if (values.ndim != 2 or not values.shape[0] or not values.shape[1]
             or np.isinf(values).any()):

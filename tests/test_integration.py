@@ -261,3 +261,7 @@ def test_dataframe_string_targets(cls):
         model.fit(pd.DataFrame(x), pd.Series(y, dtype=object))
         assert model.score(x, y) > .9
         assert model.classes_.tolist() == ['risk', 'safe']
+        values = model.shap_explainer(pd.DataFrame(x[:4]), algorithm='exact')(
+            pd.DataFrame(x[4:6]))
+        np.testing.assert_allclose(values.base_values + values.values.sum(1),
+                                   model.predict_proba(x[4:6]), atol=2e-7)
