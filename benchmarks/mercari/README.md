@@ -15,6 +15,19 @@ Any current submission is a post-competition practice attempt, not participation
 in the original prize contest. Upload success and an available submission quota
 do not prove that Kaggle will score an entry.
 
+**Scored practice submission, October 17, 2026:** Kernel version **2** completed
+successfully. Submission **57307868** has status **COMPLETE**:
+
+| Actual Kaggle metric | RMSLE ↓ |
+| --- | ---: |
+| Public score | **0.43775** |
+| Private score | **0.43776** |
+
+[Authenticated API evidence](kaggle-submission-57307868.json) and the
+[submission journal](record.json) preserve the exact returned scores, submission
+ID, Kernel version, timestamp and source hash. The API returns `userRank=0`;
+no new original-contest placement is claimed. The original contest is over.
+
 ## Metric and data
 
 The official metric is RMSLE, minimized:
@@ -196,15 +209,34 @@ kaggle kernels push -p benchmarks/runs/mercari/kernel-001 -t 3600
 kaggle kernels status YOUR_KAGGLE_USERNAME/libtree-mercari-reproducible-entry
 ```
 
-After version 1 completes, submit the generated file through the code-competition
-API rather than uploading an externally trained prediction:
+Record the version number printed by `kernels push`. After that version
+completes, replace `VERSION_FROM_PUSH` below with that number and submit its
+generated file through the code-competition API:
 
 ```sh
 kaggle competitions submit mercari-price-suggestion-challenge \
-  -k YOUR_KAGGLE_USERNAME/libtree-mercari-reproducible-entry -v 1 \
+  -k YOUR_KAGGLE_USERNAME/libtree-mercari-reproducible-entry -v VERSION_FROM_PUSH \
   -f submission.csv -m 'LibTree: grouped OOF Ridge + native residual trees'
 kaggle competitions submissions mercari-price-suggestion-challenge --format json
 ```
+
+The executed version 2 source was pulled back through the authenticated API
+and matched SHA-256 `e616b484d06d29c99d42c8d06f60294634b1c7d4a13eab0a25e1f9812752a236`.
+[Output metadata](kaggle-output-files.json) confirms the stage-two input files,
+trained model, report and `submission.csv`. The cloud proxy blocks
+`www.kaggleusercontent.com`, so the remote report file itself was not downloaded;
+validation used the exact approved source, successful execution and authenticated
+output metadata. The score evidence comes directly from the submissions API.
+Local reports and the remote score are distinct records.
+
+Version 1 failed before model training because it assumed a flat input mount.
+Version 2 searches the input root recursively; a synthetic nested-mount regression
+test protects this fix. The current builder additionally removes temporary
+extracted data after a successful run. This cleanup was added after version 2;
+the executed version remains private. It does not change model calculations.
+
+The implementation commit `3f5ff28` passed
+[GitHub Actions run 39025253342](https://github.com/wxwidget/libtree/actions/runs/39025253342).
 
 Retain the exact Kernel version, output/report hashes, submission ID, status,
 score, any API error, and capture time. Scores and ranks remain null until

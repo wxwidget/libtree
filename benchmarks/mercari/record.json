@@ -1,6 +1,6 @@
 {
   "competition": "mercari-price-suggestion-challenge",
-  "captured_utc": "2026-10-17T10:31:54.772008+00:00",
+  "captured_utc": "2026-10-17T10:39:43.828369+00:00",
   "mode": "post_competition_practice",
   "original_contest_ended_utc": "2018-02-21T20:03:00",
   "historical_team_count": 2380,
@@ -55,16 +55,37 @@
       },
       {
         "version": 2,
-        "status": "RUNNING",
+        "status": "COMPLETE",
         "code_sha256": "e616b484d06d29c99d42c8d06f60294634b1c7d4a13eab0a25e1f9812752a236",
         "runner_sha256": "ab697f418698b84177a3e9c2916b9f87fb1cf97168c8f6219793f8e062468e78",
-        "last_checked_utc": "2026-10-17T10:31:52.939988+00:00"
+        "last_checked_utc": "2026-10-17T10:31:52.939988+00:00",
+        "validation": "Exact approved source hash matched after authenticated pull; authenticated output metadata includes stage-two data, trained model, report and submission.csv.",
+        "report_download": {
+          "status": "blocked_by_egress_proxy",
+          "hostname": "www.kaggleusercontent.com"
+        }
       }
     ],
     "builder_followup": "Current template removes temporary extracted data after successful prediction; executed version 2 predates this output-cleanup-only change and remains private."
   },
-  "submissions": [],
-  "our_kaggle_score": null,
+  "submissions": [
+    {
+      "ref": 57307868,
+      "file_name": "submission.csv",
+      "date_utc": "2026-10-17T10:37:46.170000",
+      "description": "LibTree full-001: grouped OOF Ridge + native C++ residual trees",
+      "status": "SubmissionStatus.COMPLETE",
+      "public_score": "0.43775",
+      "private_score": "0.43776",
+      "error_description": "",
+      "kernel_version": 2,
+      "evidence": "kaggle-submission-57307868.json"
+    }
+  ],
+  "our_kaggle_score": {
+    "public": 0.43775,
+    "private": 0.43776
+  },
   "our_official_rank": null,
   "note": "Local validation is not a Kaggle score. An ended competition cannot confer a new original contest rank.",
   "software_checks": {
@@ -80,6 +101,18 @@
     "performance_memory_tests_passed": 4,
     "clang_format": "passed",
     "raw_data_models_submissions_and_kaggle_credentials_ignored": true,
-    "benchmark_and_competition_tests_passed": 40
+    "benchmark_and_competition_tests_passed": 40,
+    "github_actions": {
+      "run_id": 39025253342,
+      "commit": "3f5ff28cf84fe746c5c3d616bfa497b00d9d30ae",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/wxwidget/libtree/actions/runs/39025253342"
+    }
+  },
+  "implementation_commit": "3f5ff28cf84fe746c5c3d616bfa497b00d9d30ae",
+  "rank_observation": {
+    "api_userRank": 0,
+    "interpretation": "No official original-contest rank assigned to this post-competition practice submission."
   }
 }

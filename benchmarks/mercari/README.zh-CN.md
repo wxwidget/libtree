@@ -12,6 +12,19 @@
 因此，本次属于赛后练习，不能称为原赛新增参赛名次。
 当前 API 提供提交额度，但这不等于一定还能评分；上传代码成功也不等于评分成功。
 
+**2026 年 10 月 17 日已实际完成评分。** Kaggle Kernel **第 2 版**运行成功，
+提交编号 **57307868**，平台状态为 **COMPLETE**：
+
+| 实际 Kaggle 指标 | RMSLE，越低越好 |
+| --- | ---: |
+| 公开榜分数 | **0.43775** |
+| 私有测试分数 | **0.43776** |
+
+提交时间为北京时间 **18:37:46**。
+[真实 API 返回记录](kaggle-submission-57307868.json)和[打榜流水](record.json)
+保存提交编号、状态、版本、分数和源码校验值。
+这是赛后练习；API 返回 `userRank=0`，没有获得原赛新增正式名次。
+
 ## 任务与数据
 
 官方指标为 RMSLE，越低越好：
@@ -160,14 +173,30 @@ kaggle kernels push -p benchmarks/runs/mercari/kernel-001 -t 3600
 kaggle kernels status 你的Kaggle用户名/libtree-mercari-reproducible-entry
 ```
 
-Kernel 的第 1 版完成后，按代码赛方式提交其输出：
+保存 `kernels push` 返回的版本号。该版本完成后，将下面的 `VERSION_FROM_PUSH`
+替换为实际版本号，按代码赛方式提交其输出：
 
 ```sh
 kaggle competitions submit mercari-price-suggestion-challenge \
-  -k 你的Kaggle用户名/libtree-mercari-reproducible-entry -v 1 \
+  -k 你的Kaggle用户名/libtree-mercari-reproducible-entry -v VERSION_FROM_PUSH \
   -f submission.csv -m 'LibTree: grouped OOF Ridge + native residual trees'
 kaggle competitions submissions mercari-price-suggestion-challenge --format json
 ```
+
+本次通过认证 API 重新取回了第 2 版源码，其 SHA-256 与批准的上传文件完全一致：
+`e616b484d06d29c99d42c8d06f60294634b1c7d4a13eab0a25e1f9812752a236`。
+[输出文件元信息](kaggle-output-files.json)确认第二阶段输入、已训练模型、报告和提交文件均已生成。
+云环境代理限制了 `www.kaggleusercontent.com`，因此没有下载远端报告文件本身；
+验证采用已核对的源码、成功运行状态和认证输出元信息，真实分数直接来自提交 API。
+本地报告与平台分数分别保存，没有将本地指标充当榜单分数。
+
+第 1 版在训练前因输入目录假设错误而失败；第 2 版改为从输入根目录递归定位，
+并补充嵌套目录回归测试。当前打包器还会在成功后清理临时解压数据，
+这项输出清理是在第 2 版之后加入的，不改变模型计算；已执行版本保持私有。
+
+实现提交 `3f5ff28` 的
+[GitHub Actions 39025253342](https://github.com/wxwidget/libtree/actions/runs/39025253342)
+已全部通过。
 
 记录精确的 Kernel 版本、输出／报告校验值、提交编号、状态、分数、错误信息和查询时间。
 只有 Kaggle 实际返回的分数才能记作榜单成绩，未返回的分数和排名保持空值。

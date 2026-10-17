@@ -1,0 +1,16 @@
+{
+  "captured_utc": "2026-10-17T10:39:43.827608+00:00",
+  "competition": "mercari-price-suggestion-challenge",
+  "kernel": "wxwidget/libtree-mercari-reproducible-entry",
+  "kernel_version": 2,
+  "submission": {
+    "ref": 57307868,
+    "file_name": "submission.csv",
+    "date_utc": "2026-10-17T10:37:46.170000",
+    "description": "LibTree full-001: grouped OOF Ridge + native C++ residual trees",
+    "status": "SubmissionStatus.COMPLETE",
+    "public_score": "0.43775",
+    "private_score": "0.43776",
+    "error_description": ""
+  }
+}
