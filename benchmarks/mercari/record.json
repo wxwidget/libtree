@@ -1,6 +1,6 @@
 {
   "competition": "mercari-price-suggestion-challenge",
-  "captured_utc": "2026-10-17T10:39:43.828369+00:00",
+  "captured_utc": "2026-10-17T17:09:20.825678+00:00",
   "mode": "post_competition_practice",
   "original_contest_ended_utc": "2018-02-21T20:03:00",
   "historical_team_count": 2380,
@@ -39,6 +39,36 @@
         "status": "generated_not_submitted"
       },
       "source_worktree_dirty": true
+    },
+    {
+      "id": "optimized-final-001",
+      "status": "complete",
+      "scope": "Final-only base/calibration refit and full stage-two predictions",
+      "report": "optimized-final-001.json",
+      "resources": "optimization-resources.json",
+      "hosted_report": "kaggle-accuracy-v4.json",
+      "config": "optimized-config.json",
+      "submission": {
+        "file": "submission.csv",
+        "rows": 3460725,
+        "sha256": "d1fddcb0a4ffb1dca7b707921a5a38d7d8f2279717469d1a28deb5227fda435c",
+        "status": "generated_not_submitted"
+      }
+    },
+    {
+      "id": "fast-final-001",
+      "status": "complete",
+      "scope": "Final-only base/calibration refit and full stage-two predictions",
+      "report": "fast-final-001.json",
+      "resources": "fast-resources.json",
+      "hosted_report": "kaggle-fast-v1.json",
+      "config": "fast-config.json",
+      "submission": {
+        "file": "submission.csv",
+        "rows": 3460725,
+        "sha256": "8f607be70ffcfbdf0781acb59cc61121314bf9363b1265a149c627cfb9d30b32",
+        "status": "generated_not_submitted"
+      }
     }
   ],
   "kernel": {
@@ -76,14 +106,17 @@
         "competition_submission_attempted": false
       },
       {
+        "ref": "wxwidget/libtree-mercari-reproducible-entry",
         "version": 4,
-        "status": "RUNNING",
-        "uploaded_code_sha256": "6ed80b84a797a35bd13926a605b2bb0baccd879913a38bcc398d7449fcaa89c2",
+        "status": "COMPLETE",
+        "code_sha256": "6ed80b84a797a35bd13926a605b2bb0baccd879913a38bcc398d7449fcaa89c2",
+        "source_commit": "b7badbc",
         "requested_timeout_seconds": 7200,
-        "configuration_and_source_unchanged_from_version_3": true
+        "hosted_report": "kaggle-accuracy-v4.json",
+        "stage_one_budget": "accuracy-stage-one-budget.json"
       }
     ],
-    "builder_followup": "Current template removes temporary extracted data after successful prediction; executed version 2 predates this output-cleanup-only change and remains private."
+    "builder_followup": "Each scored snapshot is bound to its authenticated source hash; current builder also supports separate stage-one checks, deterministic source archives and distinct variant Kernel names."
   },
   "submissions": [
     {
@@ -97,37 +130,56 @@
       "error_description": "",
       "kernel_version": 2,
       "evidence": "kaggle-submission-57307868.json"
+    },
+    {
+      "ref": 57318931,
+      "kernel": "wxwidget/libtree-mercari-reproducible-entry",
+      "kernel_version": 4,
+      "date_utc": "2026-10-17T16:55:16.757000",
+      "file_name": "submission.csv",
+      "description": "LibTree optimized-001 v4: frozen models; stage-two extended budget",
+      "status": "SubmissionStatus.COMPLETE",
+      "public_score": "0.39110",
+      "private_score": "0.39199",
+      "error_description": "",
+      "evidence": "kaggle-submission-57318931.json"
+    },
+    {
+      "ref": 57319422,
+      "kernel": "wxwidget/libtree-mercari-fast-entry",
+      "kernel_version": 1,
+      "date_utc": "2026-10-17T17:08:37.713000",
+      "file_name": "submission.csv",
+      "description": "LibTree fast-001: three neural experts; no fitted Ridge reference",
+      "status": "SubmissionStatus.COMPLETE",
+      "public_score": "0.39278",
+      "private_score": "0.39361",
+      "error_description": "",
+      "evidence": "kaggle-submission-57319422.json"
     }
   ],
   "our_kaggle_score": {
-    "public": 0.43775,
-    "private": 0.43776
+    "public": 0.3911,
+    "private": 0.39199
   },
   "our_official_rank": null,
   "note": "Local validation is not a Kaggle score. An ended competition cannot confer a new original contest rank.",
   "software_checks": {
-    "new_tests_passed": 20,
-    "new_runner_statements": 243,
-    "kernel_builder_statements": 37,
-    "line_coverage_percent": 100,
+    "verification": "optimization-verification.json",
+    "mercari_tests": 54,
+    "mercari_statements": 1096,
+    "coverage_percent": 100.0,
     "core_python_statements": 505,
     "native_core_lines": 2790,
-    "core_line_coverage_percent": 100,
-    "cpp_ctest_targets_passed": 8,
-    "python_cli_tests_passed": 113,
-    "performance_memory_tests_passed": 4,
-    "clang_format": "passed",
-    "raw_data_models_submissions_and_kaggle_credentials_ignored": true,
-    "benchmark_and_competition_tests_passed": 40,
     "github_actions": {
-      "run_id": 39025253342,
-      "commit": "3f5ff28cf84fe746c5c3d616bfa497b00d9d30ae",
+      "run_id": 39048268914,
+      "url": "https://github.com/wxwidget/libtree/actions/runs/39048268914",
       "status": "completed",
       "conclusion": "success",
-      "url": "https://github.com/wxwidget/libtree/actions/runs/39025253342"
+      "observation": "Public GitHub Actions structured run metadata"
     }
   },
-  "implementation_commit": "3f5ff28cf84fe746c5c3d616bfa497b00d9d30ae",
+  "implementation_commit": "b7badbc",
   "rank_observation": {
     "api_userRank": 0,
     "interpretation": "No official original-contest rank assigned to this post-competition practice submission."
@@ -144,9 +196,10 @@
     "last_checked_utc": "2026-10-17T16:15:38.674913+00:00",
     "failure_message": "",
     "budget_check_passed": false,
-    "interpretation": "Cancelled near the requested 3600-second limit; API supplied no reason. The original stage-one runtime condition is unverified for the accuracy configuration."
+    "hosted_report": null,
+    "verification_scope": "Stage-one runtime check; no competition submission; original-contest rank and complete historical resource compliance are not established"
   },
-  "hosted_resource_note": "Accuracy version3 and the accuracy stage-one budget check were cancelled near their respective 3600-second caps without API failure reasons. Accuracy version4 and fast version1 use7200-second stage-two caps. The separate fast stage-one3600-second check is pending.",
+  "hosted_resource_note": "Both stage-two variants use 7200-second caps; baseline and stage-one checks use 3600-second caps. Each stage-one outcome is retained separately. Actual score and runtime are distinct results; this is post-competition practice.",
   "fast_candidate": {
     "config": "fast-config.json",
     "config_sha256": "9893ce3e759911058982871028e25ecaa88469cd9d06aa062227fde41e3e4dcd",
@@ -156,11 +209,89 @@
     "kernel": "wxwidget/libtree-mercari-fast-entry",
     "kernel_version": 1,
     "requested_timeout_seconds": 7200,
-    "status": "RUNNING",
+    "status": "COMPLETE",
     "uploaded_code_sha256": "1199be57961d7d4cd6ad9aa2ee090ae6f0ffca4cb42cc6ae8f2aee7e74917d6b",
     "stage_one_kernel": "wxwidget/libtree-mercari-fast-stage-one-budget",
     "stage_one_requested_timeout_seconds": 3600,
-    "stage_one_status": "RUNNING",
-    "configuration_frozen_before_new_kaggle_scores": true
+    "stage_one_status": "KernelWorkerStatus.COMPLETE",
+    "configuration_frozen_before_new_kaggle_scores": true,
+    "stage_one_budget_check_passed": true
+  },
+  "fast_stage_one_budget_check": {
+    "kernel": "wxwidget/libtree-mercari-fast-stage-one-budget",
+    "kernel_version": 1,
+    "requested_timeout_seconds": 3600,
+    "expected_source_sha256": "1ab73321495a88cf8d7fe7c1f24cf4c8c6f152d82b386e4b2ef78ff5548884d0",
+    "submission_allowed": false,
+    "started_tracking_utc": "2026-10-17T16:03:30.037574+00:00",
+    "api_last_run_time_utc": "2026-10-17T16:02:24.377000",
+    "kernel_status": "KernelWorkerStatus.COMPLETE",
+    "last_checked_utc": "2026-10-17T16:47:21.238704+00:00",
+    "source_verified": true,
+    "required_output_markers_verified": true,
+    "budget_check_passed": true,
+    "expected_stage_one_rows": 693359,
+    "verification_method": "Complete within requested3600-second cap; exact authenticated source pull; output markers and printed report verified after artifact-index retry",
+    "report_seconds": 2642.34302155,
+    "output_index_retry_required": true,
+    "hosted_report": "kaggle-fast-stage-one-v1.json",
+    "source_module_hashes_verified": true,
+    "verification_scope": "Stage-one runtime check; no competition submission; original-contest rank and complete historical resource compliance are not established"
+  },
+  "fast_kernel": {
+    "ref": "wxwidget/libtree-mercari-fast-entry",
+    "version": 1,
+    "status": "COMPLETE",
+    "code_sha256": "1199be57961d7d4cd6ad9aa2ee090ae6f0ffca4cb42cc6ae8f2aee7e74917d6b",
+    "source_commit": "1cdbfb1",
+    "requested_timeout_seconds": 7200,
+    "hosted_report": "kaggle-fast-v1.json",
+    "stage_one_budget": "fast-stage-one-budget.json"
+  },
+  "baseline_kaggle_score": {
+    "public": 0.43775,
+    "private": 0.43776,
+    "submission_ref": 57307868,
+    "kernel_version": 2
+  },
+  "best_scored_variant": "accuracy",
+  "target_private_rmsle": 0.393984,
+  "target_met": true,
+  "relative_private_rmsle_reduction": 0.1045550073099415,
+  "scored_variants": [
+    {
+      "variant": "accuracy",
+      "public_rmsle": 0.3911,
+      "private_rmsle": 0.39199,
+      "relative_private_rmsle_reduction": 0.1045550073099415,
+      "target_met": true,
+      "submission_ref": 57318931,
+      "kernel": "wxwidget/libtree-mercari-reproducible-entry",
+      "kernel_version": 4,
+      "stage_one_runtime_verified": false,
+      "local_wall_seconds": 3225.166659041999,
+      "local_peak_rss_mib": 10389.58984375,
+      "hosted_report": "kaggle-accuracy-v4.json"
+    },
+    {
+      "variant": "fast",
+      "public_rmsle": 0.39278,
+      "private_rmsle": 0.39361,
+      "relative_private_rmsle_reduction": 0.10085434941520466,
+      "target_met": true,
+      "submission_ref": 57319422,
+      "kernel": "wxwidget/libtree-mercari-fast-entry",
+      "kernel_version": 1,
+      "stage_one_runtime_verified": true,
+      "local_wall_seconds": 2677.556534895004,
+      "local_peak_rss_mib": 10285.0,
+      "hosted_report": "kaggle-fast-v1.json"
+    }
+  ],
+  "failed_variants": [],
+  "baseline_implementation_commit": "3f5ff28cf84fe746c5c3d616bfa497b00d9d30ae",
+  "model_implementation_commits": {
+    "accuracy": "b7badbc",
+    "fast": "1cdbfb1"
   }
 }

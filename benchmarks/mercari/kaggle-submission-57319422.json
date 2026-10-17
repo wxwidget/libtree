@@ -1,0 +1,32 @@
+{
+  "captured_utc": "2026-10-17T17:09:20.825678+00:00",
+  "competition": "mercari-price-suggestion-challenge",
+  "kernel": "wxwidget/libtree-mercari-fast-entry",
+  "kernel_version": 1,
+  "submission": {
+    "ref": 57319422,
+    "status": "SubmissionStatus.COMPLETE",
+    "description": "LibTree fast-001: three neural experts; no fitted Ridge reference",
+    "file_name": "submission.csv",
+    "date": "2026-10-17T17:08:37.713000",
+    "public_score": "0.39278",
+    "private_score": "0.39361",
+    "error_description": ""
+  },
+  "source_verified": true,
+  "code_sha256": "1199be57961d7d4cd6ad9aa2ee090ae6f0ffca4cb42cc6ae8f2aee7e74917d6b",
+  "model_source_commit": "1cdbfb1",
+  "frozen_config_sha256": "9893ce3e759911058982871028e25ecaa88469cd9d06aa062227fde41e3e4dcd",
+  "bundle_verification": {
+    "code_sha256": "1199be57961d7d4cd6ad9aa2ee090ae6f0ffca4cb42cc6ae8f2aee7e74917d6b",
+    "config_semantic_match": true,
+    "bundled_config_sha256": "57f98380624d17c6ff25240cafd6e701c7f5d0c0f24f771b57af6a83ad01c13d",
+    "config_canonical_sha256": "8645d8089fe8eae4005d94dee1b2f750fb5912d5d826a2ff3abd4b8a5c465b09",
+    "stage_one_code_sha256": "1ab73321495a88cf8d7fe7c1f24cf4c8c6f152d82b386e4b2ef78ff5548884d0",
+    "stage_one_and_two_embedded_bundle_identical": true
+  },
+  "requested_timeout_seconds": 7200,
+  "hosted_report": "kaggle-fast-v1.json",
+  "report_retrieval": "Authenticated official live execution logs",
+  "stage_one_budget": "fast-stage-one-budget.json"
+}

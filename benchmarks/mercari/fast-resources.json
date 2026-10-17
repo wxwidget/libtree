@@ -1,0 +1,7 @@
+{
+  "completed": true,
+  "wall_seconds": 2677.556534895004,
+  "max_rss_mib": 10285.0,
+  "scope": "One full local final-only process; four-CPU quota, 32-GiB memory limit; not a repeated training benchmark",
+  "concurrent_work": "Accuracy run included short tooling checks; fast run had no other local training or performance benchmarks"
+}

@@ -1,0 +1,73 @@
+{
+  "rows": 100000,
+  "base_training_rows": 1186026,
+  "calibration_rows": 74129,
+  "warmup_runs_per_model": 1,
+  "repeats": 4,
+  "balanced_rotating_order": true,
+  "threads": 4,
+  "fm_threads": 2,
+  "timings": {
+    "baseline": {
+      "samples": [
+        7.74529727800109,
+        9.658224029000849,
+        8.4500076789991,
+        7.677769911002542
+      ],
+      "mean": 8.382824724250895,
+      "min": 7.677769911002542,
+      "max": 9.658224029000849,
+      "std": 0.7960371333002989,
+      "repeats": 4
+    },
+    "accuracy": {
+      "samples": [
+        45.602101201999176,
+        42.27591442400444,
+        32.969847585001844,
+        33.906024717005494
+      ],
+      "mean": 38.68847198200274,
+      "min": 32.969847585001844,
+      "max": 45.602101201999176,
+      "std": 5.3907902737612865,
+      "repeats": 4
+    },
+    "fast_8192": {
+      "samples": [
+        43.87953857599496,
+        31.016399585998442,
+        31.085129061997577,
+        29.50909630300157
+      ],
+      "mean": 33.87254088174814,
+      "min": 29.50909630300157,
+      "max": 43.87953857599496,
+      "std": 5.81177380837008,
+      "repeats": 4
+    },
+    "fast_16384": {
+      "samples": [
+        43.36162518600031,
+        44.09666035600094,
+        33.65779628499877,
+        32.38594012000249
+      ],
+      "mean": 38.375505486750626,
+      "min": 32.38594012000249,
+      "max": 44.09666035600094,
+      "std": 5.378770214650261,
+      "repeats": 4
+    }
+  },
+  "fast_batch_prediction_max_difference": 0.0,
+  "scope": "Matched base-80% learned feature dictionaries and retained experts; full pipelines; four interleaved variants; original baseline fitted on all labels, accuracy/fast share the 80% base window; no concurrent local training; no holdout prices loaded",
+  "script_sha256": "cb43301be40659fb855d990329bf4f14bda08c3a4bde7289683cbd7bf37fc281",
+  "accuracy_model_sha256": "d9bf603142910b35010fc698ef30e0eec44b75aaeae200cf256d792e489515ff",
+  "fast_config_sha256": "9893ce3e759911058982871028e25ecaa88469cd9d06aa062227fde41e3e4dcd",
+  "baseline_model_sha256": "8ed2b85b8ef0f83af9178aa9b7cc26a9ffd6e2be5e81dec4c0b5d8713dc39d9f",
+  "comparison_note": "Fast adapters reuse the matching retained accuracy experts and feature dictionaries; its native correction is fitted only on the pre-existing calibration rows, not the holdout; variants represent complexity rather than a tensor-equivalent projection optimization.",
+  "input_file_sha256": "7a250f07285d460162db7b3d0c76fdcd5bfc8d6ba0350476bbaf34a48f208d0c",
+  "input_rows": "First 100000 rows, in file order; input digest copied from the previously verified full-data report"
+}

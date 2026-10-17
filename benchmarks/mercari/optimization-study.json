@@ -5,7 +5,7 @@
     "target": 0.393984
   },
   "local_target_met": true,
-  "kaggle_target_verified": false,
+  "kaggle_target_verified": true,
   "timing_scope": "Concurrent exploratory fits are not controlled speed comparisons; inference comparisons use interleaved repetitions.",
   "runs": {
     "expanded_ridge_lsqr": {
@@ -1481,5 +1481,35 @@
       "calibration_rows": 74129,
       "holdout_accessed": false
     }
-  }
+  },
+  "scored_variants": [
+    {
+      "variant": "accuracy",
+      "public_rmsle": 0.3911,
+      "private_rmsle": 0.39199,
+      "relative_private_rmsle_reduction": 0.1045550073099415,
+      "target_met": true,
+      "submission_ref": 57318931,
+      "kernel": "wxwidget/libtree-mercari-reproducible-entry",
+      "kernel_version": 4,
+      "stage_one_runtime_verified": false,
+      "local_wall_seconds": 3225.166659041999,
+      "local_peak_rss_mib": 10389.58984375,
+      "hosted_report": "kaggle-accuracy-v4.json"
+    },
+    {
+      "variant": "fast",
+      "public_rmsle": 0.39278,
+      "private_rmsle": 0.39361,
+      "relative_private_rmsle_reduction": 0.10085434941520466,
+      "target_met": true,
+      "submission_ref": 57319422,
+      "kernel": "wxwidget/libtree-mercari-fast-entry",
+      "kernel_version": 1,
+      "stage_one_runtime_verified": true,
+      "local_wall_seconds": 2677.556534895004,
+      "local_peak_rss_mib": 10285.0,
+      "hosted_report": "kaggle-fast-v1.json"
+    }
+  ]
 }

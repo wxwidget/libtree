@@ -7,6 +7,24 @@ the scored baseline **0.43776**: the target is **0.393984 or lower**. Training
 and inference costs are reported separately. This is a closed-competition
 practice experiment; it does not establish an original-contest rank.
 
+## Actual Kaggle scores, October 17, 2026
+
+| Frozen entry | Public RMSLE ↓ | Private RMSLE ↓ | Private reduction vs baseline | Submission |
+| --- | ---: | ---: | ---: | --- |
+| Original baseline, version 2 | 0.43775 | 0.43776 | — | [57307868](kaggle-submission-57307868.json) |
+| **Accuracy ensemble, version 4** | **0.39110** | **0.39199** | **10.46%** | [57318931](kaggle-submission-57318931.json) |
+| Fast ensemble, version 1 | 0.39278 | 0.39361 | 10.09% | [57319422](kaggle-submission-57319422.json) |
+
+**The 10% score target is met by an actual COMPLETE submission.** Each variant's
+configuration was frozen before its new Kaggle scores arrived. Accuracy is not
+a speed improvement: the larger ensemble has higher inference cost. The fast
+variant is also COMPLETE; both scores are retained, including the accuracy/cost
+trade-off. [All results](optimization-results.json) bind each exact submission.
+[Hosted accuracy report](kaggle-accuracy-v4.json) and [journal](record.json)
+retain hashes, versions, timings and all attempts. The accuracy run took
+**6,002.663 s (100.04 min)** on Kaggle, within its disclosed 120-minute stage-two
+cap. Its independent 60-minute stage-one runtime condition remains unverified.
+
 ## Frozen local audit
 
 The original **148,254-row holdout**, including 92 zero-priced listings, was
@@ -34,22 +52,34 @@ available. It omits the global-Adam neural expert and the fitted Ridge reference
 Its selection RMSLE is **0.397274**, versus **0.395662** for the frozen accuracy
 configuration. The Ridge reference alone improves selection RMSLE by about
 0.00005. [Cost ablations](cost-ablation.json) retain every comparison. The fast
-candidate has **no independent local holdout result**; its Kaggle score and
-hosted runtime check are pending. The original accuracy configuration is retained.
+candidate has **no independent local holdout result**; its actual private
+Kaggle RMSLE is **0.39361**. Its hosted first-stage runtime check passed in
+**44.04 min**. The original accuracy configuration is retained.
 
-Serving-cost comparison on the same first 100,000 unlabeled stage-two listings,
-one warm-up and three interleaved repetitions:
+Final serving comparison on the same first 100,000 unlabeled stage-two
+listings, one warm-up per variant and **four balanced, rotating repetitions**.
+All timings include feature preparation; no local training ran concurrently.
 
-| Pipeline | Mean, s | Min, s | Max, s | Population std, s |
+| Complete pipeline | Mean, s | Min, s | Max, s | Population std, s |
 | --- | ---: | ---: | ---: | ---: |
-| Previous scored baseline | 7.941 | 7.067 | 9.231 | 0.931 |
-| New audited ensemble | 34.819 | 31.699 | 40.973 | 4.351 |
+| Original scored baseline | 8.383 | 7.678 | 9.658 | 0.796 |
+| Accuracy ensemble | 38.688 | 32.970 | 45.602 | 5.391 |
+| Fast, sparse batch 8,192 | 33.873 | 29.509 | 43.880 | 5.812 |
+| Fast, optional sparse batch 16,384 | 38.376 | 32.386 | 44.097 | 5.379 |
 
-The ensemble costs about **4.38×** as much inference time here. These are
-complete pipeline timings, including feature preparation. The baseline model
-was fitted on all labels; the new estimator is the local audit model. A tested
-sparse-matmul projection preserved predictions (maximum log-price difference
-4.10e-7) but averaged 34.558 s, within the observed variability; it was discarded.
+[Raw measurements](accuracy-fast-serving.json) preserve every observation.
+Accuracy costs **4.62×** the baseline's mean inference time; fast 8,192
+reduces mean time by **12.45%** against accuracy in this experiment.
+Accuracy and fast share the same 80%-window feature dictionaries and retained
+trained experts; fast re-fits its corrector only on the original calibration
+window. The original baseline was fitted on all labels. No holdout prices were
+loaded for this comparison. Optional batch sizing is workload dependent; it
+should not be assumed to accelerate every ensemble.
+
+The [earlier three-repeat comparison](inference-optimization.json) is retained:
+7.941 s baseline versus 34.819 s accuracy. A separate projection attempt
+preserved predictions (maximum log-price difference 4.10e-7) but showed no
+reliable speed advantage and was discarded.
 
 An additional [batch-size study](sparse-batch-study.json) uses the same audited
 weights, one warm-up per setting and four balanced, rotating repetitions:
@@ -73,27 +103,41 @@ log-price difference was 4.10e-7. The joint implementation was discarded.
 
 The [final-only report](optimized-final-001.json) records **1,395,326 base-model
 rows**, **87,209 disjoint calibration rows**, and **3,460,725 stage-two predictions**.
-The process used a four-CPU quota and peaked at **10.15 GiB RSS** within a 32-GiB
-memory limit. No GPU was used.
+The [fast final-only report](fast-final-001.json) uses identical split IDs and
+row counts. Both processes used a four-CPU quota and a 32-GiB memory limit,
+with no GPU. Peak RSS was **10.15 GiB** for accuracy and **10.04 GiB** for fast.
 
-| Stage | Observed wall time, s |
-| --- | ---: |
-| Shared features and Ridge | 387.672 |
-| Field-aware model, two sequential training epochs | 85.308 |
-| Four neural models, including their feature preparation | 1,418.208 |
-| Calibration features and expert predictions | 116.627 |
-| Native LibTree calibration fit | 1.452 |
-| Full stage-two prediction, features and CSV writing | 1,184.582 |
-| **Whole process, including startup and other preparation** | **3,225.167 (53.75 min)** |
+| Stage | Accuracy, s | Fast, s |
+| --- | ---: | ---: |
+| Shared features and optional Ridge | 387.672 | 261.778 |
+| Field-aware model, two sequential training epochs | 85.308 | 79.234 |
+| Neural models, including their feature preparation | 1,418.208 | 1,003.298 |
+| Calibration features and expert predictions | 116.627 | 109.262 |
+| Native LibTree calibration fit | 1.452 | 1.336 |
+| Full stage-two prediction, features and CSV writing | 1,184.582 | 1,186.193 |
+| **Whole process, including startup and other preparation** | **3,225.167 (53.75 min)** | **2,677.557 (44.63 min)** |
 
-These are one full run's costs, with small concurrent tooling checks, rather
-than repeated training measurements. The native fit uses 300 depth-three trees
-on the calibration window. [Process resources](optimization-resources.json)
+The fast run's complete-process time is **17.0% lower** in these observations;
+the measured fitting/preparation stages total 1,454.908 s versus 2,009.267 s
+(27.6% lower). Full prediction times are effectively equal here. Each is a
+single full refit, rather than a repeated training speed comparison. Fast also
+saves a reloadable model; the accuracy run omitted that artifact.
+
+These are individual full-run observations. Accuracy included short concurrent
+tooling checks; fast had no other local training or performance benchmarks.
+The native fit uses 300 depth-three trees on the calibration window. [Process resources](optimization-resources.json)
 preserve the scope; repeated serving measurements appear above. CSV row count
 and the first prediction's explanation sum were checked after completion.
+[Fast process resources](fast-resources.json) are separate; its saved model
+replays the first 128 CSV predictions within relative tolerance 1e-6.
 These full-run costs are local. Hosted verification uses authenticated source
-and artifact metadata plus actual competition scoring; hosted report downloads
-are unavailable through this environment's egress proxy.
+and artifact metadata plus actual competition scoring. Hosted aggregate reports
+were recovered from the official execution logs and checked against the exact
+embedded source/configuration; direct artifact downloads are unavailable here.
+
+The [actual hosted fast run](kaggle-fast-v1.json) took **3935.532 s
+(65.59 min)**, versus accuracy's 100.04 min. These are one run per
+variant, not repeated hardware-controlled training measurements.
 
 ## Hosted runtime protocol
 
@@ -110,9 +154,12 @@ longer stage-two runs are permitted when stage one finishes within 60 minutes.
 The separate accuracy stage-one Kernel also returned cancellation near its
 3,600-second cap, with no API failure reason. Its runtime condition remains
 **unverified** ([evidence](accuracy-stage-one-budget.json)). The fast candidate's
-independent stage-one check is pending. These checks concern runtime, and the
-overall experiment remains post-contest practice. [The journal](record.json)
-retains all attempts and their limits.
+independent check **passed**: 693,359 predictions, 2,642.343 s total runner time,
+including 339.323 s prediction ([report](kaggle-fast-stage-one-v1.json),
+[source and marker verification](fast-stage-one-budget.json)). The complete
+status was observed under 45 minutes after the API run timestamp. These checks
+concern runtime; the overall experiment remains post-contest practice.
+[The journal](record.json) retains all attempts and their limits.
 
 An independent [synthetic platform audit](runtime-audit.json) observed Python
 3.13.15, Keras 3.13.2, TensorFlow 2.20.0, NumPy 2.1.3 and a four-CPU quota.
@@ -159,7 +206,7 @@ complete system; it does not isolate an improvement in the GBDT algorithm.
   These builder changes concern input selection and packaging; each submitted
   model snapshot remains bound to its own source hash.
 
-The accuracy audit and running version 4 use the archived `b7badbc` model
+The accuracy audit and scored version 4 use the archived `b7badbc` model
 snapshot. The optional Ridge-skip path belongs to the later fast candidate;
 source hashes bind each run to its own implementation.
 
@@ -282,6 +329,12 @@ prediction = entry.predict(listings)
 
 This configures inference adapters in place using their existing trained
 weights. The benchmark records the override and the number of sparse heads.
+
+To measure the lower-cost full refit, repeat the first command with
+`--config benchmarks/mercari/fast-config.json` and a new output directory.
+Keep both model artifacts and pass their paths to the serving command above
+for a full-refit comparison. The published four-variant audit comparison reuses
+matching 80%-window experts instead; its training scope is recorded explicitly.
 
 To reproduce the fixed local protocol, use `--mode study`. It reports selection
 RMSLE without evaluating the holdout. Add `--audit-holdout` only after freezing

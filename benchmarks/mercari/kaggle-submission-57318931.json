@@ -1,0 +1,30 @@
+{
+  "captured_utc": "2026-10-17T17:09:20.825678+00:00",
+  "competition": "mercari-price-suggestion-challenge",
+  "kernel": "wxwidget/libtree-mercari-reproducible-entry",
+  "kernel_version": 4,
+  "submission": {
+    "ref": 57318931,
+    "status": "SubmissionStatus.COMPLETE",
+    "description": "LibTree optimized-001 v4: frozen models; stage-two extended budget",
+    "file_name": "submission.csv",
+    "date": "2026-10-17T16:55:16.757000",
+    "public_score": "0.39110",
+    "private_score": "0.39199",
+    "error_description": ""
+  },
+  "source_verified": true,
+  "code_sha256": "6ed80b84a797a35bd13926a605b2bb0baccd879913a38bcc398d7449fcaa89c2",
+  "model_source_commit": "b7badbc",
+  "frozen_config_sha256": "299c8b4726f53ae1517845500f545f22ec2cb49707b4dc42aebcd867688ea9c5",
+  "bundle_verification": {
+    "code_sha256": "6ed80b84a797a35bd13926a605b2bb0baccd879913a38bcc398d7449fcaa89c2",
+    "config_semantic_match": true,
+    "bundled_config_sha256": "9ce24535984e2edcf74cd48a2bdd65b13f17f1e25b2bbe6cc8413c3e168bba91",
+    "config_canonical_sha256": "9110133bad3e9699e2c76731d06badb096e200d311d9127c05c2673ed802e70b"
+  },
+  "requested_timeout_seconds": 7200,
+  "hosted_report": "kaggle-accuracy-v4.json",
+  "report_retrieval": "Authenticated official live execution logs",
+  "stage_one_budget": "accuracy-stage-one-budget.json"
+}

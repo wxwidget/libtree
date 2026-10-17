@@ -1,0 +1,172 @@
+{
+  "mode": "final",
+  "created_utc": "2026-10-17T16:02:46.370165+00:00",
+  "config": {
+    "seed": 42,
+    "threads": 4,
+    "max_features": 300000,
+    "char_features": 150000,
+    "ridge_alpha": 10.0,
+    "max_words": 100000,
+    "neural_width": 128,
+    "neural_loss": "huber",
+    "neural_architecture": "sparse",
+    "neural_rates": [
+      0.004,
+      0.004,
+      0.003
+    ],
+    "neural_members": [
+      {
+        "weight": 0.325,
+        "sparse_optimizer": "row_adam",
+        "neural_rates": [
+          0.004,
+          0.004
+        ],
+        "neural_batches": [
+          2048,
+          4096
+        ]
+      },
+      {
+        "weight": 0.32,
+        "neural_architecture": "bag",
+        "neural_text_version": 1,
+        "neural_width": 64,
+        "neural_loss": "mse",
+        "neural_rates": [
+          0.003,
+          0.003,
+          0.003
+        ],
+        "neural_batches": [
+          2048,
+          2048,
+          2048
+        ]
+      },
+      {
+        "weight": 0.355,
+        "neural_loss": "bins",
+        "sparse_optimizer": "row_adam",
+        "neural_rates": [
+          0.004,
+          0.004
+        ],
+        "neural_batches": [
+          2048,
+          4096
+        ]
+      }
+    ],
+    "neural_text_version": 2,
+    "fm_workers": 2,
+    "fm_rank": 12,
+    "fm_epochs": 2,
+    "fm_rate": 0.03,
+    "neural_batches": [
+      2048,
+      4096,
+      8192
+    ],
+    "sparse_word_limit": 100000,
+    "sparse_char_limit": 50000,
+    "sparse_min_df": 5,
+    "sparse_binary": true,
+    "sparse_optimizer": "adam",
+    "sparse_bins": 64,
+    "fm_l2": 0.001,
+    "fm_error_clip": 1e+30,
+    "fm_chunk": 32768,
+    "weights": [
+      0.0,
+      0.3,
+      0.7
+    ],
+    "correction_strength": 1.0,
+    "calibration_fraction": 0.058823529411764705,
+    "native": {
+      "n_estimators": 300,
+      "max_depth": 3,
+      "max_bins": 128,
+      "min_samples_leaf": 100,
+      "learning_rate": 0.04,
+      "reg_lambda": 20.0,
+      "n_jobs": 2
+    },
+    "ridge_reference": false
+  },
+  "model_artifact_saved": false,
+  "input_files": {
+    "train": "train.tsv",
+    "test": "test_stg2.tsv.zip",
+    "sample": "sample_submission_stg2.csv.zip"
+  },
+  "input_train_sha256": "94b24fbecca842140b6276e9da43ce66be3b56b4b991375228802a74050fe471",
+  "native_library_sha256": "9424197ae4c2ce2e1f531db6f760179d3a274372ab25ded384b9fd192f6b4c7e",
+  "source_sha256": {
+    "mercari_sparse.py": "ebeb00f192c5a6d94c8a7df3da8716db1c450349efc19223705d1fd0e53b563d",
+    "mercari_fm.py": "d99e1ba70d9e7c1896bb986fb530b1ba466f98b65dc48716d6937feba0c1dd05",
+    "mercari.py": "ab697f418698b84177a3e9c2916b9f87fb1cf97168c8f6219793f8e062468e78",
+    "mercari_solver.py": "1849b177e36d642e484a13e03f3ebe67a262e13662981a822c673277a2e8a78f",
+    "mercari_config.py": "c99fa6e4e29483972995a8d0e8fa339b11d33e79dd839c54d45c59de2e6b8837",
+    "mercari_neural.py": "78336d59e95fbc841c3c99c575e04abbfde7bbed3c2fae898b60da7ecc1ca5b3",
+    "mercari_advanced.py": "0ec5cfb6aa8d8f0827f2a61fa010dabd7e45522f6f0fc6d578e06139ac64e7d8",
+    "mercari_features.py": "40b1b444c94b958550406607f5811038f1d894b0e22ad045987246948e700c10"
+  },
+  "splits": {
+    "base": {
+      "rows": 1395326,
+      "zero_prices": 814,
+      "id_sha256": "d1d7c3640359f905639d7c4d8b76e82b917eba47dc328c6522975d998f060512",
+      "groups": 1395192
+    },
+    "calibration": {
+      "rows": 87209,
+      "zero_prices": 60,
+      "id_sha256": "fd716e7b76b02598a92cb518acc2d3ec296c69394889865aa5ae826cb192e116",
+      "groups": 87200
+    }
+  },
+  "stages": {
+    "experts": {
+      "ridge_and_features_seconds": 268.808521336,
+      "ridge_iterations": 0,
+      "ridge_reference_enabled": false,
+      "fm_epoch_seconds": {
+        "samples": [
+          50.48252164999997,
+          45.627382918999956
+        ],
+        "mean": 48.05495228449996,
+        "min": 45.627382918999956,
+        "max": 50.48252164999997,
+        "std": 2.4275693655000055,
+        "repeats": 2
+      },
+      "neural_features_and_fit_seconds": 1745.572256931
+    },
+    "residual_features_seconds": 147.6044383379999,
+    "native_fit_seconds": 1.6043999580001582
+  },
+  "submission": {
+    "file": "submission.csv",
+    "rows": 3460725,
+    "sha256": "7246f6f2c445c305504bda117a83e07ffef43f2202932d602a471963cd7e7974",
+    "status": "generated_not_submitted"
+  },
+  "prediction_seconds_including_features_and_io": 1646.0179884109998,
+  "input_test_sha256": "098ffcac5a51d56777ac04ccf50950be6d641ba7298423dc24dc1d5dc971f425",
+  "input_sample_sha256": "886055770cc0edc1b2a714126b98e1f0ec5f64189134918a0e9b7c98fc0ae5eb",
+  "total_seconds": 3935.5320662329996,
+  "versions": {
+    "numpy": "2.1.3",
+    "pandas": "2.3.3",
+    "scipy": "1.16.3",
+    "sklearn": "1.6.1",
+    "tensorflow": "2.20.0",
+    "numba": "0.61.2",
+    "libtree": "0.2.0"
+  }
+}

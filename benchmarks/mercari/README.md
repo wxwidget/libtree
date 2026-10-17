@@ -2,10 +2,24 @@
 
 [中文记录](README.zh-CN.md) · [Competition](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle Kernel](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
-The [new optimization study](OPTIMIZATION.md) reports a frozen **10.28% local
-holdout RMSLE reduction**, stronger text ensembles, loss ablations, serving
-costs and final-only reproduction commands. The version-2 result below remains
-the scored Kaggle baseline until the new practice submission is verified.
+The [optimization study](OPTIMIZATION.md) achieved an actual **10.46% Kaggle
+private RMSLE reduction**, from **0.43776 to 0.39199** (public **0.39110**), with
+submission [57318931](kaggle-submission-57318931.json), status **COMPLETE**.
+It includes feature engineering, loss and ensemble ablations, a frozen 10.28%
+local holdout improvement, CPU costs and reproduction commands. The score gain
+comes from the complete ensemble and increases inference cost.
+
+The separate fast entry scored **0.39361 private / 0.39278 public**
+(10.09% private reduction), submission [57319422](kaggle-submission-57319422.json),
+with a verified **44.04-minute stage-one runtime**. Its local full-run process
+was 17.0% shorter than accuracy in one observed run. See the study for inference
+costs, stage-two durations and scope.
+
+## Original version-2 baseline and protocol
+
+The following methods and measurements describe the original scored baseline.
+The optimized configurations, separate calibration protocol and actual new
+scores are in the [independent study](OPTIMIZATION.md).
 
 This entry predicts listing prices with LibTree's native C++ GBDT. It compares a
 structured-only LibTree model, a sparse text Ridge reference, and a Ridge +

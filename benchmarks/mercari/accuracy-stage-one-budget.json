@@ -10,5 +10,6 @@
   "last_checked_utc": "2026-10-17T16:15:38.674913+00:00",
   "failure_message": "",
   "budget_check_passed": false,
-  "interpretation": "Cancelled near the requested 3600-second limit; API supplied no reason. The original stage-one runtime condition is unverified for the accuracy configuration."
+  "hosted_report": null,
+  "verification_scope": "Stage-one runtime check; no competition submission; original-contest rank and complete historical resource compliance are not established"
 }

@@ -1,0 +1,21 @@
+{
+  "kernel": "wxwidget/libtree-mercari-fast-stage-one-budget",
+  "kernel_version": 1,
+  "requested_timeout_seconds": 3600,
+  "expected_source_sha256": "1ab73321495a88cf8d7fe7c1f24cf4c8c6f152d82b386e4b2ef78ff5548884d0",
+  "submission_allowed": false,
+  "started_tracking_utc": "2026-10-17T16:03:30.037574+00:00",
+  "api_last_run_time_utc": "2026-10-17T16:02:24.377000",
+  "kernel_status": "KernelWorkerStatus.COMPLETE",
+  "last_checked_utc": "2026-10-17T16:47:21.238704+00:00",
+  "source_verified": true,
+  "required_output_markers_verified": true,
+  "budget_check_passed": true,
+  "expected_stage_one_rows": 693359,
+  "verification_method": "Complete within requested3600-second cap; exact authenticated source pull; output markers and printed report verified after artifact-index retry",
+  "report_seconds": 2642.34302155,
+  "output_index_retry_required": true,
+  "hosted_report": "kaggle-fast-stage-one-v1.json",
+  "source_module_hashes_verified": true,
+  "verification_scope": "Stage-one runtime check; no competition submission; original-contest rank and complete historical resource compliance are not established"
+}

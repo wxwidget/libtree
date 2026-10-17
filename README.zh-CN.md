@@ -4,7 +4,9 @@
 提供 LibTree 价格预测、文本／结构化模型消融、重复商品不跨集合的验证和真实提交记录；
 [英文运行指南](benchmarks/mercari/README.md)提供复现命令与历史榜单比较的限制。
 新增[Mercari 优化实验](benchmarks/mercari/OPTIMIZATION.zh-CN.md)：冻结配置后本地留出集
-RMSLE 下降 10.28%，包含多模型融合、损失消融、CPU 设计、计算成本与复现方法。
+RMSLE 下降 10.28%；实际 Kaggle private RMSLE 从 0.43776 降到
+**0.39199（下降 10.46%）**。报告包含多模型融合、损失消融、CPU 成本与复现方法。这是赛后练习；
+精度收益来自完整融合系统，同时增加了推理成本。
 
 风险建模新增 boosting 开关、类别平衡、Hellinger 二分类准则与 KS 指标：
 [优化方法及引用](docs/c5-risk.zh-CN.md) · [风险评测](benchmarks/RISK_REPORT.zh-CN.md)。
@@ -162,13 +164,15 @@ CI 运行检查和一次基准冒烟测试；仓库保存的性能结果采用�
 [benchmark README](benchmarks/README.md)提供中大型数据的最新 **C++ 和 Python**
 对比、可复现命令和完整报告。固定划分上的效果和速度随任务变化；多线程方面，
 LibTree 的平均 1→4 训练扩展优于 XGBoost，但仍低于 LightGBM。严格的 scaling
-目标尚未达到。结果来自本地留出集，没有提交 Kaggle 榜单，也不代表普遍排名。
+目标尚未达到。上述原生 GBDT 横向对比来自本地留出集；Mercari 的实际 Kaggle
+评分单独记录，两者都不代表普遍排名。
 
 本次重构删除了不安全的裸指针所有权、不完整的随机森林和 entropy 分支、
 未经推导的 boosting 权重及未经校验的二进制模型读写。旧 `train`/`classify`
 命令、头文件和模型格式不兼容，需通过新 API 重新训练。原 `data/` 文件保留为
-历史数据。当前不支持多分类、排序、稀疏矩阵、GPU/分布式训练、Python 模型持久化或
-样本权重。贡献前请阅读[设计决策和风格例外](docs/design.zh-CN.md)。
+历史数据。原生 GBDT 仍不支持多分类、排序、稀疏矩阵、GPU/分布式训练或样本权重；
+C5 分类器提供多分类与样本权重，三个 Python 模型均支持快照。Mercari 的稀疏文本处理
+属于独立的上层融合管线。贡献前请阅读[设计决策和风格例外](docs/design.zh-CN.md)。
 
 [Validation evidence / 验证记录](docs/validation.md)
 

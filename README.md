@@ -37,8 +37,10 @@ validation with duplicate listings kept together, and a separate record of actua
 Kaggle submissions. See the [Chinese journal](benchmarks/mercari/README.zh-CN.md)
 for results and the limits of historical leaderboard comparisons.
 The [Mercari optimization study](benchmarks/mercari/OPTIMIZATION.md) documents
+an actual **10.46% Kaggle private RMSLE reduction** (0.43776 → 0.39199),
 the frozen 10.28% local holdout improvement, sparse text models, loss ablations,
-CPU design choices, and reproduction commands.
+CPU costs and reproduction commands. This is post-competition practice; the
+accuracy gain comes from the complete ensemble and increases serving cost.
 
 ## At a glance
 
