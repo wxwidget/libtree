@@ -8,7 +8,7 @@
 
 现在可以输出真实模型的文本或 JSON，查看全部树或指定某棵树，也可以解释
 单条样本在每棵树上的路径、落到的叶子及其贡献。C++、Python 和 CLI 共用
-同一个原生实现，模型文件仍使用原有 `LIBTREE_GBDT 1` 格式。
+同一个原生实现。模型现在写入 `LIBTREE_GBDT 2` 格式以保存训练损失，继续读取原有版本 1 文件。
 
 ## 五分钟上手
 
@@ -99,3 +99,10 @@ JSON 使用 `schema_version=1`。公共字段是 `objective`、`num_features`、
 TDD 先验证接口不存在时测试失败，再实现。测试从导出的树独立遍历样本，
 累加贡献，核对真实回归预测和二分类概率，并覆盖阈值等号、左右缺失方向、
 特殊字符、无分裂与深层树、旧模型、缓冲区不足和错误时输出保护。
+
+## SHAP 特征归因
+
+所有 Python 模型和完整 sklearn 组合模型都可使用 `model.shap_explainer(background)`
+或 `libtree.shap_explainer(ensemble, background)`，解释相对于背景集的特征贡献。
+参阅[Python 中文集成指南](python-integration.zh-CN.md)，了解概率／预测值语义、
+示例和计算预算。原生 `explain()` 继续返回实际路径与各棵树的贡献。

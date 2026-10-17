@@ -19,6 +19,11 @@ int LtPredict(LtModel model, const float* x, size_t rows, size_t cols,
               float* out);
 size_t LtLossCount(LtModel model);
 int LtLoss(LtModel model, double* out, size_t count);
+// Versioned snapshots. Query/write contract matches inspection below.
+// Deserialize reads exactly size bytes (without a trailing NUL), returns a new
+// owning handle or NULL; it never refits or borrows the serialized buffer.
+int LtSerialize(LtModel model, char* out, size_t capacity, size_t* required);
+LtModel LtDeserialize(const char* data, size_t size, int threads);
 // Read-only inspection. format: 0=text, 1=json; tree_index=-1 means all trees.
 // names are optional NUL-terminated UTF-8 labels, in column order.
 // Query with out=NULL, capacity=0. required includes the trailing NUL.
@@ -38,6 +43,9 @@ typedef void* LtC5Model;
 LtC5Model LtC5Create(int rounds, int depth, int bins, int min_leaf, double rate,
                      double alpha, double min_gain, int criterion, int threads);
 void LtC5Free(LtC5Model model);
+int LtC5Serialize(LtC5Model model, char* out, size_t capacity,
+                  size_t* required);
+LtC5Model LtC5Deserialize(const char* data, size_t size, int threads);
 // y: contiguous class indices 0..K-1, K<=256. weights=NULL means uniform.
 int LtC5Fit(LtC5Model model, const float* x, size_t rows, size_t cols,
             const int* y, const double* weights);

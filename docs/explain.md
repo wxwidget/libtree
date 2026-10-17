@@ -115,8 +115,8 @@ g++ -std=c++17 -Iinclude inspect.cc build/libtree.a -pthread -o build/inspect
 tree explanations, margin and float32 prediction. Each `DecisionStep` includes
 node/feature IDs, threshold, observed value, missing direction and next node ID.
 Stream exports use full numeric precision and the classic locale without
-changing the caller's precision or locale. The `LIBTREE_GBDT 1` persistence
-format remains compatible with existing saved models.
+changing the caller's precision or locale. Persistence now writes
+`LIBTREE_GBDT 2` to retain training losses; version-1 models remain readable.
 
 The C ABI exposes `LtDumpModel` and `LtExplainPrediction`. Query with a null
 output and capacity zero; the required size includes the trailing NUL.
@@ -162,3 +162,12 @@ Inspection documents are not loadable model files; use C++ `SaveModel` and
 `tests/test_explain.py` and `tests/test_cli.py` independently traverse exported
 trees and reconstruct actual predictions, including threshold equality, both
 NaN directions, root-only/deep trees, precision, escaping, old models and errors.
+
+## SHAP feature attribution
+
+For background-relative feature contributions on any Python estimator or an
+entire sklearn ensemble, use `model.shap_explainer(background)` or
+`libtree.shap_explainer(ensemble, background)`. See the
+[Python integration guide](python-integration.md) for probability/value semantics,
+examples and computation budgets. Native `explain()` continues to report
+the actual paths and per-tree contributions.

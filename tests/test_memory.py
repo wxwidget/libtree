@@ -1,9 +1,10 @@
 """Linux RSS plateau check; native ASan/LSan provides precise leak diagnostics."""
 import gc
+import pickle
 from pathlib import Path
 import numpy as np
 import pytest
-from libtree import C5Classifier, GBDTRegressor
+from libtree import C5Classifier, GBDTClassifier, GBDTRegressor
 
 
 def rss_bytes():
@@ -13,18 +14,23 @@ def rss_bytes():
     raise RuntimeError("Linux RSS measurement unavailable")
 
 
-@pytest.mark.parametrize('estimator', [GBDTRegressor, C5Classifier])
+@pytest.mark.parametrize('estimator', [GBDTRegressor, GBDTClassifier, C5Classifier])
 def test_repeated_python_ownership_plateaus(estimator):
     rng = np.random.default_rng(42)
     x = rng.normal(size=(500, 5)).astype(np.float32)
     y = x[:, 0] + x[:, 1]
-    if estimator is C5Classifier:
+    if estimator is not GBDTRegressor:
         y = (y > 0).astype(int)
     rss = []
     for cycle in range(300):
         model = estimator(n_estimators=10)
         model.fit(x, y)
         assert np.isfinite(model.predict(x)).all()
+        if cycle % 3 == 0:
+            restored = pickle.loads(pickle.dumps(model))
+            np.testing.assert_array_equal(restored.predict(x), model.predict(x))
+            restored.close()
+            del restored
         # Alternate explicit close and Python finalization.
         if cycle % 2:
             model.close()

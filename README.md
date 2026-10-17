@@ -20,6 +20,11 @@ The [latest C5 performance study](benchmarks/C5_PERFORMANCE_REPORT.md) compares
 the optimized implementation with commit `60f003d`, XGBoost and LightGBM across
 seven tasks, C++/Python and one/four threads, with exact C5 output checks.
 
+All three Python estimators now integrate with **SHAP and sklearn ensembles**:
+value/probability attributions, Voting/Stacking/Bagging, Pipeline, grid search,
+and process-safe model snapshots. See the [Python integration guide](docs/python-integration.md)
+for runnable examples, supported combinations and attribution semantics.
+
 This README is the standalone English project guide. The [Chinese README](README.zh-CN.md)
 is maintained separately. New to machine learning or decision trees? Start with
 the interactive, offline [GBDT Learning Guide](docs/LEARNING_GUIDE.html). For a
@@ -97,7 +102,8 @@ with GBDTClassifier(min_samples_leaf=1) as model:
 ```
 
 Use two-dimensional dense features and one-dimensional labels. Classification
-labels for `GBDTClassifier` must be `0` or `1`. C5 supports multiclass labels.
+labels for `GBDTClassifier` must contain exactly two finite numeric or string
+classes; probability columns follow sorted `classes_`. C5 supports multiclass labels.
 Convert categorical features to numeric features;
 fit encoders on training data only. `NaN` means missing. Infinity and invalid
 shapes are rejected. Contiguous `float32` input avoids a conversion copy.
@@ -154,6 +160,11 @@ of generalization. The learning guide covers this distinction and data leakage.
 
 ## Optimization changelog
 
+- **Python ecosystem integration:** all estimators expose sklearn type/fitted
+  tags and numerical callables for SHAP. Public Exact/Permutation adapters
+  explain final predictions, including entire ensembles. Native snapshots
+  preserve fitted trees and histories across joblib processes without retaining
+  training data or refitting. See the [integration guide](docs/python-integration.md).
 - **C5 performance and tree inspection:** reuse histogram workspaces and leaf
   training labels, skip redundant split calculations, avoid duplicate native
   validation, and send Python class prediction directly to native voting.

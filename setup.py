@@ -18,7 +18,7 @@ class NativeBuild(build_py):
             f"-I{root / 'include'}", str(root / "src/gbdt.cc"),
             str(root / "src/c_api.cc"), str(root / "src/model.cc"),
             str(root / "src/dump.cc"), str(root / "src/c5.cc"),
-            str(root / "src/c5_dump.cc"), "-o", str(destination),
+            str(root / "src/c5_dump.cc"), str(root / "src/c5_model.cc"), "-o", str(destination),
         ], check=True)
 
 

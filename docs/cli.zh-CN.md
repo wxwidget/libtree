@@ -52,12 +52,12 @@ cmake --build build -j4
 小任务使用较少工作线程。标准输出 JSON 包含配置的线程数。错误返回非零状态并写入 stderr。输出路径
 不能与输入相同；校验成功后原子替换明确指定的输出，错误输入不会破坏旧结果。
 
-模型为版本化文本格式 `LIBTREE_GBDT 1`，保留 float/double 往返精度。
+模型为版本化文本格式 `LIBTREE_GBDT 2`，保留 float/double 往返精度和训练损失，并继续读取版本 1 文件。
 加载检查数值、特征编号、节点边界、树结构、缺失方向、深度和尾部内容。
 加载失败保留旧模型。安全限制为最多 1 万棵树、总计 100 万节点；超限模型
-无法保存。旧二进制格式不兼容。训练损失历史不写入模型文件。
-C++ 提供 `SaveModel(std::ostream&)`、`LoadModel(std::istream&)`，Python 暂未
-暴露持久化方法。可使用 `cmake --install build --prefix /可写目录` 安装到
+无法保存。旧二进制格式不兼容。
+C++ 提供 `SaveModel(std::ostream&)`、`LoadModel(std::istream&)`，Python 支持
+[pickle／joblib 模型快照](python-integration.zh-CN.md)。可使用 `cmake --install build --prefix /可写目录` 安装到
 自选目录，无需系统级安装。
 
 ## 三方比较与参数化复现

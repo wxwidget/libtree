@@ -257,3 +257,50 @@ node layout and persistence format do not store additional path caches or
 training statistics. These outputs are exact paths and per-tree contributions,
 not SHAP feature attribution. See [the English guide](explain.md) or
 [中文指南](explain.zh-CN.md) for examples and score semantics.
+
+## Python explanation and ensemble integration (2026-10-17)
+
+The compatibility change covers `GBDTRegressor`, `GBDTClassifier` and
+`C5Classifier`. TDD first exposed missing sklearn estimator tags and missing
+C5 persistence methods. Regression tests then exercised actual process-based
+Voting, Stacking and Bagging; snapshots reconstruct independent native models
+without storing training matrices or refitting. Failed snapshots/loads and
+failed classifier refits preserve the original owner and predictions.
+
+SHAP Exact and Permutation explain numeric predictions or all class
+probabilities, including multiclass C5, NaN routes, final ensemble outputs and
+a DataFrame Pipeline with named column selection. Tests check additive
+reconstruction, class names, dropped-column zero contributions and explicit
+background validation. The adapter uses public SHAP APIs and returns standard
+`shap.Explanation` objects. Native TreeSHAP is not implemented. See the
+[English integration guide](python-integration.md) or
+[中文指南](python-integration.zh-CN.md) for contracts and limitations.
+
+| Check | Local result |
+| --- | --- |
+| Release CTest | 8/8 passed |
+| Python estimator, tree/rule inspection and ecosystem contracts | 97/97 passed |
+| CLI cases | 16/16 passed |
+| Performance/RSS ownership guards | 4/4 passed; 300 ownership cycles per model, including 100 snapshot round trips |
+| Benchmark methodology | 20/20 passed |
+| Python production statement coverage | 505/505 = 100% |
+| Native source line coverage | 2787/2787 = 100%; no new exclusion markers |
+| ASan/UBSan/LSan | 8/8 native targets and 16/16 CLI cases passed |
+| ThreadSanitizer | 8/8 native targets passed |
+| sklearn 1.9.1 / SHAP 0.54.1 / NumPy 2.5.4 | 20/20 integration cases passed |
+| sklearn 1.4.2 / SHAP 0.46.0 / NumPy 1.26.4 | 20/20 integration cases passed; three upstream deprecation warnings |
+| Installed platform wheel, outside checkout | 20/20 integration cases passed; three models also fit/predict/pickle with sklearn and SHAP imports blocked |
+| English and Chinese guide Python examples | Both executed successfully |
+| clang-format and Git whitespace checks | Passed |
+
+The existing Linux CI job now runs integration tests and enforces their
+coverage. A second CI job installs the built package with the earlier dependency
+combination and exercises the same integration suite. Local success does not
+by itself establish remote CI success.
+
+GBDT persistence writes version 2 to retain training-loss history and continues
+to read version-1 models. C5 persistence retains trained parameters, pruned
+storage, votes, learner errors and node statistics; rules are reconstructed.
+The original tree/rule inspection JSON schemas and learning algorithms are
+unchanged. This is an interoperability validation, not a new comparative
+quality/speed study; benchmark reports retain their original revision labels.

@@ -6,7 +6,7 @@ all:
 	$(CMAKE) --build build -j4
 test: all
 	ctest --test-dir build --output-on-failure
-	PYTHONPATH=python $(PYTHON) -m pytest tests/test_python.py tests/test_explain.py tests/test_c5.py
+	PYTHONPATH=python $(PYTHON) -m pytest tests/test_python.py tests/test_explain.py tests/test_c5.py tests/test_integration.py
 	$(PYTHON) -m pytest tests/test_cli.py
 	PYTHONPATH=python $(PYTHON) -m pytest tests/test_performance.py tests/test_memory.py
 sanitize:
@@ -23,7 +23,7 @@ coverage:
 	$(CMAKE) --build build-coverage -j4
 	$(PYTHON) -c "from pathlib import Path; [p.unlink() for p in Path('build-coverage').rglob('*.gcda')]"
 	ctest --test-dir build-coverage --output-on-failure
-	LIBTREE_LIBRARY=$(CURDIR)/build-coverage/libtree.so LIBTREE_CLI=$(CURDIR)/build-coverage/xgbt PYTHONPATH=python $(PYTHON) -m pytest --cov=libtree --cov-report=term-missing --cov-fail-under=100 tests/test_python.py tests/test_explain.py tests/test_c5.py tests/test_cli.py
+	LIBTREE_LIBRARY=$(CURDIR)/build-coverage/libtree.so LIBTREE_CLI=$(CURDIR)/build-coverage/xgbt PYTHONPATH=python $(PYTHON) -m pytest --cov=libtree --cov-report=term-missing --cov-fail-under=100 tests/test_python.py tests/test_explain.py tests/test_c5.py tests/test_integration.py tests/test_cli.py
 	gcovr --root . --filter src/ --txt --html-details build-coverage/coverage.html --json-summary build-coverage/summary.json --fail-under-line 100
 clean:
 	$(CMAKE) --build build --target clean

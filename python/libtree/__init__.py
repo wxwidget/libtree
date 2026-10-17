@@ -70,6 +70,14 @@ def _library():
         lib.LtC5DumpModel.restype = ct.c_int
         lib.LtC5Explain.argtypes = lib.LtExplainPrediction.argtypes
         lib.LtC5Explain.restype = ct.c_int
+        for prefix in ('Lt', 'LtC5'):
+            serialize = getattr(lib, prefix + 'Serialize')
+            serialize.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_size_t,
+                                   ct.POINTER(ct.c_size_t)]
+            serialize.restype = ct.c_int
+            deserialize = getattr(lib, prefix + 'Deserialize')
+            deserialize.argtypes = [ct.c_char_p, ct.c_size_t, ct.c_int]
+            deserialize.restype = ct.c_void_p
         _LIB = lib
     return _LIB
 
@@ -85,8 +93,81 @@ def _pointer(array):
     return array.ctypes.data_as(_FLOAT)
 
 
+def _classification_labels(y):
+    labels = np.asarray(y)
+    if labels.ndim != 1 or not len(labels):
+        raise ValueError('labels must be a nonempty vector')
+    # pandas string Series and sklearn preprocessing often use object arrays.
+    if labels.dtype.kind == 'O' and all(isinstance(value, str) for value in labels):
+        labels = labels.astype(str)
+    if (labels.dtype.kind not in 'biufUS'
+            or (labels.dtype.kind == 'f' and not np.isfinite(labels).all())):
+        raise ValueError('labels must be finite numbers or strings')
+    return labels
+
+
 class _OwnedModel:
-    """Shared native ownership and caller-owned inspection buffers."""
+    """Native ownership, snapshots and optional Python ecosystem protocols."""
+
+    _native_prefix = 'Lt'
+
+    def __sklearn_is_fitted__(self):
+        return self._handle is not None
+
+    def _more_tags(self):
+        # sklearn 1.4/1.5 use dictionary tags; 1.6+ use the public Tags API.
+        return {'allow_nan': True, 'requires_y': True,
+                'binary_only': getattr(self, '_binary', False)}
+
+    def __sklearn_tags__(self):
+        from sklearn.utils import Tags, TargetTags, InputTags, ClassifierTags, RegressorTags
+        classifier = self._estimator_type == 'classifier'
+        return Tags(estimator_type=self._estimator_type,
+                    target_tags=TargetTags(required=True),
+                    input_tags=InputTags(allow_nan=True),
+                    classifier_tags=ClassifierTags(multi_class=not getattr(self, '_binary', False))
+                    if classifier else None,
+                    regressor_tags=None if classifier else RegressorTags())
+
+    def __call__(self, x):
+        """Numerical output for model-agnostic analysis: values or all probabilities."""
+        return self.predict_proba(x) if self._estimator_type == 'classifier' else self.predict(x)
+
+    def shap_explainer(self, background, **kwargs):
+        """Create an optional SHAP explainer; see libtree.shap_explainer."""
+        return shap_explainer(self, background, **kwargs)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop('_handle')
+        state.pop('_finalizer')
+        state['_native_snapshot'] = None
+        if self._handle is not None:
+            lib = _library()
+            serialize = getattr(lib, self._native_prefix + 'Serialize')
+            size = ct.c_size_t()
+            if serialize(self._handle, None, 0, ct.byref(size)):
+                raise RuntimeError(lib.LtLastError().decode())
+            buffer = ct.create_string_buffer(size.value)
+            if serialize(self._handle, buffer, len(buffer), ct.byref(size)):
+                raise RuntimeError(lib.LtLastError().decode())
+            state['_native_snapshot'] = buffer.value
+        return state
+
+    def __setstate__(self, state):
+        state = state.copy()
+        snapshot = state.pop('_native_snapshot')
+        self.__dict__.update(state)
+        self._handle = None
+        self._finalizer = None
+        if snapshot is not None:
+            lib = _library()
+            handle = getattr(lib, self._native_prefix + 'Deserialize')(
+                snapshot, len(snapshot), self._fit_threads)
+            if not handle:
+                raise ValueError(lib.LtLastError().decode())
+            self._handle = handle
+            self._finalizer = weakref.finalize(self, getattr(lib, self._native_prefix + 'Free'), handle)
 
     def _inspection(self, operation, arguments, format, feature_names):
         if self._handle is None:
@@ -135,6 +216,7 @@ class GBDTRegressor(_OwnedModel):
     """
 
     _binary = False
+    _estimator_type = 'regressor'
 
     def __init__(self, n_estimators=100, max_depth=4, max_bins=64,
                  min_samples_leaf=5, learning_rate=0.1, reg_lambda=1.0,
@@ -166,6 +248,7 @@ class GBDTRegressor(_OwnedModel):
             lib = _library()
             if lib.LtSetNumThreads(self._handle, threads):
                 raise ValueError(lib.LtLastError().decode())
+            self._fit_threads = threads
         for name, value in params.items():
             setattr(self, name, value)
         return self
@@ -196,6 +279,7 @@ class GBDTRegressor(_OwnedModel):
         self.close()
         self._handle = handle
         self._finalizer = weakref.finalize(self, lib.LtFree, handle)
+        self._fit_threads = int(self.n_jobs)
         self.n_features_in_ = x.shape[1]
         if self._binary:
             self.classes_ = np.array([0, 1])
@@ -270,16 +354,27 @@ class GBDTRegressor(_OwnedModel):
 
 
 class GBDTClassifier(GBDTRegressor):
-    """Binary logistic GBDT; labels must be exactly 0 or 1."""
+    """Binary logistic GBDT; class labels are mapped to sorted classes_."""
 
     _binary = True
+    _estimator_type = 'classifier'
+
+    def fit(self, x, y):
+        labels = _classification_labels(y)
+        classes, indices = np.unique(labels, return_inverse=True)
+        if len(classes) != 2:
+            raise ValueError('GBDTClassifier requires exactly two classes')
+        super().fit(x, indices)
+        self.classes_ = classes
+        return self
 
     def predict_proba(self, x):
         positive = self._predict_values(x)
         return np.column_stack((1 - positive, positive))
 
     def predict(self, x):
-        return (self._predict_values(x) >= 0.5).astype(np.int64)
+        indices = (self._predict_values(x) >= 0.5).astype(np.int64)
+        return self.classes_[indices]
 
     def score(self, x, y):
         y = np.asarray(y)
@@ -290,3 +385,4 @@ class GBDTClassifier(GBDTRegressor):
 
 
 from .c5 import C5Classifier  # noqa: E402
+from .explainers import shap_explainer  # noqa: E402

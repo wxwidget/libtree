@@ -58,13 +58,14 @@ Invalid commands return a nonzero status and a message on stderr. Explicit
 output paths are replaced atomically after successful validation; input/output
 paths must differ. Existing outputs survive malformed data/models.
 
-The model is a versioned, portable text format (`LIBTREE_GBDT 1`) with round-trip
-float/double precision. Load checks bounds, finiteness, feature IDs, tree topology,
+The model is a versioned, portable text format (`LIBTREE_GBDT 2`) with round-trip
+float/double precision and training losses. Version-1 files remain readable. Load checks bounds, finiteness, feature IDs,
+tree topology,
 missing-direction flags, depth and trailing input. Loading failure leaves an
 existing fitted C++ model intact. Safety limits are 10k trees and 1M total nodes;
-save refuses larger models. Old binary models are incompatible. Training-loss
-history is not serialized. C++ exposes `SaveModel(std::ostream&)` and
-`LoadModel(std::istream&)`; Python persistence methods are not yet exposed.
+save refuses larger models. Old binary models are incompatible. C++ exposes
+`SaveModel(std::ostream&)` and `LoadModel(std::istream&)`; Python supports
+pickle/joblib snapshots through the [integration API](python-integration.md).
 
 Optional installation: `cmake --install build --prefix /your/writable/prefix`,
 then add `/your/writable/prefix/bin` to PATH. No system-wide installation is needed.

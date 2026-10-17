@@ -72,6 +72,10 @@ class C5Classifier {
   // uncalibrated.
   std::vector<double> PredictProba(MatrixView x) const;
   void PredictProbaInto(MatrixView x, double* output) const;
+  // Versioned persistence, including rules reconstructed from retained trees.
+  // Failed loads preserve the old model; threads remain a runtime preference.
+  void SaveModel(std::ostream& output) const;
+  void LoadModel(std::istream& input);
   const std::vector<ClassificationRule>& rules() const;
   const std::vector<double>& estimator_errors() const;
   std::size_t num_classes() const { return num_classes_; }

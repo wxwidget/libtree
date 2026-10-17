@@ -5,7 +5,7 @@ import weakref
 
 import numpy as np
 
-from . import _OwnedModel, _library, _matrix, _pointer
+from . import _OwnedModel, _classification_labels, _library, _matrix, _pointer
 
 
 class C5Classifier(_OwnedModel):
@@ -15,6 +15,9 @@ class C5Classifier(_OwnedModel):
     use learned routing. Probabilities are uncalibrated softmax of normalized
     votes. Fit/close must not run concurrently with prediction/inspection.
     """
+
+    _estimator_type = 'classifier'
+    _native_prefix = 'LtC5'
 
     def __init__(self, n_estimators=10, max_depth=6, max_bins=64,
                  min_samples_leaf=5, learning_rate=1., pruning_alpha=.001,
@@ -48,11 +51,9 @@ class C5Classifier(_OwnedModel):
 
     def fit(self, x, y, sample_weight=None):
         x = _matrix(x)
-        y = np.asarray(y)
-        if y.ndim != 1 or len(y) != len(x) or not len(y):
+        y = _classification_labels(y)
+        if len(y) != len(x):
             raise ValueError('y must match nonempty X rows')
-        if y.dtype.kind not in 'biufUS' or (y.dtype.kind == 'f' and not np.isfinite(y).all()):
-            raise ValueError('labels must be finite numbers or strings')
         classes, indices = np.unique(y, return_inverse=True)
         indices = np.ascontiguousarray(indices, dtype=np.int32)
         weights = None
@@ -90,6 +91,7 @@ class C5Classifier(_OwnedModel):
         self.close()
         self._handle = handle
         self._finalizer = weakref.finalize(self, lib.LtC5Free, handle)
+        self._fit_threads = int(self.n_jobs)
         self.classes_ = classes
         self.n_features_in_ = x.shape[1]
         return self

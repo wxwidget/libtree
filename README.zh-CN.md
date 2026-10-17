@@ -12,6 +12,10 @@ C5 现支持完整剪枝树的文本／JSON 导出、逐节点预测路径及各
 参阅[最新 C5 性能报告](benchmarks/C5_PERFORMANCE_REPORT.zh-CN.md)：七个任务、C++／Python、
 单／四线程，包含旧版本和竞品对比、算术平均值、波动及退化结果，并检查模型输出逐位一致。
 
+三个 Python 模型新增 **SHAP 解释与 sklearn 集成兼容性**：预测值／概率归因、
+Voting／Stacking／Bagging、Pipeline、网格搜索，以及不保存训练数据的多进程模型快照。
+参阅[中文集成指南](docs/python-integration.zh-CN.md)，包含可运行示例和明确的支持范围。
+
 [English](README.md) · [原理与性能设计](docs/design.zh-CN.md) · [实测基准](benchmarks/README.md)
 
 一个简洁、确定性的 **C++17 直方图 GBDT**，提供 NumPy/Python 接口。
@@ -53,12 +57,13 @@ print(classifier.predict_proba(x))  # 两列分别为 P(0)、P(1)
 classifier.close()
 ```
 
-输入为稠密二维矩阵 `(样本数, 特征数)`，标签为一维向量；二分类标签必须为
-0 或 1。类别特征需要编码，编码器只在训练集上拟合，基准脚本提供了示例。
+输入为稠密二维矩阵 `(样本数, 特征数)`，标签为一维向量；GBDT 分类器支持
+恰好两个有限数值或字符串类别，概率列顺序由排序后的 `classes_` 决定。
+类别特征需要编码，编码器只在训练集上拟合，基准脚本提供了示例。
 连续的 float32 数组可避免类型转换复制。NaN 表示缺失值；无穷大和错误形状
 会被拒绝。`fit` 替换旧模型，不修改输入。`close` 释放原生内存，自动回收也
-有效。支持 `get_params`、`set_params`、`score` 和 sklearn `clone`，但尚未
-实现完整的 sklearn estimator 协议，例如高级 metadata routing。
+有效。支持 sklearn 模型类型／拟合状态标签、`get_params`、`set_params`、`score`、
+`clone` 和常见模型组合；高级 metadata routing 尚未实现。
 
 ## 参数化命令行
 

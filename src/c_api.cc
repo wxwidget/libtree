@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <exception>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -21,10 +22,8 @@ libtree::C5Classifier& C5Model(LtC5Model model) {
   if (model == nullptr) throw std::invalid_argument("null C5 model");
   return *static_cast<libtree::C5Classifier*>(model);
 }
-template <typename Function>
-void Inspection(const char* const* names, size_t name_count, char* out,
-                size_t capacity, size_t* required, Function render) {
-  if (required == nullptr) throw std::invalid_argument("null required size");
+std::vector<std::string> FeatureNames(const char* const* names,
+                                      size_t name_count) {
   if (names == nullptr && name_count != 0)
     throw std::invalid_argument("null feature names");
   std::vector<std::string> labels;
@@ -33,6 +32,13 @@ void Inspection(const char* const* names, size_t name_count, char* out,
     if (names[i] == nullptr) throw std::invalid_argument("null feature name");
     labels.emplace_back(names[i]);
   }
+  return labels;
+}
+template <typename Function>
+void Inspection(const char* const* names, size_t name_count, char* out,
+                size_t capacity, size_t* required, Function render) {
+  if (required == nullptr) throw std::invalid_argument("null required size");
+  const auto labels = FeatureNames(names, name_count);
   std::ostringstream stream;
   render(stream, labels);
   const std::string text = stream.str();
@@ -115,6 +121,27 @@ int LtLoss(LtModel model, double* out, size_t count) {
     if (count != 0) std::copy(loss.begin(), loss.end(), out);
   });
 }
+int LtSerialize(LtModel model, char* out, size_t capacity, size_t* required) {
+  return Guard([&] {
+    Inspection(nullptr, 0, out, capacity, required,
+               [&](std::ostream& output, const std::vector<std::string>&) {
+                 Model(model).SaveModel(output);
+               });
+  });
+}
+LtModel LtDeserialize(const char* data, size_t size, int threads) {
+  LtModel result = nullptr;
+  Guard([&] {
+    if (data == nullptr || size == 0)
+      throw std::invalid_argument("empty model snapshot");
+    auto model = std::make_unique<libtree::Gbdt>();
+    model->SetNumThreads(threads);
+    std::istringstream input(std::string(data, size));
+    model->LoadModel(input);
+    result = model.release();
+  });
+  return result;
+}
 int LtDumpModel(LtModel model, int format, int tree_index,
                 const char* const* names, size_t name_count, char* out,
                 size_t capacity, size_t* required) {
@@ -162,6 +189,29 @@ LtC5Model LtC5Create(int rounds, int depth, int bins, int min_leaf, double rate,
 }
 void LtC5Free(LtC5Model model) {
   delete static_cast<libtree::C5Classifier*>(model);
+}
+int LtC5Serialize(LtC5Model model, char* out, size_t capacity,
+                  size_t* required) {
+  return Guard([&] {
+    Inspection(nullptr, 0, out, capacity, required,
+               [&](std::ostream& output, const std::vector<std::string>&) {
+                 C5Model(model).SaveModel(output);
+               });
+  });
+}
+LtC5Model LtC5Deserialize(const char* data, size_t size, int threads) {
+  LtC5Model result = nullptr;
+  Guard([&] {
+    if (data == nullptr || size == 0)
+      throw std::invalid_argument("empty C5 snapshot");
+    libtree::C5Parameters parameters;
+    parameters.num_threads = threads;
+    auto model = std::make_unique<libtree::C5Classifier>(parameters);
+    std::istringstream input(std::string(data, size));
+    model->LoadModel(input);
+    result = model.release();
+  });
+  return result;
 }
 int LtC5Fit(LtC5Model model, const float* x, size_t rows, size_t cols,
             const int* y, const double* weights) {

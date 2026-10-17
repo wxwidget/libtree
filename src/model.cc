@@ -22,7 +22,7 @@ void Gbdt::SaveModel(std::ostream& output) const {
   for (const Tree& tree : trees_) count += tree.size();
   Require(count <= kMaxModelNodes && trees_.size() <= kMaxModelTrees);
   output << std::setprecision(std::numeric_limits<double>::max_digits10);
-  output << "LIBTREE_GBDT 1\n"
+  output << "LIBTREE_GBDT 2\n"
          << static_cast<int>(parameters_.objective) << ' '
          << parameters_.num_trees << ' ' << parameters_.max_depth << ' '
          << parameters_.max_bins << ' ' << parameters_.min_samples_leaf << ' '
@@ -37,13 +37,15 @@ void Gbdt::SaveModel(std::ostream& output) const {
              << '\n';
     }
   }
+  output << training_loss_.size() << '\n';
+  for (double loss : training_loss_) output << loss << '\n';
   if (!output) throw std::runtime_error("model write failed");
 }
 void Gbdt::LoadModel(std::istream& input) {
   std::string magic;
   int version = 0, objective = -1;
   Require(static_cast<bool>(input >> magic >> version));
-  Require(magic == "LIBTREE_GBDT" && version == 1);
+  Require(magic == "LIBTREE_GBDT" && (version == 1 || version == 2));
   Parameters p;
   std::size_t features = 0, tree_count = 0;
   double base = 0;
@@ -94,6 +96,15 @@ void Gbdt::LoadModel(std::istream& input) {
       if (i > 0) Require(parent_count[i] == 1);
     }
     parsed.trees_.push_back(std::move(tree));
+  }
+  if (version == 2) {
+    std::size_t loss_count = 0;
+    Require(static_cast<bool>(input >> loss_count));
+    Require(loss_count == 0 || loss_count == tree_count);
+    parsed.training_loss_.resize(loss_count);
+    for (double& loss : parsed.training_loss_)
+      Require(static_cast<bool>(input >> loss) && std::isfinite(loss) &&
+              loss >= 0);
   }
   input >> std::ws;
   Require(input.eof());

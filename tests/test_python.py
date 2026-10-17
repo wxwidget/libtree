@@ -69,7 +69,7 @@ def test_missing_and_validation():
         model.set_params(unknown=1)
     assert model.set_params(max_depth=2).get_params()["max_depth"] == 2
     with pytest.raises(ValueError):
-        GBDTClassifier().fit([[1], [2]], [0, 2])
+        GBDTClassifier().fit([[1], [2]], [0, 0])
 
 
 def test_deterministic_and_clone():
