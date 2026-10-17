@@ -73,7 +73,7 @@ Kaggle 内不再搜索参数或根据榜单选择模型。
 
 ## 新手如何运行
 
-准备 Python 3.12、C++17 编译器，以及[官方数据下载步骤](README.zh-CN.md)中的文件：
+准备 Linux、Python 3.12、C++17 编译器，以及[官方数据下载步骤](README.zh-CN.md)中的文件：
 
 ```sh
 python -m pip install '.[mercari]' kaggle

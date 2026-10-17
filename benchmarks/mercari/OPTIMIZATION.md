@@ -139,7 +139,7 @@ minimum, maximum, standard deviation, and every observation.
 
 ## Reproduce
 
-Use Python 3.12, a C++17 compiler, and the official competition files. See the
+Use Linux, Python 3.12, a C++17 compiler, and the official competition files. See the
 [data download instructions](README.md#reproduce-locally). Large inputs,
 predictions, caches, and models belong under ignored `benchmarks/runs/`.
 
