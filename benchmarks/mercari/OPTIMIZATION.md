@@ -42,6 +42,32 @@ was fitted on all labels; the new estimator is the local audit model. A tested
 sparse-matmul projection preserved predictions (maximum log-price difference
 4.10e-7) but averaged 34.558 s, within the observed variability; it was discarded.
 
+## Full local refit cost
+
+The [final-only report](optimized-final-001.json) records **1,395,326 base-model
+rows**, **87,209 disjoint calibration rows**, and **3,460,725 stage-two predictions**.
+The process used a four-CPU quota and peaked at **10.15 GiB RSS** within a 32-GiB
+memory limit. No GPU was used.
+
+| Stage | Observed wall time, s |
+| --- | ---: |
+| Shared features and Ridge | 387.672 |
+| Field-aware model, two sequential training epochs | 85.308 |
+| Four neural models, including their feature preparation | 1,418.208 |
+| Calibration features and expert predictions | 116.627 |
+| Native LibTree calibration fit | 1.452 |
+| Full stage-two prediction, features and CSV writing | 1,184.582 |
+| **Whole process, including startup and other preparation** | **3,225.167 (53.75 min)** |
+
+These are one full run's costs, with small concurrent tooling checks, rather
+than repeated training measurements. The native fit uses 300 depth-three trees
+on the calibration window. [Process resources](optimization-resources.json)
+preserve the scope; repeated serving measurements appear above. CSV row count
+and the first prediction's explanation sum were checked after completion.
+These full-run costs are local. Hosted verification uses authenticated source
+and artifact metadata plus actual competition scoring; hosted report downloads
+are unavailable through this environment's egress proxy.
+
 ## What changed
 
 The entry combines a field-aware factorization model, several complementary
@@ -214,12 +240,13 @@ and [native prediction-path guide](../../docs/explain.md).
 
 ## Tests and references
 
-[Verification evidence](optimization-verification.json) records **47 passing
-Mercari tests and 977/977 covered Python statements**, plus four separate
-compiled-FM tests. The serving CLI adds **three passing tests and 72/72 covered
-statements**, checked separately, and a replay using both real saved models.
+[Verification evidence](optimization-verification.json) records **50 passing
+Mercari tests and 1,049/1,049 covered Python statements**, plus four separate
+compiled-FM tests. This includes 47 modeling tests and three serving CLI tests,
+measured separately locally and together in CI, plus a replay using both real
+saved models.
 The core retains **505/505 Python statements and 2,790/2,790
-C++ lines covered**. [GitHub Actions run 39040397779](https://github.com/wxwidget/libtree/actions/runs/39040397779)
+C++ lines covered**. [GitHub Actions run 39042430151](https://github.com/wxwidget/libtree/actions/runs/39042430151)
 passed all jobs, including sanitizer, thread sanitizer and the new installed-wheel
 Mercari integration job. The installed-wheel check prevents an unbuilt source
 package from shadowing its compiled native library in CI. The

@@ -3,6 +3,7 @@ import json
 import pickle
 import runpy
 import sys
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,7 @@ def test_interleaving_means_warmup_and_thread_restoration(monkeypatch):
             calls.append(self.offset)
             return super().predict(frame)
     clock = iter([0., 1., 1., 3., 3., 6., 6., 10.])
-    monkeypatch.setattr(serving.time, 'perf_counter', lambda: next(clock))
+    monkeypatch.setattr(serving, 'time', SimpleNamespace(perf_counter=lambda: next(clock)))
     before = get_num_threads()
     report = serving.measure({'baseline': Traced(0), 'optimized': Traced(1)},
                              pd.DataFrame({'test_id': [0, 1]}), repeats=2,
@@ -61,6 +62,11 @@ def test_invalid_measurements_and_prediction_drift_restore_threads():
     before = get_num_threads()
     with pytest.raises(ValueError):
         serving.measure({'baseline': Invalid(), 'optimized': Estimator()}, frame, threads=1, fm_threads=1)
+    class Nonfinite(Estimator):
+        def predict(self, frame):
+            return np.full(len(frame), np.inf)
+    with pytest.raises(ValueError):
+        serving.measure({'baseline': Nonfinite(), 'optimized': Estimator()}, frame, threads=1, fm_threads=1)
     class Drifting(Estimator):
         def predict(self, frame):
             self.offset += 1
@@ -98,6 +104,12 @@ def test_cli_replays_trusted_models_and_writes_aggregate_evidence(tmp_path, monk
     assert set(report['model_sha256']) == {'baseline', 'optimized'}
     with pytest.raises(ValueError):
         serving.main(args)
+    failed = args.copy()
+    failed[failed.index('--output') + 1] = str(tmp_path / 'failed.json')
+    pd.DataFrame({'test_id': []}).to_csv(data, sep='\t', index=False)
+    with pytest.raises(ValueError):
+        serving.main(failed)
+    assert all(model.closed for model in loaded) and not (tmp_path / 'failed.json').exists()
     args[args.index('--rows') + 1] = '0'
     with pytest.raises(ValueError):
         serving.main(args)

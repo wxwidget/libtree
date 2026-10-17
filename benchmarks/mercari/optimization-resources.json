@@ -1,0 +1,7 @@
+{
+  "completed": true,
+  "wall_seconds": 3225.166659041999,
+  "max_rss_mib": 10389.58984375,
+  "scope": "One full local final-only process; four-CPU quota, 32-GiB memory limit; not a repeated training benchmark",
+  "short_concurrent_checks": "A small FFM thread probe, lightweight serving tests and a 128-row real-model CLI replay ran concurrently; this is an observed full run, not a controlled timing comparison"
+}
