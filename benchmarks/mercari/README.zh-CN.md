@@ -1,0 +1,192 @@
+# Mercari：LibTree Kaggle 打榜记录
+
+[English](README.md) · [比赛链接](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle 运行页面](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
+
+本次使用 LibTree 的原生 C++ GBDT 预测商品价格，比较三套系统：
+只用结构化特征的 LibTree、稀疏文本 Ridge 基线、Ridge 加 LibTree 残差修正。
+最终配置只在包含 LibTree 的候选中根据本地调参集选择，不用公开榜反复调参。
+本地验证成绩与 Kaggle 返回的真实成绩单独记录。
+
+该历史比赛有 **2,380 支队伍**，已于 2018 年 2 月结束。
+原赛要求在 Kaggle Kernel 内训练和预测，再由平台替换第二阶段测试数据重跑。
+因此，本次属于赛后练习，不能称为原赛新增参赛名次。
+当前 API 提供提交额度，但这不等于一定还能评分；上传代码成功也不等于评分成功。
+
+## 任务与数据
+
+官方指标为 RMSLE，越低越好：
+
+```text
+sqrt(mean((log1p(预测价格) - log1p(真实价格)) ** 2))
+```
+
+训练目标为 `log1p(price)`，输出时使用 `expm1` 还原，负的对数预测截为零。
+没有使用测试标签、外部价格数据或 Mercari 网站抓取。官方规则禁止对 Mercari
+进行抓取／API 查价。指标、字段、时间线和 Kernel 要求见[官方说明快照](competition.json)。
+
+已实际下载的训练文件有 **1,482,535 行**，其中 874 行价格为零，
+632,682 行品牌缺失，6,327 行类别缺失，6 行描述缺失。
+保留零价格记录，缺失文本使用固定标记。第一阶段测试集有 693,359 行；
+全量最终预测使用第二阶段测试文件及其对应的提交模板。
+每次实验记录实际行数、各集合 ID 校验值、文件和提交文件 SHA-256。
+
+## 如何避免验证泄漏
+
+对六个可用特征列计算商品分组指纹，价格和 ID 不参与指纹。
+完全相同的商品记录必须处于同一集合，再以种子 42 按组随机切分，
+约 80% 训练、10% 调参、10% 最终留出。
+这里没有交易时间和卖家 ID，因此不能将它描述成时间外推评估。
+
+训练窗口内再做三折分组交叉拟合。每折重新拟合文本词表、类别统计及总体均值，
+排除该折自身的标签。LibTree 残差目标使用折外 Ridge 预测，而不是训练集内的乐观预测。
+调参集只负责选择配置和修正系数；留出集用于事先声明的三套系统对比。
+随后冻结配置，使用所有可用训练标签重新交叉拟合和训练，生成测试预测。
+最终重训模型并不是产生留出成绩的那个模型。
+
+文本支路采用商品标题／描述的一元和二元词组 TF-IDF，标题权重为 2，
+标题和描述各保留最多 150,000 个特征；类别、品牌、成色、运费承担方使用独热编码，
+再拟合对数价格 Ridge。
+Ridge 正则系数为 3，使用 LSQR，容差 0.001，最多 100 次迭代。
+原生支路使用成色、运费、文本长度／缺失标记，以及平滑的品牌／类别对数价格均值和频率。
+全量实验使用 400 棵树、深度 6、128 桶、学习率 0.06、叶子最少 20 行、L2 为 10、四线程。
+
+残差支路学习“真实对数价格减去折外 Ridge 预测”，同时把折外预测作为一个输入特征。
+调参比较修正系数 0.25、0.5、1，以及只用结构化特征的 LibTree。
+这是完整系统的比较：纯结构化模型没有词语语义特征，集成支路又加入了额外特征工程。
+因此，集成收益不能被解释为树算法单独造成的因果收益，也不代表对所有竞品都更优。
+
+方法引用及参数说明见[英文方法部分](README.md#validation-and-methods)：
+Micci-Barreca（2001）类别目标编码、Wolpert（1992）堆叠泛化、
+Salton 与 Buckley（1988）文本加权、Hoerl 与 Kennard（1970）Ridge。
+原生 GBDT 原理和引用见[设计说明](../../docs/design.zh-CN.md)。
+
+## 已取得的实测结果
+
+[15 万行先导实验原始报告](pilot-001.json)使用 120,000 行训练、
+15,000 行调参、15,000 行独立留出：
+
+| 模型 | 本地留出集 RMSLE，越低越好 |
+| --- | ---: |
+| 稀疏文本 Ridge | 0.496448 |
+| 只用结构化特征的 LibTree | 0.565001 |
+| Ridge 加 LibTree 残差修正 | **0.484522** |
+
+该留出集上，集成模型相对 Ridge 的 RMSLE 降低 **2.40%**。
+它是单个本地划分的成绩，不是 Kaggle 分数，也不说明已经达到历史榜单的任何名次。
+先导实验同时改变了样本量和模型容量，不能视为单因素学习曲线。
+其训练时间只测一次，不能据此判断耗时分布。
+
+全量实验的原生拟合／预测各重复三次，保留算术平均值、最小值、最大值、总体标准差和原始观测。
+原生计时不含文本准备，另行记录端到端耗时及最终文本处理、预测和写文件的耗时。
+重复训练用于观察运行时间，不代表多个独立验证划分的泛化置信区间。
+全量数据实验、最终重训和第二阶段预测均已完成：
+
+| 模型 | 本地留出集 RMSLE，越低越好 |
+| --- | ---: |
+| 稀疏文本 Ridge | 0.450090 |
+| 只用结构化特征的 LibTree | 0.547755 |
+| Ridge 加 LibTree 残差修正 | **0.439312** |
+
+集成相对 Ridge 降低 **2.39%**。调参集选择的修正系数为 1，调参 RMSLE 为 0.441273。
+这是配置冻结后的本地留出成绩，不是 Kaggle 分数。实际提交状态单独记录。
+
+[全量原始报告](full-001.json)记录训练 1,186,026 行、调参 148,255 行、
+留出 148,254 行，随后使用全部 1,482,535 条标签重训。
+第二阶段提交文件共有 **3,460,725 行**；恢复模型后的前 128 条预测与保存的
+提交预测一致（相对容差 1e-6）。
+
+四线程、400 棵深度为 6 的树，每个支路原生训练重复三次：
+
+| 原生支路 | 平均训练秒数 | 最小秒数 | 最大秒数 | 总体标准差秒数 |
+| --- | ---: | ---: | ---: | ---: |
+| 结构化 LibTree | 31.976 | 30.921 | 33.602 | 1.166 |
+| LibTree 残差支路 | 30.973 | 30.126 | 31.897 | 0.725 |
+
+在 148,255 行调参数据上的原生预测平均耗时：结构化模型 272.502 毫秒，
+残差支路 292.230 毫秒。JSON 保留全部原始观测、范围和标准差。
+这些数字不包含文本模型及特征处理。最终在全部标签上的原生残差模型训练
+单次耗时 43.500 秒；3,460,725 行测试数据的特征准备、预测和 CSV 写入共 236.999 秒。
+整个实验包含验证、重复原生拟合、全部交叉拟合和最终预测，耗时
+**1482.396 秒，约 24.71 分钟**。
+
+集成还需要额外三折文本拟合，以获得无泄漏的折外训练预测。
+全量交叉拟合耗时 352.976 秒，最终文本／编码器拟合耗时 134.541 秒。
+因此，精度收益有训练成本，不能把 30.973 秒的原生平均值当成整个集成的训练时间。
+[环境记录](environment.json)保存本地依赖版本、CPU 配额和内存上限。
+这些实验在以 `ff4a4e2` 为基础、尚未提交比赛代码的工作目录中完成；
+原始记录的脚本 SHA-256 绑定实际执行代码，避免将基础提交误当作完整实验代码版本。
+
+
+## 本地复现
+
+从仓库根目录运行，需 C++17 编译器。当前云环境解释器为
+`/workspace/libtree-venv/bin/python`，CLI 为 `/workspace/libtree-venv/bin/kaggle`。
+普通环境的完整安装、下载和解压步骤见[英文运行指南](README.md#reproduce-locally)。
+认证信息放在 Git 之外，不要写进代码、报告或命令参数。
+
+```sh
+python -m pip install '.[dev,benchmark]' kaggle py7zr
+python -m benchmarks.mercari \
+  --data-dir benchmarks/runs/mercari/data \
+  --output-dir benchmarks/runs/mercari/full-001 \
+  --trees 400 --depth 6 --max-features 150000 --folds 3 --repeats 3 --threads 4
+```
+
+每次使用新输出目录。便宜的先导实验增加 `--train-rows 150000`，
+并设 `--trees 300 --repeats 1`。若使用第一阶段测试文件，还要传入
+`--test-file test.tsv --sample-file sample_submission.csv`。
+本地实测环境有四核 CPU 配额、32 GiB 内存；文本矩阵是稀疏的，LibTree 特征矩阵是稠密的。
+测试预测每次处理 100,000 行，以控制内存。
+
+输出包含实验报告、提交文件、可恢复的模型、第一棵树的文本／JSON 和原生路径说明。
+`explanation.json` 对应第一条折外训练特征向量；集成时展示的是原生树的**对数价格残差**，
+并不是整个文本模型或最终美元价格的完整解释。
+模型使用 pickle 保存，只加载自己信任的文件。
+
+原始数据、模型和运行输出在已被 Git 忽略的 `benchmarks/runs/` 下。
+这里只保留代码、聚合结果和打榜记录。
+[目标切换记录](target-history.json)保留前面几个榜单的切换原因，其数据／结果不混入本次实验。
+
+## Kaggle 执行和打榜记录
+
+源码打包器只嵌入 LibTree C++／Python 源码和本次流程，不上传本地模型、训练数据或 token。
+Kaggle Kernel 内用 `g++` 编译，然后在同一个 Kernel 内训练和预测。
+默认私有，关闭互联网和 GPU，避免依赖运行时外网安装。
+
+```sh
+python -m benchmarks.mercari_kernel --owner 你的Kaggle用户名 \
+  --output-dir benchmarks/runs/mercari/kernel-001
+kaggle kernels push -p benchmarks/runs/mercari/kernel-001 -t 3600
+kaggle kernels status 你的Kaggle用户名/libtree-mercari-reproducible-entry
+```
+
+Kernel 的第 1 版完成后，按代码赛方式提交其输出：
+
+```sh
+kaggle competitions submit mercari-price-suggestion-challenge \
+  -k 你的Kaggle用户名/libtree-mercari-reproducible-entry -v 1 \
+  -f submission.csv -m 'LibTree: grouped OOF Ridge + native residual trees'
+kaggle competitions submissions mercari-price-suggestion-challenge --format json
+```
+
+记录精确的 Kernel 版本、输出／报告校验值、提交编号、状态、分数、错误信息和查询时间。
+只有 Kaggle 实际返回的分数才能记作榜单成绩，未返回的分数和排名保持空值。
+即使赛后练习可以评分，也不报告为原赛新增名次。
+
+## 软件测试报告
+
+先写测试，再实现。**20 项测试通过，训练脚本和打包器共 280/280 条语句覆盖，
+行覆盖率 100%**。生成的 Kernel 引导代码另外做语法检查并在 Kaggle 实际执行，
+未对该嵌入字符串进行运行时覆盖率测量。
+测试包括官方 RMSLE、重复商品分组、自身折标签排除、未知类别、原生预测和模型恢复一致性、
+提交 ID 顺序和格式，以及源码包不能混入数据、模型或凭据。
+
+```sh
+PYTHONPATH=. python -m pytest tests/test_mercari.py tests/test_mercari_kernel.py \
+  --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel \
+  --cov-report=term-missing --cov-fail-under=100
+```
+
+现有核心检查也通过：C++ 测试 8/8，Python／CLI 测试 113 项，性能／内存测试 4 项；
+Python 核心覆盖 505/505 条语句，原生核心覆盖 2790/2790 行。
+新比赛流程的覆盖率作为 CI 独立门槛执行。这些是软件验证，不是比赛模型效果的置信保证。

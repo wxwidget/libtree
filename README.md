@@ -31,6 +31,12 @@ the interactive, offline [GBDT Learning Guide](docs/LEARNING_GUIDE.html). For a
 research-style account of datasets, competitors, methods, results, and ablations,
 read the [Experimental Report](benchmarks/EXPERIMENTS.md).
 
+The [Mercari Kaggle competition journal](benchmarks/mercari/README.md) provides
+a reproducible LibTree price-prediction pipeline, text/structured-model ablations,
+validation with duplicate listings kept together, and a separate record of actual
+Kaggle submissions. See the [Chinese journal](benchmarks/mercari/README.zh-CN.md)
+for results and the limits of historical leaderboard comparisons.
+
 ## At a glance
 
 - One C++ implementation powers both the C++ and Python APIs; Python does not

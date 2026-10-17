@@ -48,6 +48,7 @@ pip-wheel-metadata/
 # Keep benchmark scripts, pinned requirements, result JSON and HTML/Markdown
 # reports tracked so published measurements remain inspectable and reproducible.
 /benchmarks/cache/
+# Includes competition data, generated Kaggle Kernels, models and submissions.
 /benchmarks/runs/
 /benchmarks/report-assets/
 
@@ -57,6 +58,8 @@ pip-wheel-metadata/
 !.env.example
 !.env.sample
 !.env.template
+kaggle.json
+.kaggle/
 
 # Editor/OS scratch files.
 .idea/

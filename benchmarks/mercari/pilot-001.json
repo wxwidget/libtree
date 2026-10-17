@@ -1,0 +1,166 @@
+{
+  "competition": "mercari-price-suggestion-challenge",
+  "created_utc": "2026-10-17T09:49:16.307363+00:00",
+  "git_commit": "ff4a4e2c48aa4e90c7c2b33dec576f6e0c03019c",
+  "script_sha256": "ab697f418698b84177a3e9c2916b9f87fb1cf97168c8f6219793f8e062468e78",
+  "python": "3.12.14",
+  "libtree": "0.2.0",
+  "native_library_sha256": "95311920321b54119e51c262cb91e93e75019b2264ed346316f1a4b07f82300e",
+  "source_train_rows": 1482535,
+  "used_train_rows": 150000,
+  "parameters": {
+    "data_dir": "benchmarks/runs/mercari/data",
+    "output_dir": "benchmarks/runs/mercari/pilot-001",
+    "test_file": "test.tsv",
+    "sample_file": "sample_submission.csv",
+    "seed": 42,
+    "folds": 3,
+    "max_features": 75000,
+    "trees": 300,
+    "depth": 6,
+    "threads": 4,
+    "repeats": 1,
+    "train_rows": 150000
+  },
+  "inputs": {
+    "train.tsv": "94b24fbecca842140b6276e9da43ce66be3b56b4b991375228802a74050fe471",
+    "test.tsv": "5bc0b448fbc4e51a70bcd2760648f8677759f5a9ffeae4a6d954d855d75b333d",
+    "sample_submission.csv": "b3eb4ac1e19373d56d2b791a19d1ca2ed4ecc8a9a7e621058a48131d1fc5c27d"
+  },
+  "splits": {
+    "fit": {
+      "rows": 120000,
+      "zero_prices": 75,
+      "id_sha256": "403a4cdd3c6b29f4ab29be22a1fc896751b7aa26ab34d3f5d3148050cb5d4d77",
+      "groups": 119998
+    },
+    "tune": {
+      "rows": 15000,
+      "zero_prices": 6,
+      "id_sha256": "ea0d4811104e1e97cba81ae2e6e9515e0c906c07b877c8560281c19a407f9775",
+      "groups": 15000
+    },
+    "holdout": {
+      "rows": 15000,
+      "zero_prices": 7,
+      "id_sha256": "39ffd577bc3e8471fdf4ff49dd61e364a05b762d163cea987c606989835e7d9f",
+      "groups": 15000
+    }
+  },
+  "native_timings": [
+    {
+      "engine": "libtree",
+      "fit_seconds": {
+        "samples": [
+          2.149244270000054
+        ],
+        "mean": 2.149244270000054,
+        "min": 2.149244270000054,
+        "max": 2.149244270000054,
+        "std": 0.0,
+        "repeats": 1
+      },
+      "predict_seconds": {
+        "samples": [
+          0.02154711299954215
+        ],
+        "mean": 0.02154711299954215,
+        "min": 0.02154711299954215,
+        "max": 0.02154711299954215,
+        "std": 0.0,
+        "repeats": 1
+      }
+    },
+    {
+      "engine": "ridge_plus_libtree",
+      "fit_seconds": {
+        "samples": [
+          5.795640804000868
+        ],
+        "mean": 5.795640804000868,
+        "min": 5.795640804000868,
+        "max": 5.795640804000868,
+        "std": 0.0,
+        "repeats": 1
+      },
+      "predict_seconds": {
+        "samples": [
+          0.02845765599704464
+        ],
+        "mean": 0.02845765599704464,
+        "min": 0.02845765599704464,
+        "max": 0.02845765599704464,
+        "std": 0.0,
+        "repeats": 1
+      }
+    }
+  ],
+  "tuning": [
+    {
+      "engine": "libtree",
+      "strength": 1.0,
+      "rmsle": 0.5622558980004221
+    },
+    {
+      "engine": "ridge_plus_libtree",
+      "strength": 0.25,
+      "rmsle": 0.4877386483337474
+    },
+    {
+      "engine": "ridge_plus_libtree",
+      "strength": 0.5,
+      "rmsle": 0.48362044632956885
+    },
+    {
+      "engine": "ridge_plus_libtree",
+      "strength": 1.0,
+      "rmsle": 0.4803335799616527
+    }
+  ],
+  "inner_folds": [
+    {
+      "fold": 0,
+      "train_rows": 80000,
+      "validation_rows": 40000,
+      "seconds": 12.798575130000245,
+      "validation_id_sha256": "9912c2786382a32c11cb86e2eb736f27d8b150a3ebb5f5d3ad13f14dcea316cb"
+    },
+    {
+      "fold": 1,
+      "train_rows": 80000,
+      "validation_rows": 40000,
+      "seconds": 11.276758686999528,
+      "validation_id_sha256": "d9de20328dd850d5d2b7f2ffd9edfe4cc5b5e35429e3da8394db0f188d6bc0a1"
+    },
+    {
+      "fold": 2,
+      "train_rows": 80000,
+      "validation_rows": 40000,
+      "seconds": 9.466577782000968,
+      "validation_id_sha256": "c750a4bdb8bf1c62165851492f63e16ce1760dcf3bc83afece30b535011dbcda"
+    }
+  ],
+  "text_fit_seconds": 10.095070857001701,
+  "ridge_tune_rmsle": 0.49345714091937204,
+  "selected": {
+    "engine": "ridge_plus_libtree",
+    "strength": 1.0,
+    "rmsle": 0.4803335799616527
+  },
+  "holdout": {
+    "ridge": 0.4964481337031994,
+    "libtree": 0.5650009201492986,
+    "selected": 0.4845222472196334
+  },
+  "final_text_fit_seconds": 15.376590582000063,
+  "final_native_fit_seconds": 3.3352825570000277,
+  "final_cross_fit_seconds": 39.01495470900409,
+  "submission": {
+    "file": "submission.csv",
+    "rows": 693359,
+    "sha256": "d1b40a575657495db2f2d0b5251a7f25dfa505ddfd4f8a924772b8b68a2baab9",
+    "status": "generated_not_submitted"
+  },
+  "final_prediction_seconds_including_features_and_io": 47.04399292600283,
+  "total_seconds": 176.4145658060006
+}

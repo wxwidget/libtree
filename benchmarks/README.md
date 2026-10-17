@@ -1,5 +1,10 @@
 # Benchmark Guide and Latest Results
 
+The [Mercari Kaggle case study](mercari/README.md) ([中文](mercari/README.zh-CN.md))
+records real listing-price experiments, grouped validation, sparse text Ridge
+and native LibTree residual models, reproducible Kernels, and actual submission
+status. Local holdout results and Kaggle scores are recorded separately.
+
 The latest [C5 performance/tree-inspection study](C5_PERFORMANCE_REPORT.md)
 ([中文](C5_PERFORMANCE_REPORT.zh-CN.md), [raw runs](c5-performance-results.json))
 compares commit `60f003d` with the optimized implementation, XGBoost and LightGBM.

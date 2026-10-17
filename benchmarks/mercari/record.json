@@ -1,0 +1,85 @@
+{
+  "competition": "mercari-price-suggestion-challenge",
+  "captured_utc": "2026-10-17T10:31:54.772008+00:00",
+  "mode": "post_competition_practice",
+  "original_contest_ended_utc": "2018-02-21T20:03:00",
+  "historical_team_count": 2380,
+  "experiments": [
+    {
+      "id": "pilot-001",
+      "report": "pilot-001.json",
+      "scope": "150000-row deterministic pilot; stage-one predictions",
+      "status": "complete",
+      "holdout_rmsle": {
+        "ridge": 0.4964481337031994,
+        "structured_libtree": 0.5650009201492986,
+        "ridge_plus_libtree": 0.4845222472196334
+      }
+    },
+    {
+      "id": "full-001",
+      "scope": "full 1482535-row training source; stage-two predictions",
+      "status": "complete",
+      "selected": {
+        "engine": "ridge_plus_libtree",
+        "strength": 1.0,
+        "rmsle": 0.44127316505563263
+      },
+      "holdout_rmsle": {
+        "ridge": 0.4500904192967353,
+        "libtree": 0.5477545616940254,
+        "selected": 0.439312086336326
+      },
+      "report": "full-001.json",
+      "report_sha256": "c64abc3dc289c23805f43036cb8962cb0afd40403a202d51b65a4d36512b5039",
+      "submission": {
+        "file": "submission.csv",
+        "rows": 3460725,
+        "sha256": "777c85358dafbc9af8d102ef47d38e06c5c18e2e27823fa3f2409f61e1fab31c",
+        "status": "generated_not_submitted"
+      },
+      "source_worktree_dirty": true
+    }
+  ],
+  "kernel": {
+    "ref": "wxwidget/libtree-mercari-reproducible-entry",
+    "url": "https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry",
+    "is_private": true,
+    "versions": [
+      {
+        "version": 1,
+        "status": "ERROR",
+        "error": "FileNotFoundError: Competition input not found: train.tsv",
+        "stage": "before model training",
+        "action": "Locate files recursively under /kaggle/input; nested mount regression test added."
+      },
+      {
+        "version": 2,
+        "status": "RUNNING",
+        "code_sha256": "e616b484d06d29c99d42c8d06f60294634b1c7d4a13eab0a25e1f9812752a236",
+        "runner_sha256": "ab697f418698b84177a3e9c2916b9f87fb1cf97168c8f6219793f8e062468e78",
+        "last_checked_utc": "2026-10-17T10:31:52.939988+00:00"
+      }
+    ],
+    "builder_followup": "Current template removes temporary extracted data after successful prediction; executed version 2 predates this output-cleanup-only change and remains private."
+  },
+  "submissions": [],
+  "our_kaggle_score": null,
+  "our_official_rank": null,
+  "note": "Local validation is not a Kaggle score. An ended competition cannot confer a new original contest rank.",
+  "software_checks": {
+    "new_tests_passed": 20,
+    "new_runner_statements": 243,
+    "kernel_builder_statements": 37,
+    "line_coverage_percent": 100,
+    "core_python_statements": 505,
+    "native_core_lines": 2790,
+    "core_line_coverage_percent": 100,
+    "cpp_ctest_targets_passed": 8,
+    "python_cli_tests_passed": 113,
+    "performance_memory_tests_passed": 4,
+    "clang_format": "passed",
+    "raw_data_models_submissions_and_kaggle_credentials_ignored": true,
+    "benchmark_and_competition_tests_passed": 40
+  }
+}

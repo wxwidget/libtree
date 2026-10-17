@@ -1,0 +1,18 @@
+{
+  "active_competition": "mercari-price-suggestion-challenge",
+  "changes": [
+    {
+      "competition": "transaction-fraud-detection",
+      "reason": "User switched away from course-only competition; download HTTP403.",
+      "actual_submissions": []
+    },
+    {
+      "competition": "credit-card-froud-detectopm",
+      "reason": "User switched away because the competition has no teams; files downloaded, no models trained, no submission."
+    },
+    {
+      "competition": "modulabs-ds5-credit-card-fraud-detection",
+      "reason": "User replaced this link with Mercari before data download or training."
+    }
+  ]
+}

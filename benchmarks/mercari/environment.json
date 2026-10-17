@@ -1,0 +1,18 @@
+{
+  "captured_platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "cpu_affinity_count": 5,
+  "cpu_quota": "400000 100000",
+  "memory_limit_bytes": 34359738368,
+  "packages": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.17.0",
+    "threadpoolctl": "3.6.0",
+    "kaggle": "2.2.4",
+    "py7zr": "1.1.4"
+  },
+  "compiler": "c++ (Debian 14.2.0-19) 14.2.0",
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz"
+}

@@ -1,5 +1,9 @@
 # LibTree
 
+[Mercari Kaggle 打榜记录](benchmarks/mercari/README.zh-CN.md)
+提供 LibTree 价格预测、文本／结构化模型消融、重复商品不跨集合的验证和真实提交记录；
+[英文运行指南](benchmarks/mercari/README.md)提供复现命令与历史榜单比较的限制。
+
 风险建模新增 boosting 开关、类别平衡、Hellinger 二分类准则与 KS 指标：
 [优化方法及引用](docs/c5-risk.zh-CN.md) · [风险评测](benchmarks/RISK_REPORT.zh-CN.md)。
 

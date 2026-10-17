@@ -20,6 +20,7 @@ jobs:
       - run: python -m pip install '.[dev,benchmark]'
       - run: make test
       - run: PYTHONPATH=python:. python -m pytest tests/test_benchmark.py
+      - run: PYTHONPATH=python:. python -m pytest tests/test_mercari.py tests/test_mercari_kernel.py --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel --cov-report=term-missing --cov-fail-under=100
       - run: make sanitize
       - run: make thread-sanitize
       - run: make coverage
