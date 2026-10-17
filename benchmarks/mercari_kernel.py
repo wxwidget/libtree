@@ -83,7 +83,9 @@ shutil.copy2(work / 'entry-run/report.json', work / 'report.json')
 '''
 
 
-def build(owner, output_dir, optimized_config=None):
+def build(owner, output_dir, optimized_config=None, stage='auto'):
+    if stage not in ('auto', 'one', 'two'):
+        raise ValueError('stage must be auto, one or two')
     output = Path(output_dir)
     if output.exists() and any(output.iterdir()):
         raise ValueError('kernel output directory must be empty')
@@ -96,23 +98,31 @@ def build(owner, output_dir, optimized_config=None):
                       ('mercari', 'mercari_config', 'mercari_advanced', 'mercari_features',
                        'mercari_solver', 'mercari_fm', 'mercari_neural', 'mercari_sparse')]])
     with zipfile.ZipFile(payload, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in paths:
-            info = zipfile.ZipInfo(str(path.relative_to(ROOT)), date_time=(2026, 1, 1, 0, 0, 0))
+        def store(name, data):
+            info = zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
-            archive.writestr(info, path.read_bytes())
-        archive.writestr('benchmarks/__init__.py', '')
+            archive.writestr(info, data)
+        for path in paths:
+            store(str(path.relative_to(ROOT)), path.read_bytes())
+        store('benchmarks/__init__.py', '')
         if optimized_config is not None:
-            archive.writestr('benchmarks/mercari/optimized-config.json', json.dumps(optimized_config, indent=2))
+            store('benchmarks/mercari/optimized-config.json', json.dumps(optimized_config, indent=2))
     code = '# Source-only LibTree build; no models or competition records embedded.\n'
     code += 'SOURCE_ARCHIVE = ' + repr(base64.b64encode(payload.getvalue()).decode()) + '\n'
     code += 'OPTIMIZED = ' + repr(optimized_config is not None) + '\n'
     code += BOOTSTRAP
+    if stage != 'auto':
+        code = code.replace("stage2 = any(inputs.rglob('test_stg2.tsv*'))", f"stage2 = {stage == 'two'}")
     metadata = dict(id=f'{owner}/libtree-mercari-reproducible-entry',
         title='LibTree Mercari reproducible entry', code_file='mercari_libtree.py',
         language='python', kernel_type='script', is_private=True,
         enable_gpu=False, enable_internet=False,
         dataset_sources=[], kernel_sources=[],
         competition_sources=['mercari-price-suggestion-challenge'])
+    if stage == 'one':
+        metadata.update(id=f'{owner}/libtree-mercari-stage-one-budget', title='LibTree Mercari stage one budget')
+        code = code.replace("work / 'submission.csv'", "work / 'stage-one-predictions.csv'")
+        code += "\n(work / 'STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt').write_text('Stage-one budget check completed; never submit')\n"
     output.mkdir(parents=True, exist_ok=True)
     (output / metadata['code_file']).write_text(code)
     (output / 'kernel-metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
@@ -124,9 +134,11 @@ def main(argv=None):
     parser.add_argument('--owner', required=True, help='your Kaggle username')
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--optimized-config', type=Path, help='frozen ensemble settings; uses final-only training')
+    parser.add_argument('--stage', choices=('auto', 'one', 'two'), default='auto',
+                        help='one creates a separate timing-check Kernel with a non-submission output')
     args = parser.parse_args(argv)
     config = None if args.optimized_config is None else json.loads(args.optimized_config.read_text())
-    metadata = build(args.owner, args.output_dir, optimized_config=config)
+    metadata = build(args.owner, args.output_dir, optimized_config=config, stage=args.stage)
     print(json.dumps(dict(kernel=metadata['id'], output=str(args.output_dir))))
 
 

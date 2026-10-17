@@ -64,6 +64,23 @@
           "status": "blocked_by_egress_proxy",
           "hostname": "www.kaggleusercontent.com"
         }
+      },
+      {
+        "version": 3,
+        "status": "CANCEL_ACKNOWLEDGED",
+        "uploaded_code_sha256": "6ed80b84a797a35bd13926a605b2bb0baccd879913a38bcc398d7449fcaa89c2",
+        "requested_timeout_seconds": 3600,
+        "last_checked_utc": "2026-10-17T15:12:36.480813+00:00",
+        "api_failure_message": "",
+        "interpretation": "Cancellation occurred near the requested 3600-second limit; the API provided no reason.",
+        "competition_submission_attempted": false
+      },
+      {
+        "version": 4,
+        "status": "RUNNING",
+        "uploaded_code_sha256": "6ed80b84a797a35bd13926a605b2bb0baccd879913a38bcc398d7449fcaa89c2",
+        "requested_timeout_seconds": 7200,
+        "configuration_and_source_unchanged_from_version_3": true
       }
     ],
     "builder_followup": "Current template removes temporary extracted data after successful prediction; executed version 2 predates this output-cleanup-only change and remains private."
@@ -114,5 +131,15 @@
   "rank_observation": {
     "api_userRank": 0,
     "interpretation": "No official original-contest rank assigned to this post-competition practice submission."
-  }
+  },
+  "stage_one_budget_check": {
+    "kernel": "wxwidget/libtree-mercari-stage-one-budget",
+    "version": 1,
+    "status": "RUNNING",
+    "requested_timeout_seconds": 3600,
+    "submission_allowed": false,
+    "expected_code_sha256": "6d8c6e9b5fb66c23bcc7b03b41a6218e67cddafc4898e64ae31e166fc8a97612",
+    "protocol": "Same embedded model source and frozen configuration; force stage-one inputs; write non-submission output marker."
+  },
+  "hosted_resource_note": "Version 4 uses a 7200-second stage-two cap after version 3 was cancelled near 3600 seconds. The official protocol permits longer stage-two runs if stage one completes within 60 minutes; the independent hosted stage-one check is pending."
 }

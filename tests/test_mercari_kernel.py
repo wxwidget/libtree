@@ -140,3 +140,54 @@ def test_optimized_bootstrap_streams_zip_inputs_and_preserves_readonly_archives(
         sys.path[:] = previous
     assert not (work / 'mercari-data').exists()
     assert (inputs / 'test_stg2.tsv.zip').is_file()
+
+
+def test_stage_one_budget_check_cannot_replace_the_competition_entry(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from benchmarks.mercari_config import DEFAULT
+    metadata = mercari_kernel.build('wxwidget', tmp_path / 'kernel', optimized_config=DEFAULT, stage='one')
+    assert metadata['id'] == 'wxwidget/libtree-mercari-stage-one-budget'
+    script = (tmp_path / 'kernel' / metadata['code_file']).read_text()
+    work, inputs = tmp_path / 'work', tmp_path / 'input'
+    work.mkdir(); inputs.mkdir()
+    for name in ('train.tsv', 'test.tsv', 'sample_submission.csv', 'test_stg2.tsv', 'sample_submission_stg2.csv'):
+        (inputs / name).write_text('synthetic input')
+    script = script.replace("Path('/kaggle/working')", f'Path({str(work)!r})')
+    script = script.replace("Path('/kaggle/input')", f'Path({str(inputs)!r})')
+    monkeypatch.setattr('subprocess.run', lambda *args, **kwargs: None)
+    def fake_main(argv):
+        assert argv[argv.index('--test-file') + 1] == 'test.tsv'
+        assert argv[argv.index('--sample-file') + 1] == 'sample_submission.csv'
+        assert '--omit-model-artifact' in argv
+        output = Path(argv[argv.index('--output-dir') + 1]); output.mkdir()
+        (output / 'submission.csv').write_text('test_id,price\n0,1\n')
+        (output / 'report.json').write_text('{}')
+    monkeypatch.setitem(sys.modules, 'benchmarks.mercari_advanced', SimpleNamespace(main=fake_main))
+    for variable in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS'):
+        monkeypatch.setenv(variable, '1')
+    previous = sys.path.copy()
+    try:
+        exec(compile(script, 'stage_one_kernel.py', 'exec'), {})
+    finally:
+        sys.path[:] = previous
+    assert (work / 'stage-one-predictions.csv').is_file()
+    assert (work / 'STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt').is_file()
+    assert not (work / 'submission.csv').exists()
+    assert (inputs / 'test_stg2.tsv').is_file()
+    mercari_kernel.main(['--owner', 'wxwidget', '--output-dir', str(tmp_path / 'cli-one'), '--stage', 'one'])
+    assert json.loads((tmp_path / 'cli-one/kernel-metadata.json').read_text())['id'] == metadata['id']
+
+
+def test_explicit_stage_two_and_deterministic_source_archive(tmp_path):
+    from benchmarks.mercari_config import DEFAULT
+    with pytest.raises(ValueError):
+        mercari_kernel.build('wxwidget', tmp_path / 'invalid', stage='three')
+    scripts = []
+    for name in ('first', 'second'):
+        folder = tmp_path / name
+        metadata = mercari_kernel.build('wxwidget', folder, optimized_config=DEFAULT, stage='two')
+        scripts.append((folder / metadata['code_file']).read_text())
+    assert scripts[0] == scripts[1] and 'stage2 = True' in scripts[0]
+    encoded = scripts[0].split('SOURCE_ARCHIVE = ', 1)[1].splitlines()[0]
+    with zipfile.ZipFile(io.BytesIO(base64.b64decode(ast.literal_eval(encoded)))) as archive:
+        assert all(info.date_time == (2026, 1, 1, 0, 0, 0) for info in archive.infolist())

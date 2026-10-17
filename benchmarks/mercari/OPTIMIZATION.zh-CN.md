@@ -51,6 +51,19 @@
 与解释贡献之和一致。上述全量成本来自本地进程；Kaggle 验证使用已认证的源码、
 产物元数据和真实比赛评分。当前出口代理无法下载托管运行的报告文件。
 
+## 托管运行的时限与状态
+
+第 3 版在请求的 **3,600 秒**限制附近返回 `CANCEL_ACKNOWLEDGED`；API 未提供
+原因，没有尝试提交预测文件。第 4 版使用**完全相同的已上传脚本和参数**，将第二阶段
+时限设为 **7,200 秒**。记录同时保留了这项较大的时限和基线的 3,600 秒时限。
+
+[官方协议快照](competition.json)规定四核、16 GB 内存、60 分钟及 1 GB 临时／输出空间；
+[12 月 12 日补充规则](https://www.kaggle.com/c/mercari-price-suggestion-challenge/discussion/45554)
+允许在第一阶段能于 60 分钟内完成的前提下延长第二阶段运行。
+另一个私有 Kernel 正用相同的模型源码和参数检查第一阶段时间预算，当前**尚待完成**。
+该检查只验证时间条件；本实验整体仍是赛后练习。[流水记录](record.json)保留各次尝试
+及其时限。
+
 ## 为什么这些改动有用
 
 1. **保留型号信息。** 原默认分词忽略单字符 `6`、`7`、`x`；新版保留它们，
@@ -68,6 +81,9 @@
    该变体同时去掉会产生稠密梯度的全矩阵 L2，不能只把差异归因于优化器。
 6. **控制部署开销。** 预测时复用预处理和稀疏特征；LibTree 学习独立样本上的
    残差。Kaggle 脚本直接读取 ZIP，不重复解压大型测试文件，也不保存大模型 pickle。
+7. **明确复现预算检查。** 打包命令可显式选择阶段，第一阶段使用独立 Kernel 名称和
+   非提交产物。所有 ZIP 条目时间戳固定，相同输入可以稳定重建。此处只修改打包工具，
+   冻结的训练与推理模块保持原样。
 
 ## 评估如何避免自我欺骗
 
@@ -131,13 +147,29 @@ PYTHONPATH=. python -m benchmarks.mercari_inference \
 
 ```sh
 python -m benchmarks.mercari_kernel --owner YOUR_USERNAME \
+  --stage two \
   --optimized-config benchmarks/mercari/optimized-config.json \
   --output-dir benchmarks/runs/mercari/optimized-kernel
-kaggle kernels push -p benchmarks/runs/mercari/optimized-kernel -t 3600
+kaggle kernels push -p benchmarks/runs/mercari/optimized-kernel -t 7200
+kaggle kernels logs --follow YOUR_USERNAME/libtree-mercari-reproducible-entry
 ```
 
+独立的第一阶段 60 分钟检查：
+
+```sh
+python -m benchmarks.mercari_kernel --owner YOUR_USERNAME --stage one \
+  --optimized-config benchmarks/mercari/optimized-config.json \
+  --output-dir benchmarks/runs/mercari/stage-one-kernel
+kaggle kernels push -p benchmarks/runs/mercari/stage-one-kernel -t 3600
+kaggle kernels status YOUR_USERNAME/libtree-mercari-stage-one-budget
+```
+
+它使用另一个 Kernel ID，输出 `stage-one-predictions.csv` 和
+`STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt` 标记；该预测只用于时间检查。
+打包内容排除了模型文件和凭据。
+
 脚本在私有 Kernel 内编译 C++ 并重新训练、预测；不会上传本地模型或自动提交。
-记录 push 返回的版本，完成后按比赛记录中的方法提交该版本的 `submission.csv`。
+记录 push 返回的版本，完成后按比赛记录中的方法提交第二阶段该版本的 `submission.csv`。
 
 ## 怎样理解预测与解释
 

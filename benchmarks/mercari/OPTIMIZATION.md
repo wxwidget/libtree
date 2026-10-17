@@ -68,6 +68,23 @@ These full-run costs are local. Hosted verification uses authenticated source
 and artifact metadata plus actual competition scoring; hosted report downloads
 are unavailable through this environment's egress proxy.
 
+## Hosted runtime protocol
+
+Version 3 returned `CANCEL_ACKNOWLEDGED` near its requested **3,600-second**
+limit; the API supplied no failure reason and no competition submission was
+attempted. Version 4 repeats the **identical uploaded script and configuration**
+with a **7,200-second stage-two cap**. This larger cap is part of the experiment
+record, alongside the baseline's 3,600-second cap.
+
+The [official protocol snapshot](competition.json) specifies four cores, 16 GB
+RAM, 60 minutes and 1 GB scratch/output, with a
+[December 12 stage-two exception](https://www.kaggle.com/c/mercari-price-suggestion-challenge/discussion/45554):
+longer stage-two runs are permitted when stage one finishes within 60 minutes.
+A separate private stage-one Kernel is checking that runtime condition with the
+same embedded model source and parameters. Its status remains **pending**;
+the check concerns runtime, and the overall experiment remains post-contest
+practice. [The journal](record.json) retains both attempts and their limits.
+
 ## What changed
 
 The entry combines a field-aware factorization model, several complementary
@@ -95,6 +112,10 @@ complete system; it does not isolate an improvement in the GBDT algorithm.
   Fit LibTree on separate calibration listings rather than refitting large text
   models for every calibration fold. Stream stage-two ZIP inputs in Kaggle and
   omit large model pickles there; local runs can retain a reloadable model.
+* Select the input stage explicitly for budget checks, with a separate Kernel
+  identity and non-submission output for stage one. All embedded ZIP entries now
+  have fixed timestamps, so repeated builds with identical inputs are stable.
+  These builder changes leave the frozen training/inference modules unchanged.
 
 ## Evaluation protocol
 
@@ -210,13 +231,29 @@ Build and review the source-only private Kaggle script:
 
 ```sh
 python -m benchmarks.mercari_kernel --owner YOUR_USERNAME \
+  --stage two \
   --optimized-config benchmarks/mercari/optimized-config.json \
   --output-dir benchmarks/runs/mercari/optimized-kernel
-kaggle kernels push -p benchmarks/runs/mercari/optimized-kernel -t 3600
+kaggle kernels push -p benchmarks/runs/mercari/optimized-kernel -t 7200
+kaggle kernels logs --follow YOUR_USERNAME/libtree-mercari-reproducible-entry
 ```
 
+For the independent first-stage runtime check:
+
+```sh
+python -m benchmarks.mercari_kernel --owner YOUR_USERNAME --stage one \
+  --optimized-config benchmarks/mercari/optimized-config.json \
+  --output-dir benchmarks/runs/mercari/stage-one-kernel
+kaggle kernels push -p benchmarks/runs/mercari/stage-one-kernel -t 3600
+kaggle kernels status YOUR_USERNAME/libtree-mercari-stage-one-budget
+```
+
+Stage one uses a separate Kernel ID, writes `stage-one-predictions.csv` and a
+`STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt` marker. Its predictions are for the
+runtime check. Model and credential files are excluded from the source bundle.
+
 Record the version returned by the push. After the full Kernel completes,
-submit its `submission.csv` using that exact version, as described in the
+submit the stage-two `submission.csv` using that exact version, as described in the
 [journal](README.md). The builder does not submit automatically.
 
 ## Understanding the prediction
