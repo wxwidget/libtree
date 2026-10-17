@@ -107,10 +107,12 @@ The [official protocol snapshot](competition.json) specifies four cores, 16 GB
 RAM, 60 minutes and 1 GB scratch/output, with a
 [December 12 stage-two exception](https://www.kaggle.com/c/mercari-price-suggestion-challenge/discussion/45554):
 longer stage-two runs are permitted when stage one finishes within 60 minutes.
-A separate private stage-one Kernel is checking that runtime condition with the
-same embedded model source and parameters. Its status remains **pending**;
-the check concerns runtime, and the overall experiment remains post-contest
-practice. [The journal](record.json) retains both attempts and their limits.
+The separate accuracy stage-one Kernel also returned cancellation near its
+3,600-second cap, with no API failure reason. Its runtime condition remains
+**unverified** ([evidence](accuracy-stage-one-budget.json)). The fast candidate's
+independent stage-one check is pending. These checks concern runtime, and the
+overall experiment remains post-contest practice. [The journal](record.json)
+retains all attempts and their limits.
 
 An independent [synthetic platform audit](runtime-audit.json) observed Python
 3.13.15, Keras 3.13.2, TensorFlow 2.20.0, NumPy 2.1.3 and a four-CPU quota.
@@ -338,12 +340,13 @@ and [native prediction-path guide](../../docs/explain.md).
 
 ## Tests and references
 
-[Verification evidence](optimization-verification.json) records **52 passing
-Mercari tests and 1,060/1,060 covered Python statements**, plus four separate
-compiled-FM tests. The combined local and CI suite includes stage-specific budget checks and
-serving CLI tests, plus a separate replay using both real saved models.
+[Verification evidence](optimization-verification.json) records **54 passing
+Mercari tests and 1,096/1,096 covered Python statements**, plus four separate
+compiled-FM tests. The combined CI suite includes stage-specific budget, optional Ridge and serving
+CLI checks. Local verification uses the full modeling suite plus focused CLI
+checks and a separate replay using both real saved models.
 The core retains **505/505 Python statements and 2,790/2,790
-C++ lines covered**. [GitHub Actions run 39045263809](https://github.com/wxwidget/libtree/actions/runs/39045263809)
+C++ lines covered**. [GitHub Actions run 39048268914](https://github.com/wxwidget/libtree/actions/runs/39048268914)
 passed all jobs, including sanitizer, thread sanitizer and the new installed-wheel
 Mercari integration job. The installed-wheel check prevents an unbuilt source
 package from shadowing its compiled native library in CI. The

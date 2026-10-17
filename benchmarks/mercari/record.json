@@ -134,12 +134,33 @@
   },
   "stage_one_budget_check": {
     "kernel": "wxwidget/libtree-mercari-stage-one-budget",
-    "version": 1,
-    "status": "RUNNING",
+    "kernel_version": 1,
     "requested_timeout_seconds": 3600,
+    "expected_source_sha256": "6d8c6e9b5fb66c23bcc7b03b41a6218e67cddafc4898e64ae31e166fc8a97612",
     "submission_allowed": false,
-    "expected_code_sha256": "6d8c6e9b5fb66c23bcc7b03b41a6218e67cddafc4898e64ae31e166fc8a97612",
-    "protocol": "Same embedded model source and frozen configuration; force stage-one inputs; write non-submission output marker."
+    "started_tracking_utc": "2026-10-17T15:18:08.030017+00:00",
+    "api_last_run_time_utc": "2026-10-17T15:15:07.773000",
+    "kernel_status": "KernelWorkerStatus.CANCEL_ACKNOWLEDGED",
+    "last_checked_utc": "2026-10-17T16:15:38.674913+00:00",
+    "failure_message": "",
+    "budget_check_passed": false,
+    "interpretation": "Cancelled near the requested 3600-second limit; API supplied no reason. The original stage-one runtime condition is unverified for the accuracy configuration."
   },
-  "hosted_resource_note": "Version 4 uses a 7200-second stage-two cap after version 3 was cancelled near 3600 seconds. The official protocol permits longer stage-two runs if stage one completes within 60 minutes; the independent hosted stage-one check is pending."
+  "hosted_resource_note": "Accuracy version3 and the accuracy stage-one budget check were cancelled near their respective 3600-second caps without API failure reasons. Accuracy version4 and fast version1 use7200-second stage-two caps. The separate fast stage-one3600-second check is pending.",
+  "fast_candidate": {
+    "config": "fast-config.json",
+    "config_sha256": "9893ce3e759911058982871028e25ecaa88469cd9d06aa062227fde41e3e4dcd",
+    "implementation_commit": "1cdbfb1",
+    "selection_rmsle": 0.3972742285123699,
+    "local_holdout_evaluated": false,
+    "kernel": "wxwidget/libtree-mercari-fast-entry",
+    "kernel_version": 1,
+    "requested_timeout_seconds": 7200,
+    "status": "RUNNING",
+    "uploaded_code_sha256": "1199be57961d7d4cd6ad9aa2ee090ae6f0ffca4cb42cc6ae8f2aee7e74917d6b",
+    "stage_one_kernel": "wxwidget/libtree-mercari-fast-stage-one-budget",
+    "stage_one_requested_timeout_seconds": 3600,
+    "stage_one_status": "RUNNING",
+    "configuration_frozen_before_new_kaggle_scores": true
+  }
 }

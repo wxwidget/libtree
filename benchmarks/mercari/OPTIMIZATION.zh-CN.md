@@ -83,9 +83,10 @@ Kaggle 分数返回前冻结。它去掉全矩阵 Adam 神经网络和已拟合�
 [官方协议快照](competition.json)规定四核、16 GB 内存、60 分钟及 1 GB 临时／输出空间；
 [12 月 12 日补充规则](https://www.kaggle.com/c/mercari-price-suggestion-challenge/discussion/45554)
 允许在第一阶段能于 60 分钟内完成的前提下延长第二阶段运行。
-另一个私有 Kernel 正用相同的模型源码和参数检查第一阶段时间预算，当前**尚待完成**。
-该检查只验证时间条件；本实验整体仍是赛后练习。[流水记录](record.json)保留各次尝试
-及其时限。
+精度版的独立第一阶段检查也在 3,600 秒附近被取消，API 没有说明原因，因此其时间
+条件**尚未得到验证**（[记录](accuracy-stage-one-budget.json)）。轻量版的独立检查
+仍在进行。这些检查只验证时间条件；本实验整体仍是赛后练习。
+[流水记录](record.json)保留全部尝试及其时限。
 
 独立的[合成输入环境检查](runtime-audit.json)观察到 Python 3.13.15、Keras 3.13.2、
 TensorFlow 2.20.0、NumPy 2.1.3 和四 CPU 配额；稀疏首层梯度仍为 `IndexedSlices`。
@@ -236,13 +237,13 @@ Huber 减少极大误差的影响；价格分箱模型先预测各价格区间�
 
 ## 测试与引用
 
-[验证记录](optimization-verification.json)保存了 **52 项 Mercari 测试通过、
-1,060/1,060 条 Python 语句覆盖**，并另测 4 项真实编译的因子分解内核测试。
+[验证记录](optimization-verification.json)保存了 **54 项 Mercari 测试通过、
+1,096/1,096 条 Python 语句覆盖**，并另测 4 项真实编译的因子分解内核测试。
 新增阶段／打包检查和推理命令测试均纳入本地与 CI 的合并验证。核心仍为
 **Python 505/505 条语句、C++ 2,790/2,790 行覆盖**。
-推理对照命令另有 **3 项测试通过、72/72 条语句覆盖**，并用两套真实保存模型
+上述总数包含推理对照命令的 **4 项测试、94/94 条语句覆盖**，并用两套真实保存模型
 完成加载、预测一致性与输出检查；这次小样本检查不作为性能结论。
-[GitHub Actions 39045263809](https://github.com/wxwidget/libtree/actions/runs/39045263809)
+[GitHub Actions 39048268914](https://github.com/wxwidget/libtree/actions/runs/39048268914)
 全部成功，包含 sanitizer、线程 sanitizer 和新增的 wheel 安装集成测试。
 CI 明确验证已安装 wheel 的原生库，避免未编译的源码包覆盖已安装包。
 [工作流文件](../../.github/workflows/test.yml)提供完整的依赖安装、覆盖率和编译内核

@@ -1,22 +1,22 @@
 {
-  "captured_utc": "2026-10-17T14:55:40.403526+00:00",
-  "validated_commit": "91c49f8c518ea9e08dcf6848249cd99d2740a6d9",
+  "captured_utc": "2026-10-17T16:18:08.373549+00:00",
+  "validated_commit": "4058c9b8e88230f09e1b806bb188a2341c0d850c",
   "github_actions": {
-    "run_id": 39042430151,
-    "url": "https://github.com/wxwidget/libtree/actions/runs/39042430151",
+    "run_id": 39048268914,
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39048268914",
     "status": "completed",
     "conclusion": "success",
     "observation": "Public GitHub Actions structured run metadata"
   },
   "mercari": {
-    "tests_passed": 50,
+    "tests_passed": 54,
     "source_and_installed_wheel_both_verified": true,
-    "statements": 1049,
-    "covered_statements": 1049,
+    "statements": 1096,
+    "covered_statements": 1096,
     "coverage_percent": 100.0,
     "coverage_scope": "Python executable statements; NUMBA_DISABLE_JIT=1 for reference kernels; not branch coverage",
     "compiled_parallel_fm_tests_passed": 4,
-    "execution_scope": "47 modeling tests plus 3 serving CLI tests; separate local runs, combined installed-wheel CI job"
+    "execution_scope": "Combined 54-test installed-wheel CI; local 53-test modeling suite plus focused namespace/batch-control tests"
   },
   "core": {
     "cpp_ctest_targets_passed": 8,
@@ -38,15 +38,19 @@
     "compiled_fm_tests": "9749135c41084e8173dbba868a950d160ec3c5551a45ff1fb5468ed9bb740241",
     "core_regression": "3d422e4070d2ea9639afb8ee302a5802dffe5eb465a54930958b882c6c8017de",
     "core_coverage": "b34a6447546a6f3eceb681fabc510957b3f88dee526e5e2037b6e0d1e32e23db",
-    "serving_cli_tests": "da33839521d964ad6e156f2f7b5710a95612fec8a8884c43815511bf8ac4c8c1"
+    "serving_cli_tests": "da33839521d964ad6e156f2f7b5710a95612fec8a8884c43815511bf8ac4c8c1",
+    "complete_mercari_suite": "338a1d5d20be423bc082138110ed6d31317427478759e54b43aef08d49118729",
+    "fast_model_suite": "64d6b571f592ee8213c8a1b00a1d8d92cc56b4fa331f8a2b0d37beacd7c116e4",
+    "kernel_namespace_tests": "b971be92f72e8bee7c2e1d16cfe3ce79ec9ba003dcc489ab7ff697499569deb1",
+    "batch_control_tests": "10f3743ad1c78b905ec4034896367237ae1599bfb232c52da14b4db41e6ece14"
   },
   "serving_cli": {
-    "tests_passed": 3,
-    "statements": 72,
-    "covered_statements": 72,
+    "tests_passed": 4,
+    "statements": 94,
+    "covered_statements": 94,
     "coverage_percent": 100.0,
-    "source_sha256": "982791aa49174e4c1fbd9d1d66bd2b528a65a20be8731cb244b71bdc43cd5b29",
-    "coverage_scope": "Additional serving CLI tests run separately after the 47-test model suite; no model-training source was changed",
+    "source_sha256": "ab852a80917f016c62f77db1f327ff1b70817c6b5f0e54b28073b02c71aeaec6",
+    "coverage_scope": "Four focused tests measured locally; included in combined 54-test CI",
     "real_model_replay": {
       "status": "passed",
       "rows": 128,
