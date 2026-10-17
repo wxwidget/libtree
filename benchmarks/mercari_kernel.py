@@ -8,6 +8,7 @@ import io
 import json
 from pathlib import Path
 import zipfile
+from benchmarks.mercari_config import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -49,6 +50,13 @@ for name in ('train.tsv', test_name, sample_name):
         continue
     zipped = list(inputs.rglob(name + '.zip'))
     if zipped:
+        if OPTIMIZED:
+            (data / (name + '.zip')).symlink_to(zipped[0])
+            if name == test_name:
+                test_name += '.zip'
+            if name == sample_name:
+                sample_name += '.zip'
+            continue
         with zipfile.ZipFile(zipped[0]) as archive:
             archive.extract(name, data)
         continue
@@ -57,33 +65,47 @@ for name in ('train.tsv', test_name, sample_name):
         raise FileNotFoundError('Competition input not found: ' + name)
     subprocess.run(['7z', 'x', str(seven[0]), '-o' + str(data), '-y'], check=True)
 
-from benchmarks.mercari import main
-main(['--data-dir', str(data), '--output-dir', str(work / 'entry-run'),
-      '--test-file', test_name, '--sample-file', sample_name,
-      '--trees', '400', '--depth', '6', '--max-features', '150000',
-      '--folds', '3', '--repeats', '1', '--threads', '4'])
+if OPTIMIZED:
+    from benchmarks.mercari_advanced import main
+    main(['--data-dir', str(data), '--output-dir', str(work / 'entry-run'),
+          '--test-file', test_name, '--sample-file', sample_name, '--mode', 'final',
+          '--omit-model-artifact',
+          '--config', str(project / 'benchmarks/mercari/optimized-config.json')])
+else:
+    from benchmarks.mercari import main
+    main(['--data-dir', str(data), '--output-dir', str(work / 'entry-run'),
+          '--test-file', test_name, '--sample-file', sample_name,
+          '--trees', '400', '--depth', '6', '--max-features', '150000',
+          '--folds', '3', '--repeats', '1', '--threads', '4'])
 shutil.rmtree(data)
 shutil.copy2(work / 'entry-run/submission.csv', work / 'submission.csv')
 shutil.copy2(work / 'entry-run/report.json', work / 'report.json')
 '''
 
 
-def build(owner, output_dir):
+def build(owner, output_dir, optimized_config=None):
     output = Path(output_dir)
     if output.exists() and any(output.iterdir()):
         raise ValueError('kernel output directory must be empty')
+    if optimized_config is not None:
+        validate(optimized_config)
     payload = io.BytesIO()
-    paths = sorted([*ROOT.glob('src/*.cc'), *ROOT.glob('src/*.h'),
+    paths = sorted([*ROOT.glob('LICENSE*'), *ROOT.glob('src/*.cc'), *ROOT.glob('src/*.h'),
                     *ROOT.glob('include/libtree/*.h'), *ROOT.glob('python/libtree/*.py'),
-                    ROOT / 'benchmarks/mercari.py'])
+                    *[ROOT / f'benchmarks/{name}.py' for name in
+                      ('mercari', 'mercari_config', 'mercari_advanced', 'mercari_features',
+                       'mercari_solver', 'mercari_fm', 'mercari_neural', 'mercari_sparse')]])
     with zipfile.ZipFile(payload, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for path in paths:
             info = zipfile.ZipInfo(str(path.relative_to(ROOT)), date_time=(2026, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, path.read_bytes())
         archive.writestr('benchmarks/__init__.py', '')
+        if optimized_config is not None:
+            archive.writestr('benchmarks/mercari/optimized-config.json', json.dumps(optimized_config, indent=2))
     code = '# Source-only LibTree build; no models or competition records embedded.\n'
     code += 'SOURCE_ARCHIVE = ' + repr(base64.b64encode(payload.getvalue()).decode()) + '\n'
+    code += 'OPTIMIZED = ' + repr(optimized_config is not None) + '\n'
     code += BOOTSTRAP
     metadata = dict(id=f'{owner}/libtree-mercari-reproducible-entry',
         title='LibTree Mercari reproducible entry', code_file='mercari_libtree.py',
@@ -101,8 +123,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--owner', required=True, help='your Kaggle username')
     parser.add_argument('--output-dir', type=Path, required=True)
+    parser.add_argument('--optimized-config', type=Path, help='frozen ensemble settings; uses final-only training')
     args = parser.parse_args(argv)
-    metadata = build(args.owner, args.output_dir)
+    config = None if args.optimized_config is None else json.loads(args.optimized_config.read_text())
+    metadata = build(args.owner, args.output_dir, optimized_config=config)
     print(json.dumps(dict(kernel=metadata['id'], output=str(args.output_dir))))
 
 

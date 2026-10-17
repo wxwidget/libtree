@@ -2,6 +2,9 @@
 
 [English](README.md) · [比赛链接](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle 运行页面](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
+[新增优化报告](OPTIMIZATION.zh-CN.md)记录了冻结参数后的 **10.28% 本地留出集改进**、
+损失消融、推理成本与复现命令。新版 Kaggle 评分验证前，下文版本 2 仍为真实打榜基线。
+
 本次使用 LibTree 的原生 C++ GBDT 预测商品价格，比较三套系统：
 只用结构化特征的 LibTree、稀疏文本 Ridge 基线、Ridge 加 LibTree 残差修正。
 最终配置只在包含 LibTree 的候选中根据本地调参集选择，不用公开榜反复调参。

@@ -2,6 +2,11 @@
 
 [中文记录](README.zh-CN.md) · [Competition](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle Kernel](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
+The [new optimization study](OPTIMIZATION.md) reports a frozen **10.28% local
+holdout RMSLE reduction**, stronger text ensembles, loss ablations, serving
+costs and final-only reproduction commands. The version-2 result below remains
+the scored Kaggle baseline until the new practice submission is verified.
+
 This entry predicts listing prices with LibTree's native C++ GBDT. It compares a
 structured-only LibTree model, a sparse text Ridge reference, and a Ridge +
 LibTree residual ensemble. The final model is selected from the LibTree entries

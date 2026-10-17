@@ -1,0 +1,98 @@
+{
+  "seed": 42,
+  "threads": 4,
+  "max_features": 300000,
+  "char_features": 150000,
+  "ridge_alpha": 10.0,
+  "max_words": 100000,
+  "neural_width": 128,
+  "neural_loss": "huber",
+  "neural_architecture": "sparse",
+  "neural_rates": [
+    0.004,
+    0.004,
+    0.003
+  ],
+  "neural_members": [
+    {
+      "weight": 0.32
+    },
+    {
+      "weight": 0.16,
+      "sparse_optimizer": "row_adam",
+      "neural_rates": [
+        0.004,
+        0.004
+      ],
+      "neural_batches": [
+        2048,
+        4096
+      ]
+    },
+    {
+      "weight": 0.26,
+      "neural_architecture": "bag",
+      "neural_text_version": 1,
+      "neural_width": 64,
+      "neural_loss": "mse",
+      "neural_rates": [
+        0.003,
+        0.003,
+        0.003
+      ],
+      "neural_batches": [
+        2048,
+        2048,
+        2048
+      ]
+    },
+    {
+      "weight": 0.26,
+      "neural_loss": "bins",
+      "sparse_optimizer": "row_adam",
+      "neural_rates": [
+        0.004,
+        0.004
+      ],
+      "neural_batches": [
+        2048,
+        4096
+      ]
+    }
+  ],
+  "neural_text_version": 2,
+  "fm_workers": 2,
+  "fm_rank": 12,
+  "fm_epochs": 2,
+  "fm_rate": 0.03,
+  "neural_batches": [
+    2048,
+    4096,
+    8192
+  ],
+  "sparse_word_limit": 100000,
+  "sparse_char_limit": 50000,
+  "sparse_min_df": 5,
+  "sparse_binary": true,
+  "sparse_optimizer": "adam",
+  "sparse_bins": 64,
+  "fm_l2": 0.001,
+  "fm_error_clip": 1e+30,
+  "fm_chunk": 32768,
+  "weights": [
+    0.0,
+    0.26,
+    0.74
+  ],
+  "correction_strength": 1.0,
+  "calibration_fraction": 0.058823529411764705,
+  "native": {
+    "n_estimators": 300,
+    "max_depth": 3,
+    "max_bins": 128,
+    "min_samples_leaf": 100,
+    "learning_rate": 0.04,
+    "reg_lambda": 20.0,
+    "n_jobs": 2
+  }
+}

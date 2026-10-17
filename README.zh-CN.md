@@ -3,6 +3,8 @@
 [Mercari Kaggle 打榜记录](benchmarks/mercari/README.zh-CN.md)
 提供 LibTree 价格预测、文本／结构化模型消融、重复商品不跨集合的验证和真实提交记录；
 [英文运行指南](benchmarks/mercari/README.md)提供复现命令与历史榜单比较的限制。
+新增[Mercari 优化实验](benchmarks/mercari/OPTIMIZATION.zh-CN.md)：冻结配置后本地留出集
+RMSLE 下降 10.28%，包含多模型融合、损失消融、CPU 设计、计算成本与复现方法。
 
 风险建模新增 boosting 开关、类别平衡、Hellinger 二分类准则与 KS 指标：
 [优化方法及引用](docs/c5-risk.zh-CN.md) · [风险评测](benchmarks/RISK_REPORT.zh-CN.md)。

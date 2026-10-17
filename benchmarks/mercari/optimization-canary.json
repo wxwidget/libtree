@@ -1,0 +1,10 @@
+{
+  "kernel": "wxwidget/libtree-mercari-cpu-integration-canary",
+  "version": 2,
+  "status": "COMPLETE",
+  "source_sha256": "3b82e48d6ed0485ee3d4dd713fb02e82983044471955252f5b32f4a83c8724b1",
+  "success_marker": "CANARY_SUCCESS_NEVER_SUBMIT.txt",
+  "marker_observed": true,
+  "synthetic_data_only": true,
+  "competition_submission": false
+}

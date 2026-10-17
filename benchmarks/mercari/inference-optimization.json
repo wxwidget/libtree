@@ -1,0 +1,52 @@
+{
+  "rows": 100000,
+  "data": "unlabeled first 100000 stage-two rows",
+  "warmup_runs_per_model": 1,
+  "timings": {
+    "baseline": {
+      "samples": [
+        7.526363324999693,
+        9.231021209001483,
+        7.067071395002131
+      ],
+      "mean": 7.941485309667769,
+      "min": 7.067071395002131,
+      "max": 9.231021209001483,
+      "std": 0.9309186845953228,
+      "repeats": 3
+    },
+    "optimized_eager": {
+      "samples": [
+        31.786503852999886,
+        31.69896496900037,
+        40.97283571099979
+      ],
+      "mean": 34.81943484433335,
+      "min": 31.69896496900037,
+      "max": 40.97283571099979,
+      "std": 4.351258242046886,
+      "repeats": 3
+    },
+    "optimized_fused": {
+      "samples": [
+        33.14000360800128,
+        34.66251890100102,
+        35.87009495199891
+      ],
+      "mean": 34.55753915366707,
+      "min": 33.14000360800128,
+      "max": 35.87009495199891,
+      "std": 1.117024394587519,
+      "repeats": 3
+    }
+  },
+  "max_log_prediction_difference": 4.0931701672519694e-07,
+  "threads": 4,
+  "fm_predict_threads": 2,
+  "interleaved_order": true,
+  "source_sha256": "260471c0d13d366ea6b75ef15fb43b038c83c31d2028c7eb9777ad648555043a",
+  "deployed_backend": "optimized_eager",
+  "experimental_projection_deployed": false,
+  "accuracy_metric": "RMSLE",
+  "baseline_to_new_mean_cost_ratio": 4.384499056107933
+}

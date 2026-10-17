@@ -36,6 +36,9 @@ a reproducible LibTree price-prediction pipeline, text/structured-model ablation
 validation with duplicate listings kept together, and a separate record of actual
 Kaggle submissions. See the [Chinese journal](benchmarks/mercari/README.zh-CN.md)
 for results and the limits of historical leaderboard comparisons.
+The [Mercari optimization study](benchmarks/mercari/OPTIMIZATION.md) documents
+the frozen 10.28% local holdout improvement, sparse text models, loss ablations,
+CPU design choices, and reproduction commands.
 
 ## At a glance
 

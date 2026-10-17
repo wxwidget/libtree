@@ -46,6 +46,26 @@ def test_kernel_cli_builds_reviewable_files(tmp_path):
     assert (tmp_path / 'kernel' / 'mercari_libtree.py').is_file()
 
 
+def test_optimized_kernel_embeds_only_validated_frozen_parameters(tmp_path):
+    from benchmarks.mercari_config import DEFAULT
+    config = json.loads(json.dumps(DEFAULT))
+    metadata = mercari_kernel.build('wxwidget', tmp_path / 'optimized', optimized_config=config)
+    script = (tmp_path / 'optimized' / metadata['code_file']).read_text()
+    ast.parse(script)
+    encoded = script.split('SOURCE_ARCHIVE = ', 1)[1].splitlines()[0]
+    with zipfile.ZipFile(io.BytesIO(base64.b64decode(ast.literal_eval(encoded)))) as archive:
+        assert json.loads(archive.read('benchmarks/mercari/optimized-config.json')) == config
+        for name in ['mercari_advanced', 'mercari_config', 'mercari_features', 'mercari_solver', 'mercari_fm', 'mercari_neural']:
+            assert f'benchmarks/{name}.py' in archive.namelist()
+    assert 'OPTIMIZED = True' in script
+    config_path = tmp_path / 'config.json'; config_path.write_text(json.dumps(config))
+    mercari_kernel.main(['--owner', 'wxwidget', '--output-dir', str(tmp_path / 'cli-optimized'),
+                         '--optimized-config', str(config_path)])
+    for invalid in [dict(config, weights=[0, 0, 0]), {}]:
+        with pytest.raises(ValueError):
+            mercari_kernel.build('wxwidget', tmp_path / 'invalid', optimized_config=invalid)
+
+
 def test_bootstrap_finds_competition_in_nested_input_mount(tmp_path, monkeypatch):
     from benchmarks import mercari
     metadata = mercari_kernel.build('wxwidget', tmp_path / 'kernel')
@@ -81,3 +101,42 @@ def test_bootstrap_finds_competition_in_nested_input_mount(tmp_path, monkeypatch
     assert (work / 'submission.csv').read_text() == 'test_id,price\n0,1\n'
     assert not (work / 'mercari-data').exists()
     assert (nested / 'train.tsv').read_text() == 'synthetic test fixture'
+
+
+def test_optimized_bootstrap_streams_zip_inputs_and_preserves_readonly_archives(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from benchmarks.mercari_config import DEFAULT
+    metadata = mercari_kernel.build('wxwidget', tmp_path / 'kernel', optimized_config=DEFAULT)
+    script = (tmp_path / 'kernel' / metadata['code_file']).read_text()
+    work, inputs = tmp_path / 'work', tmp_path / 'input'
+    work.mkdir(); inputs.mkdir()
+    (inputs / 'train.tsv').write_text('synthetic training fixture')
+    for name, content in [('test_stg2.tsv', 'test_id\tname\n0\titem\n'),
+                           ('sample_submission_stg2.csv', 'test_id,price\n0,0\n')]:
+        with zipfile.ZipFile(inputs / (name + '.zip'), 'w') as archive:
+            archive.writestr(name, content)
+    script = script.replace("Path('/kaggle/working')", f'Path({str(work)!r})')
+    script = script.replace("Path('/kaggle/input')", f'Path({str(inputs)!r})')
+    monkeypatch.setattr('subprocess.run', lambda *args, **kwargs: None)
+
+    def fake_main(argv):
+        data = Path(argv[argv.index('--data-dir') + 1])
+        assert argv[argv.index('--test-file') + 1] == 'test_stg2.tsv.zip'
+        assert argv[argv.index('--sample-file') + 1] == 'sample_submission_stg2.csv.zip'
+        assert (data / 'test_stg2.tsv.zip').is_symlink()
+        assert not (data / 'test_stg2.tsv').exists()
+        assert argv[argv.index('--mode') + 1] == 'final'
+        output = Path(argv[argv.index('--output-dir') + 1]); output.mkdir()
+        (output / 'submission.csv').write_text('test_id,price\n0,1\n')
+        (output / 'report.json').write_text('{}')
+
+    monkeypatch.setitem(sys.modules, 'benchmarks.mercari_advanced', SimpleNamespace(main=fake_main))
+    for variable in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS'):
+        monkeypatch.setenv(variable, '1')
+    previous = sys.path.copy()
+    try:
+        exec(compile(script, 'optimized_kernel.py', 'exec'), {})
+    finally:
+        sys.path[:] = previous
+    assert not (work / 'mercari-data').exists()
+    assert (inputs / 'test_stg2.tsv.zip').is_file()
