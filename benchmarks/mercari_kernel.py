@@ -7,6 +7,7 @@ import base64
 import io
 import json
 from pathlib import Path
+import re
 import zipfile
 from benchmarks.mercari_config import validate
 
@@ -83,7 +84,7 @@ shutil.copy2(work / 'entry-run/report.json', work / 'report.json')
 '''
 
 
-def build(owner, output_dir, optimized_config=None, stage='auto'):
+def build(owner, output_dir, optimized_config=None, stage='auto', kernel_name=None):
     if stage not in ('auto', 'one', 'two'):
         raise ValueError('stage must be auto, one or two')
     output = Path(output_dir)
@@ -123,6 +124,10 @@ def build(owner, output_dir, optimized_config=None, stage='auto'):
         metadata.update(id=f'{owner}/libtree-mercari-stage-one-budget', title='LibTree Mercari stage one budget')
         code = code.replace("work / 'submission.csv'", "work / 'stage-one-predictions.csv'")
         code += "\n(work / 'STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt').write_text('Stage-one budget check completed; never submit')\n"
+    if kernel_name is not None:
+        if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', kernel_name):
+            raise ValueError('kernel name must be a lowercase hyphenated slug')
+        metadata.update(id=f'{owner}/{kernel_name}', title=kernel_name.replace('-', ' '))
     output.mkdir(parents=True, exist_ok=True)
     (output / metadata['code_file']).write_text(code)
     (output / 'kernel-metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
@@ -136,9 +141,10 @@ def main(argv=None):
     parser.add_argument('--optimized-config', type=Path, help='frozen ensemble settings; uses final-only training')
     parser.add_argument('--stage', choices=('auto', 'one', 'two'), default='auto',
                         help='one creates a separate timing-check Kernel with a non-submission output')
+    parser.add_argument('--kernel-name', help='optional distinct Kaggle slug for an experimental variant')
     args = parser.parse_args(argv)
     config = None if args.optimized_config is None else json.loads(args.optimized_config.read_text())
-    metadata = build(args.owner, args.output_dir, optimized_config=config, stage=args.stage)
+    metadata = build(args.owner, args.output_dir, optimized_config=config, stage=args.stage, kernel_name=args.kernel_name)
     print(json.dumps(dict(kernel=metadata['id'], output=str(args.output_dir))))
 
 

@@ -1,0 +1,156 @@
+{
+  "scope": "Existing selection window only; precomputed out-of-fit predictions; same fixed native settings; no holdout labels accessed",
+  "selection_rows": 74126,
+  "calibration_rows": 74129,
+  "expert_names": [
+    "ridge",
+    "ffm",
+    "sparse_adam_huber",
+    "sparse_row_huber",
+    "bag_mse",
+    "sparse_row_bins"
+  ],
+  "results": [
+    {
+      "name": "frozen_full",
+      "expert_weights": [
+        0.0,
+        0.26,
+        0.2368,
+        0.1184,
+        0.19240000000000002,
+        0.19240000000000002
+      ],
+      "selection_rmsle": 0.39566150327369537,
+      "native_fit_and_selection_seconds": 1.1915541579946876
+    },
+    {
+      "name": "frozen_full_without_ridge_reference",
+      "expert_weights": [
+        0.0,
+        0.26,
+        0.2368,
+        0.1184,
+        0.19240000000000002,
+        0.19240000000000002
+      ],
+      "selection_rmsle": 0.39571241974132987,
+      "native_fit_and_selection_seconds": 1.1830075820034835
+    },
+    {
+      "name": "fast_without_global_adam_expert",
+      "expert_weights": [
+        0.0,
+        0.3025117285952733,
+        0.0,
+        0.22694204384964306,
+        0.22222272025731432,
+        0.24832350729776936
+      ],
+      "selection_rmsle": 0.39721711584186387,
+      "native_fit_and_selection_seconds": 1.2626735890007694
+    },
+    {
+      "name": "rounded_fast_without_global_adam_and_ridge_reference",
+      "selection_rmsle": 0.3972742285123699,
+      "config": {
+        "seed": 42,
+        "threads": 4,
+        "max_features": 300000,
+        "char_features": 150000,
+        "ridge_alpha": 10.0,
+        "max_words": 100000,
+        "neural_width": 128,
+        "neural_loss": "huber",
+        "neural_architecture": "sparse",
+        "neural_rates": [
+          0.004,
+          0.004,
+          0.003
+        ],
+        "neural_members": [
+          {
+            "weight": 0.325,
+            "sparse_optimizer": "row_adam",
+            "neural_rates": [
+              0.004,
+              0.004
+            ],
+            "neural_batches": [
+              2048,
+              4096
+            ]
+          },
+          {
+            "weight": 0.32,
+            "neural_architecture": "bag",
+            "neural_text_version": 1,
+            "neural_width": 64,
+            "neural_loss": "mse",
+            "neural_rates": [
+              0.003,
+              0.003,
+              0.003
+            ],
+            "neural_batches": [
+              2048,
+              2048,
+              2048
+            ]
+          },
+          {
+            "weight": 0.355,
+            "neural_loss": "bins",
+            "sparse_optimizer": "row_adam",
+            "neural_rates": [
+              0.004,
+              0.004
+            ],
+            "neural_batches": [
+              2048,
+              4096
+            ]
+          }
+        ],
+        "neural_text_version": 2,
+        "fm_workers": 2,
+        "fm_rank": 12,
+        "fm_epochs": 2,
+        "fm_rate": 0.03,
+        "neural_batches": [
+          2048,
+          4096,
+          8192
+        ],
+        "sparse_word_limit": 100000,
+        "sparse_char_limit": 50000,
+        "sparse_min_df": 5,
+        "sparse_binary": true,
+        "sparse_optimizer": "adam",
+        "sparse_bins": 64,
+        "fm_l2": 0.001,
+        "fm_error_clip": 1e+30,
+        "fm_chunk": 32768,
+        "weights": [
+          0.0,
+          0.3,
+          0.7
+        ],
+        "correction_strength": 1.0,
+        "calibration_fraction": 0.058823529411764705,
+        "native": {
+          "n_estimators": 300,
+          "max_depth": 3,
+          "max_bins": 128,
+          "min_samples_leaf": 100,
+          "learning_rate": 0.04,
+          "reg_lambda": 20.0,
+          "n_jobs": 2
+        },
+        "ridge_reference": false
+      }
+    }
+  ],
+  "fast_weight_optimizer_success": true,
+  "holdout_accessed": false
+}

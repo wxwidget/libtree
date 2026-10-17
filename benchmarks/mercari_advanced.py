@@ -74,7 +74,7 @@ class Experts:
 
     def predict_prepared(self, frame, p):
         x = self.extractor.transform(p)
-        ridge = self.ridge.predict(x)
+        ridge = np.full(len(frame), self.mean) if self.ridge is None else self.ridge.predict(x)
         fm = self.mean + self.fm.predict(x[:, self.keep].multiply(self.scales).tocsr())
         neural = self.neural.predict(frame, p, x)
         return np.column_stack([ridge, fm, neural])
@@ -107,8 +107,11 @@ def fit_experts(frame, config):
     mean = float(np.mean(y))
     extractor = make_ridge(config['max_features'], config['ridge_alpha'], config['char_features'])['features']
     x = extractor.fit_transform(prepared)
-    ridge = SparseRidge(alpha=config['ridge_alpha'], tol=1e-4, max_iter=500).fit(x, y)
-    times = dict(ridge_and_features_seconds=time.perf_counter() - stamp, ridge_iterations=ridge.n_iter_)
+    ridge = None
+    if config.get('ridge_reference', True):
+        ridge = SparseRidge(alpha=config['ridge_alpha'], tol=1e-4, max_iter=500).fit(x, y)
+    times = dict(ridge_and_features_seconds=time.perf_counter() - stamp,
+                 ridge_iterations=0 if ridge is None else ridge.n_iter_, ridge_reference_enabled=ridge is not None)
     keep, scales, fields = fm_columns(extractor)
     fm = FactorizationMachine(len(keep), rank=config['fm_rank'], workers=config['fm_workers'],
         learning_rate=config['fm_rate'], l2=config['fm_l2'], chunk_size=config['fm_chunk'],
@@ -192,13 +195,20 @@ class Entry:
         prediction, x, correction = self.parts(frame)
         contributions = prediction[0] * self.config['weights']
         native = float(self.config['correction_strength'] * correction[0])
-        return dict(experts=EXPERT_NAMES, weighted_expert_log_contributions=contributions.tolist(),
+        return dict(experts=self.expert_names, weighted_expert_log_contributions=contributions.tolist(),
                     weighted_native_correction=native, price=float(mercari.prices(contributions.sum() + native)),
                     native_residual_path=self.native.explain(x[0], feature_names=self.feature_names, format='json'))
 
     @property
+    def expert_names(self):
+        names = list(EXPERT_NAMES)
+        if self.experts.ridge is None:
+            names[0] = 'mean_prior'
+        return names
+
+    @property
     def feature_names(self):
-        return self.encoder.feature_names_ + [name + '_log_price' for name in EXPERT_NAMES]
+        return self.encoder.feature_names_ + [name + '_log_price' for name in self.expert_names]
 
     def close(self):
         self.native.close()

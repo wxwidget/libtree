@@ -170,3 +170,36 @@ def test_mixed_neural_members_refit_legacy_text_and_preserve_weighted_prediction
             clone.close()
     finally:
         entry.close()
+
+
+def test_optional_ridge_reference_skips_solver_and_explains_the_prior(tmp_path, monkeypatch):
+    config = tiny_config()
+    config.update(weights=[0., .4, .6], ridge_reference=False)
+    advanced.validate(config)
+    for changes in [dict(ridge_reference='false'), dict(weights=[.2, .2, .6])]:
+        with pytest.raises(ValueError):
+            advanced.validate(dict(config, **changes))
+    def forbidden_solver(*args, **kwargs):
+        raise AssertionError('disabled Ridge reference must not run its solver')
+    monkeypatch.setattr(advanced, 'SparseRidge', forbidden_solver)
+    frame = listings(100)
+    base, calibration = advanced.calibration_split(frame, .2, 42)
+    entry, stages = advanced.fit_entry(base, calibration, config)
+    try:
+        query = frame.iloc[:3]
+        assert entry.experts.ridge is None
+        assert stages['experts']['ridge_iterations'] == 0
+        np.testing.assert_array_equal(entry.experts.predict(query)[:, 0], np.full(3, entry.experts.mean))
+        explanation = entry.explain(query.iloc[:1])
+        assert explanation['experts'][0] == 'mean_prior'
+        assert explanation['weighted_expert_log_contributions'][0] == 0.
+        names = entry.feature_names
+        explanation['experts'][0] = 'changed by caller'
+        assert entry.feature_names == names
+        clone = pickle.loads(pickle.dumps(entry))
+        try:
+            np.testing.assert_array_equal(entry.predict(query), clone.predict(query))
+        finally:
+            clone.close()
+    finally:
+        entry.close()

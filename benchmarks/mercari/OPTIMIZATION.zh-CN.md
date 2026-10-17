@@ -23,6 +23,13 @@
 相对原基线下降 **10.28%**。同一组基础模型加上 LibTree 后再下降约 0.00091。
 主要收益来自整个特征与融合系统，不能把全部提升归因于 C++ 树算法。
 
+另一个[轻量候选配置](fast-config.json)根据既有选择集及实际成本确定，在两个新版
+Kaggle 分数返回前冻结。它去掉全矩阵 Adam 神经网络和已拟合的 Ridge 参考支路，
+选择集 RMSLE 为 **0.397274**，精度版为 **0.395662**；Ridge 参考单独贡献约
+0.00005 的选择集改进。[成本消融](cost-ablation.json)保留全部比较。
+轻量候选**没有独立的本地留出成绩**，Kaggle 分数及托管时间检查尚待完成。
+原精度版配置继续保留。
+
 [审计原始数据](optimization-audit.json) · [探索实验汇总](optimization-study.json) ·
 [推理计时记录](inference-optimization.json)。同一批 10 万条无标签测试样本，预热一次、
 交错重复三次，新系统平均 **34.819 秒**，最小／最大 **31.699／40.973 秒**；旧系统
@@ -74,6 +81,8 @@
    字典和价格统计只用允许的训练窗口，预测时不更新。
 3. **改善稀疏求解。** Ridge 用带对角预条件的共轭梯度，隐式处理中心化，
    不生成巨大的稠密商品矩阵。数值测试与独立的稠密 Cholesky 解对照。
+   可选的 `ridge_reference: false` 在外层权重为零时跳过该求解，用明确命名的均值
+   先验保持校准特征布局，解释中也显示为先验。旧配置继续拟合 Ridge 参考。
 4. **学习词语与类别的交互。** 字段感知因子分解能学习“某个词出现在某品牌下”
    的效应。各 CPU worker 使用独立参数，按批同步，避免共享参数并发写入。
 5. **利用不同损失的互补性。** 比较 MSE、Huber 回归和 64 档价格分类。
@@ -84,6 +93,9 @@
 7. **明确复现预算检查。** 打包命令可显式选择阶段，第一阶段使用独立 Kernel 名称和
    非提交产物。所有 ZIP 条目时间戳固定，相同输入可以稳定重建。此处只修改打包工具，
    冻结的训练与推理模块保持原样。
+
+精度版审计及正在运行的第 4 版使用归档的 `b7badbc` 模型源码。后续的轻量候选
+才引入可选 Ridge 跳过路径；每次实验的源码哈希分别绑定其实现。
 
 ## 评估如何避免自我欺骗
 
@@ -167,6 +179,9 @@ kaggle kernels status YOUR_USERNAME/libtree-mercari-stage-one-budget
 它使用另一个 Kernel ID，输出 `stage-one-predictions.csv` 和
 `STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt` 标记；该预测只用于时间检查。
 打包内容排除了模型文件和凭据。
+要并行运行不同候选，使用 `--kernel-name` 指定独立的小写名称，例如
+`libtree-mercari-fast-entry` 或 `libtree-mercari-fast-stage-one-budget`，并将配置路径
+替换为 `benchmarks/mercari/fast-config.json`。
 
 脚本在私有 Kernel 内编译 C++ 并重新训练、预测；不会上传本地模型或自动提交。
 记录 push 返回的版本，完成后按比赛记录中的方法提交第二阶段该版本的 `submission.csv`。
@@ -186,13 +201,13 @@ Huber 减少极大误差的影响；价格分箱模型先预测各价格区间�
 
 ## 测试与引用
 
-[验证记录](optimization-verification.json)保存了 **50 项 Mercari 测试通过、
-1,049/1,049 条 Python 语句覆盖**，并另测 4 项真实编译的因子分解内核测试。
-其中模型测试 47 项、推理命令测试 3 项，本地分开执行，CI 中合并验证。核心仍为
+[验证记录](optimization-verification.json)保存了 **52 项 Mercari 测试通过、
+1,060/1,060 条 Python 语句覆盖**，并另测 4 项真实编译的因子分解内核测试。
+新增阶段／打包检查和推理命令测试均纳入本地与 CI 的合并验证。核心仍为
 **Python 505/505 条语句、C++ 2,790/2,790 行覆盖**。
 推理对照命令另有 **3 项测试通过、72/72 条语句覆盖**，并用两套真实保存模型
 完成加载、预测一致性与输出检查；这次小样本检查不作为性能结论。
-[GitHub Actions 39042430151](https://github.com/wxwidget/libtree/actions/runs/39042430151)
+[GitHub Actions 39045263809](https://github.com/wxwidget/libtree/actions/runs/39045263809)
 全部成功，包含 sanitizer、线程 sanitizer 和新增的 wheel 安装集成测试。
 CI 明确验证已安装 wheel 的原生库，避免未编译的源码包覆盖已安装包。
 [工作流文件](../../.github/workflows/test.yml)提供完整的依赖安装、覆盖率和编译内核

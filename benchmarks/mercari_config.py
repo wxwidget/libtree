@@ -14,7 +14,7 @@ DEFAULT = dict(seed=42, threads=4, max_features=300000, char_features=150000,
 
 
 def validate(config):
-    if set(config) != set(DEFAULT):
+    if set(config) - {'ridge_reference'} != set(DEFAULT):
         raise ValueError('configuration fields must match the documented schema')
     weights = np.asarray(config['weights'], dtype=float)
     positive = ['threads', 'max_features', 'ridge_alpha', 'max_words', 'neural_width',
@@ -32,6 +32,8 @@ def validate(config):
             or config['sparse_char_limit'] < 0 or not isinstance(config['sparse_binary'], bool)
             or config['sparse_optimizer'] not in ('adam', 'row_adam')
             or config['char_features'] < 0 or config['fm_l2'] < 0
+            or not isinstance(config.get('ridge_reference', True), bool)
+            or (not config.get('ridge_reference', True) and weights[0] != 0)
             or config['fm_workers'] > config['threads'] or not 0 <= config['correction_strength'] <= 1):
         raise ValueError('invalid or unknown ensemble configuration')
     if config['neural_members']:

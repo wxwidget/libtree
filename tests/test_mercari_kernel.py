@@ -176,12 +176,17 @@ def test_stage_one_budget_check_cannot_replace_the_competition_entry(tmp_path, m
     assert (inputs / 'test_stg2.tsv').is_file()
     mercari_kernel.main(['--owner', 'wxwidget', '--output-dir', str(tmp_path / 'cli-one'), '--stage', 'one'])
     assert json.loads((tmp_path / 'cli-one/kernel-metadata.json').read_text())['id'] == metadata['id']
+    mercari_kernel.main(['--owner', 'wxwidget', '--output-dir', str(tmp_path / 'named-one'), '--stage', 'one',
+                         '--kernel-name', 'libtree-mercari-fast-stage-one-budget'])
+    assert json.loads((tmp_path / 'named-one/kernel-metadata.json').read_text())['id'] == 'wxwidget/libtree-mercari-fast-stage-one-budget'
 
 
 def test_explicit_stage_two_and_deterministic_source_archive(tmp_path):
     from benchmarks.mercari_config import DEFAULT
     with pytest.raises(ValueError):
         mercari_kernel.build('wxwidget', tmp_path / 'invalid', stage='three')
+    with pytest.raises(ValueError):
+        mercari_kernel.build('wxwidget', tmp_path / 'invalid-name', kernel_name='../other')
     scripts = []
     for name in ('first', 'second'):
         folder = tmp_path / name

@@ -28,6 +28,15 @@ verification is separate from this local result.
 [Audit evidence](optimization-audit.json) · [Exploratory results](optimization-study.json)
 · [Inference measurements](inference-optimization.json).
 
+The separate [fast candidate](fast-config.json) was frozen from the existing
+selection window after measuring cost, before either new Kaggle score was
+available. It omits the global-Adam neural expert and the fitted Ridge reference.
+Its selection RMSLE is **0.397274**, versus **0.395662** for the frozen accuracy
+configuration. The Ridge reference alone improves selection RMSLE by about
+0.00005. [Cost ablations](cost-ablation.json) retain every comparison. The fast
+candidate has **no independent local holdout result**; its Kaggle score and
+hosted runtime check are pending. The original accuracy configuration is retained.
+
 Serving-cost comparison on the same first 100,000 unlabeled stage-two listings,
 one warm-up and three interleaved repetitions:
 
@@ -101,6 +110,10 @@ complete system; it does not isolate an improvement in the GBDT algorithm.
 * Solve sparse Ridge with matrix-free, diagonally preconditioned conjugate
   gradients. Implicit centering preserves the intercept and Ridge objective.
   Tests compare the coefficients and predictions with a dense Cholesky solver.
+  The optional `ridge_reference: false` skips that solver when its outer blend
+  weight is zero. A named mean prior keeps the calibration feature layout stable;
+  explanations identify it as a prior. Existing configurations retain their
+  fitted Ridge reference.
 * Learn field-aware interactions across title, description, brand, category,
   and condition/shipping features. CPU workers own independent parameters and
   synchronize between chunks; they do not write shared parameters concurrently.
@@ -116,6 +129,10 @@ complete system; it does not isolate an improvement in the GBDT algorithm.
   identity and non-submission output for stage one. All embedded ZIP entries now
   have fixed timestamps, so repeated builds with identical inputs are stable.
   These builder changes leave the frozen training/inference modules unchanged.
+
+The accuracy audit and running version 4 use the archived `b7badbc` model
+snapshot. The optional Ridge-skip path belongs to the later fast candidate;
+source hashes bind each run to its own implementation.
 
 ## Evaluation protocol
 
@@ -251,6 +268,9 @@ kaggle kernels status YOUR_USERNAME/libtree-mercari-stage-one-budget
 Stage one uses a separate Kernel ID, writes `stage-one-predictions.csv` and a
 `STAGE_ONE_BUDGET_CHECK_NEVER_SUBMIT.txt` marker. Its predictions are for the
 runtime check. Model and credential files are excluded from the source bundle.
+For parallel variants, use `--kernel-name` with a distinct lowercase slug, such
+as `libtree-mercari-fast-entry` or `libtree-mercari-fast-stage-one-budget`, and
+replace the configuration path with `benchmarks/mercari/fast-config.json`.
 
 Record the version returned by the push. After the full Kernel completes,
 submit the stage-two `submission.csv` using that exact version, as described in the
@@ -277,13 +297,12 @@ and [native prediction-path guide](../../docs/explain.md).
 
 ## Tests and references
 
-[Verification evidence](optimization-verification.json) records **50 passing
-Mercari tests and 1,049/1,049 covered Python statements**, plus four separate
-compiled-FM tests. This includes 47 modeling tests and three serving CLI tests,
-measured separately locally and together in CI, plus a replay using both real
-saved models.
+[Verification evidence](optimization-verification.json) records **52 passing
+Mercari tests and 1,060/1,060 covered Python statements**, plus four separate
+compiled-FM tests. The combined local and CI suite includes stage-specific budget checks and
+serving CLI tests, plus a separate replay using both real saved models.
 The core retains **505/505 Python statements and 2,790/2,790
-C++ lines covered**. [GitHub Actions run 39042430151](https://github.com/wxwidget/libtree/actions/runs/39042430151)
+C++ lines covered**. [GitHub Actions run 39045263809](https://github.com/wxwidget/libtree/actions/runs/39045263809)
 passed all jobs, including sanitizer, thread sanitizer and the new installed-wheel
 Mercari integration job. The installed-wheel check prevents an unbuilt source
 package from shadowing its compiled native library in CI. The
