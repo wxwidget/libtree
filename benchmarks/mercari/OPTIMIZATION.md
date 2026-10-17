@@ -51,6 +51,24 @@ was fitted on all labels; the new estimator is the local audit model. A tested
 sparse-matmul projection preserved predictions (maximum log-price difference
 4.10e-7) but averaged 34.558 s, within the observed variability; it was discarded.
 
+An additional [batch-size study](sparse-batch-study.json) uses the same audited
+weights, one warm-up per setting and four balanced, rotating repetitions:
+
+| Sparse batch size | Mean, s | Min, s | Max, s | Population std, s |
+| --- | ---: | ---: | ---: | ---: |
+| 4,096 | 33.988 | 33.052 | 36.008 | 1.178 |
+| 8,192 | 35.761 | 33.105 | 38.404 | 2.020 |
+| **16,384** | **33.184** | **32.235** | **33.907** | **0.683** |
+| 32,768 | 37.042 | 32.372 | 39.910 | 2.979 |
+
+Here 16,384 reduces complete-pipeline mean time by **7.21%** against 8,192;
+every measured prediction is bitwise identical. This optional serving setting
+is separate from the submitted Kernels' original 8,192-row sparse batches.
+A [joint-projection experiment](joint-projection-study.json) concatenated the
+three first-layer kernels and split the result into the original heads. Its
+means were 34.754/37.430 s for joint 8,192/16,384 versus eager 33.754 s; maximum
+log-price difference was 4.10e-7. The joint implementation was discarded.
+
 ## Full local refit cost
 
 The [final-only report](optimized-final-001.json) records **1,395,326 base-model
@@ -94,6 +112,14 @@ same embedded model source and parameters. Its status remains **pending**;
 the check concerns runtime, and the overall experiment remains post-contest
 practice. [The journal](record.json) retains both attempts and their limits.
 
+An independent [synthetic platform audit](runtime-audit.json) observed Python
+3.13.15, Keras 3.13.2, TensorFlow 2.20.0, NumPy 2.1.3 and a four-CPU quota.
+The sparse first-layer gradient remained `IndexedSlices`. Local dependency
+versions are pinned separately. The hosted first neural epoch took about
+519 s versus local 219 s; this is an observed environment difference, without
+isolating its hardware or library cause. Hosted progress and printed reports
+are available through the official `kaggle kernels logs --follow` API.
+
 ## What changed
 
 The entry combines a field-aware factorization model, several complementary
@@ -128,7 +154,8 @@ complete system; it does not isolate an improvement in the GBDT algorithm.
 * Select the input stage explicitly for budget checks, with a separate Kernel
   identity and non-submission output for stage one. All embedded ZIP entries now
   have fixed timestamps, so repeated builds with identical inputs are stable.
-  These builder changes leave the frozen training/inference modules unchanged.
+  These builder changes concern input selection and packaging; each submitted
+  model snapshot remains bound to its own source hash.
 
 The accuracy audit and running version 4 use the archived `b7badbc` model
 snapshot. The optional Ridge-skip path belongs to the later fast candidate;
@@ -239,6 +266,20 @@ arithmetic mean/min/max/std and raw samples, and restores the Numba thread count
 Loading, input I/O and prediction checks are outside the timed region. Pickle
 files must be trusted; they can execute code. This compares the supplied complete
 systems, including any differences in their training sizes and capacity.
+
+To compare sparse batches with identical weights, pass the same saved model
+path to both model arguments and add `--sparse-batch-size 16384 --repeats 4`.
+The override applies to the optimized copy. For an already loaded Mercari entry:
+
+```python
+from benchmarks.mercari_inference import configure_sparse_batches
+
+configure_sparse_batches(entry, 16384)
+prediction = entry.predict(listings)
+```
+
+This configures inference adapters in place using their existing trained
+weights. The benchmark records the override and the number of sparse heads.
 
 To reproduce the fixed local protocol, use `--mode study`. It reports selection
 RMSLE without evaluating the holdout. Add `--audit-holdout` only after freezing

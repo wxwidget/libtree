@@ -1,0 +1,67 @@
+{
+  "rows": 100000,
+  "warmup_runs_per_setting": 1,
+  "repeats": 3,
+  "balanced_rotating_order": true,
+  "threads": 4,
+  "fm_threads": 2,
+  "scope": "Same frozen audit estimator and unlabeled first 100000 stage-two rows; complete pipeline; no concurrent local training",
+  "timings": {
+    "eager": {
+      "samples": [
+        31.558065452998562,
+        37.298900139998295,
+        32.405812536002486
+      ],
+      "mean": 33.75425937633312,
+      "min": 31.558065452998562,
+      "max": 37.298900139998295,
+      "std": 2.5302209899220363,
+      "repeats": 3
+    },
+    "joint_8192": {
+      "samples": [
+        37.389854952998576,
+        33.22355660199537,
+        33.6496541489978
+      ],
+      "mean": 34.75435523466391,
+      "min": 33.22355660199537,
+      "max": 37.389854952998576,
+      "std": 1.8716808584615294,
+      "repeats": 3
+    },
+    "joint_16384": {
+      "samples": [
+        32.03840338699956,
+        36.773712004003755,
+        43.47690148100082
+      ],
+      "mean": 37.429672290668044,
+      "min": 32.03840338699956,
+      "max": 43.47690148100082,
+      "std": 4.69272647010798,
+      "repeats": 3
+    }
+  },
+  "prediction_differences": {
+    "eager": {
+      "max_log_difference": 0.0,
+      "rms_log_difference": 0.0,
+      "rows_above_3e_minus_6": 0
+    },
+    "joint_8192": {
+      "max_log_difference": 4.0931701672519694e-07,
+      "rms_log_difference": 3.848490983810295e-08,
+      "rows_above_3e_minus_6": 0
+    },
+    "joint_16384": {
+      "max_log_difference": 4.0931701672519694e-07,
+      "rms_log_difference": 3.848490983810295e-08,
+      "rows_above_3e_minus_6": 0
+    }
+  },
+  "deployed_in_kaggle_version_4": false,
+  "source_sha256": "f2f59b3649990c82e97cbadb631e00b37688da438f8b7bf7f03733635f0b470b",
+  "peak_rss_mib": 3922.9453125
+}

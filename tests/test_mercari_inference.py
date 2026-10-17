@@ -25,6 +25,47 @@ class Estimator:
         self.closed = True
 
 
+class SparseEstimator:
+    def __init__(self):
+        self.calls = []
+
+    def predict(self, x, batch_size=8192):
+        self.calls.append(batch_size)
+        return np.asarray(x.sum(axis=1)).ravel()
+
+
+class SparseEntry(Estimator):
+    def __init__(self):
+        super().__init__()
+        from benchmarks.mercari_advanced import SparseText
+        self.experts = SimpleNamespace(neural=SparseText(np.array([0]), SparseEstimator()))
+
+    def predict(self, frame):
+        from scipy.sparse import csr_matrix
+        return self.experts.neural.predict(frame, None, csr_matrix(frame.test_id.to_numpy()[:, None]))
+
+
+def test_sparse_batch_adapter_preserves_weights_and_can_be_reconfigured():
+    from scipy.sparse import csr_matrix
+    from benchmarks.mercari_advanced import SparseText
+    original = SparseEstimator()
+    node = SparseText(np.array([0, 1]), original)
+    model = SimpleNamespace(experts=SimpleNamespace(neural=SimpleNamespace(members=[node, object()])))
+    x = csr_matrix([[1., 0.], [0., 2.]])
+    assert serving.configure_sparse_batches(model, 16384) == 1
+    np.testing.assert_array_equal(node.predict(None, None, x), [1., 2.])
+    assert original.calls == [16384]
+    model.experts.neural = node
+    assert serving.configure_sparse_batches(model, 4096) == 1
+    np.testing.assert_array_equal(node.predict(None, None, x), [1., 2.])
+    assert original.calls == [16384, 4096]
+    for invalid in (0, -1, True, 1.5):
+        with pytest.raises(ValueError):
+            serving.configure_sparse_batches(model, invalid)
+    with pytest.raises(ValueError):
+        serving.configure_sparse_batches(Estimator(), 8192)
+
+
 def test_interleaving_means_warmup_and_thread_restoration(monkeypatch):
     calls = []
     class Traced(Estimator):
@@ -104,6 +145,16 @@ def test_cli_replays_trusted_models_and_writes_aggregate_evidence(tmp_path, monk
     assert set(report['model_sha256']) == {'baseline', 'optimized'}
     with pytest.raises(ValueError):
         serving.main(args)
+    paths[1].write_bytes(pickle.dumps(SparseEntry()))
+    configured = args.copy()
+    configured[configured.index('--output') + 1] = str(tmp_path / 'configured.json')
+    configured.extend(['--sparse-batch-size', '16384'])
+    result = serving.main(configured)
+    assert result['inference_overrides'] == {'sparse_batch_size': 16384, 'sparse_heads': 1}
+    assert loaded[-1].experts.neural.model.model.calls == [16384] * 3
+    configured[-1] = '0'
+    with pytest.raises(ValueError):
+        serving.main(configured)
     failed = args.copy()
     failed[failed.index('--output') + 1] = str(tmp_path / 'failed.json')
     pd.DataFrame({'test_id': []}).to_csv(data, sep='\t', index=False)

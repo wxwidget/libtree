@@ -20,6 +20,29 @@ from threadpoolctl import threadpool_limits
 from benchmarks.mercari import sha256, timing
 
 
+class _BatchedSparseExpert:
+    def __init__(self, model, batch_size):
+        self.model, self.batch_size = model, batch_size
+
+    def predict(self, x):
+        return self.model.predict(x, batch_size=self.batch_size)
+
+
+def configure_sparse_batches(entry, batch_size):
+    """Configure sparse adapters in place using their existing trained weights."""
+    if not isinstance(batch_size, int) or isinstance(batch_size, bool) or batch_size < 1:
+        raise ValueError('sparse batch size must be a positive integer')
+    from benchmarks.mercari_advanced import SparseText
+    neural = getattr(getattr(entry, 'experts', None), 'neural', None)
+    targets = [member for member in getattr(neural, 'members', [neural]) if isinstance(member, SparseText)]
+    if not targets:
+        raise ValueError('model has no sparse text adapters')
+    for member in targets:
+        model = member.model.model if isinstance(member.model, _BatchedSparseExpert) else member.model
+        member.model = _BatchedSparseExpert(model, batch_size)
+    return len(targets)
+
+
 def _prediction(value, rows):
     result = np.asarray(value)
     if result.shape != (rows,) or not np.isfinite(result).all():
@@ -65,8 +88,10 @@ def main(argv=None):
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--fm-threads', type=int, default=2)
+    parser.add_argument('--sparse-batch-size', type=int, help='override optimized model sparse inference batches')
     args = parser.parse_args(argv)
-    if min(args.rows, args.repeats, args.threads, args.fm_threads) < 1:
+    if (min(args.rows, args.repeats, args.threads, args.fm_threads) < 1
+            or (args.sparse_batch_size is not None and args.sparse_batch_size < 1)):
         raise ValueError('row, repeat and thread counts must be positive')
     if args.output.exists():
         raise ValueError('output must be a new file')
@@ -79,8 +104,13 @@ def main(argv=None):
             with path.open('rb') as stream:
                 models[name] = pickle.load(stream)
             resources.callback(models[name].close)
+        overrides = {}
+        if args.sparse_batch_size is not None:
+            overrides = dict(sparse_batch_size=args.sparse_batch_size,
+                             sparse_heads=configure_sparse_batches(models['optimized'], args.sparse_batch_size))
         frame = pd.read_csv(args.test_file, sep='\t', nrows=args.rows)
         report = measure(models, frame, args.repeats, args.threads, args.fm_threads)
+        report['inference_overrides'] = overrides
     report.update(created_utc=datetime.now(timezone.utc).isoformat(),
                   model_sha256={name: sha256(path) for name, path in paths.items()},
                   input_sha256=sha256(args.test_file))
