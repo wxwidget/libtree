@@ -88,6 +88,22 @@ PYTHONPATH=. python -m benchmarks.mercari_advanced \
 大模型文件，保留预测、报告和解释。数据、模型、缓存与预测均放在被 Git 忽略的
 `benchmarks/runs/` 下；配置、代码和汇总报告可以提交 Git。
 
+要复测推理耗时，保留可信的本地模型文件，在没有并发训练的新进程中运行：
+
+```sh
+PYTHONPATH=. python -m benchmarks.mercari_inference \
+  --baseline-model benchmarks/runs/mercari/full-001/model.pkl \
+  --optimized-model benchmarks/runs/mercari/optimized-audit/model.pkl \
+  --test-file benchmarks/runs/mercari/data/test_stg2.tsv \
+  --output benchmarks/runs/mercari/serving-comparison.json \
+  --rows 100000 --repeats 3 --threads 4 --fm-threads 2
+```
+
+按实际输出目录调整模型路径。命令会预热、交错执行、核对重复预测，输出算术平均值、
+最小／最大值、标准差和每次耗时，并恢复 Numba 线程数。加载、输入 I/O 和预测校验
+不计时。pickle 可执行代码，只加载可信文件。比较对象是所提供的完整系统，
+其中训练样本量和模型容量的差别也应明确报告。
+
 把 `--mode final` 改为 `--mode study` 可复现固定的本地划分，默认只报告选择集。
 仅在冻结选择后加 `--audit-holdout`。这是全量计算，不能把小样本试跑时间当全量时间。
 
@@ -115,6 +131,17 @@ Huber 减少极大误差的影响；价格分箱模型先预测各价格区间�
 [原生树路径说明](../../docs/explain.md)。
 
 ## 测试与引用
+
+[验证记录](optimization-verification.json)保存了 **47 项 Mercari 测试通过、
+977/977 条 Python 语句覆盖**，并另测 4 项真实编译的因子分解内核测试。核心仍为
+**Python 505/505 条语句、C++ 2,790/2,790 行覆盖**。
+推理对照命令另有 **3 项测试通过、72/72 条语句覆盖**，并用两套真实保存模型
+完成加载、预测一致性与输出检查；这次小样本检查不作为性能结论。
+[GitHub Actions 39040397779](https://github.com/wxwidget/libtree/actions/runs/39040397779)
+全部成功，包含 sanitizer、线程 sanitizer 和新增的 wheel 安装集成测试。
+CI 明确验证已安装 wheel 的原生库，避免未编译的源码包覆盖已安装包。
+[工作流文件](../../.github/workflows/test.yml)提供完整的依赖安装、覆盖率和编译内核
+验证命令，可直接按步骤复现。
 
 测试涵盖无标签泄漏、旧版本重训、分组隔离、稀疏／稠密数值一致性、显式成对
 因子分解公式、worker 同步、重复梯度合并、稳定分箱、模型重放、贡献求和、ZIP

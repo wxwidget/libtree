@@ -22,12 +22,12 @@ jobs:
           NUMBA_DISABLE_JIT=1 python -m pytest
           tests/test_mercari.py tests/test_mercari_kernel.py tests/test_mercari_features.py
           tests/test_mercari_solver.py tests/test_mercari_fm.py tests/test_mercari_neural.py
-          tests/test_mercari_advanced.py tests/test_mercari_sparse.py
+          tests/test_mercari_advanced.py tests/test_mercari_sparse.py tests/test_mercari_inference.py
           --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel
           --cov=benchmarks.mercari_config --cov=benchmarks.mercari_features
           --cov=benchmarks.mercari_solver --cov=benchmarks.mercari_fm
           --cov=benchmarks.mercari_neural --cov=benchmarks.mercari_advanced
-          --cov=benchmarks.mercari_sparse
+          --cov=benchmarks.mercari_sparse --cov=benchmarks.mercari_inference
           --cov-report=term-missing --cov-fail-under=100
       - name: Compiled parallel FM arithmetic and learning
         run: python -m pytest tests/test_mercari_fm.py -q

@@ -1,0 +1,60 @@
+{
+  "captured_utc": "2026-10-17T14:34:17.066544+00:00",
+  "validated_commit": "2660c6fc1e3c83b6260327f0d252457b984885f2",
+  "github_actions": {
+    "run_id": 39040397779,
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39040397779",
+    "status": "completed",
+    "conclusion": "success",
+    "observation": "Public GitHub Actions structured run metadata"
+  },
+  "mercari": {
+    "tests_passed": 47,
+    "source_and_installed_wheel_both_verified": true,
+    "statements": 977,
+    "covered_statements": 977,
+    "coverage_percent": 100.0,
+    "coverage_scope": "Python executable statements; NUMBA_DISABLE_JIT=1 for reference kernels; not branch coverage",
+    "compiled_parallel_fm_tests_passed": 4
+  },
+  "core": {
+    "cpp_ctest_targets_passed": 8,
+    "python_tests_passed": 97,
+    "cli_tests_passed": 16,
+    "performance_memory_tests_passed": 4,
+    "python_cli_coverage_tests_passed": 113,
+    "python_statements": 505,
+    "covered_python_statements": 505,
+    "cpp_lines": 2790,
+    "covered_cpp_lines": 2790,
+    "cpp_python_coverage_percent": 100.0,
+    "clang_format": "passed",
+    "sanitizer_and_thread_sanitizer": "passed in linked GitHub Actions linux job"
+  },
+  "local_log_sha256": {
+    "source_mercari_tests": "681924e2e91bfb1793d48b614763037809fc118d15dd79e02965d68fca5482cf",
+    "installed_wheel_mercari_tests": "7f4c3bb5e09db5507193371c86f3b4d3d2600a2139e35c1e80d38d1727058ad2",
+    "compiled_fm_tests": "9749135c41084e8173dbba868a950d160ec3c5551a45ff1fb5468ed9bb740241",
+    "core_regression": "3d422e4070d2ea9639afb8ee302a5802dffe5eb465a54930958b882c6c8017de",
+    "core_coverage": "b34a6447546a6f3eceb681fabc510957b3f88dee526e5e2037b6e0d1e32e23db",
+    "serving_cli_tests": "f3839f417117666ce96cf47f0261b06ba9d5ca819bd9043e54e4a74874993719"
+  },
+  "serving_cli": {
+    "tests_passed": 3,
+    "statements": 72,
+    "covered_statements": 72,
+    "coverage_percent": 100.0,
+    "source_sha256": "982791aa49174e4c1fbd9d1d66bd2b528a65a20be8731cb244b71bdc43cd5b29",
+    "coverage_scope": "Additional serving CLI tests run separately after the 47-test model suite; no model-training source was changed",
+    "real_model_replay": {
+      "status": "passed",
+      "rows": 128,
+      "repeats": 2,
+      "model_sha256": {
+        "baseline": "8ed2b85b8ef0f83af9178aa9b7cc26a9ffd6e2be5e81dec4c0b5d8713dc39d9f",
+        "optimized": "d9bf603142910b35010fc698ef30e0eec44b75aaeae200cf256d792e489515ff"
+      },
+      "scope": "CLI integration only; small concurrent run is not a controlled timing benchmark"
+    }
+  }
+}

@@ -157,6 +157,25 @@ JSON tree structure, and an explanation for the first actual test listing.
 Use `--omit-model-artifact` to retain predictions and explanations without
 saving the large pickle.
 
+To repeat the serving comparison, retain trusted local model pickles from the
+baseline and optimized study. Start a fresh process, without concurrent training:
+
+```sh
+PYTHONPATH=. python -m benchmarks.mercari_inference \
+  --baseline-model benchmarks/runs/mercari/full-001/model.pkl \
+  --optimized-model benchmarks/runs/mercari/optimized-audit/model.pkl \
+  --test-file benchmarks/runs/mercari/data/test_stg2.tsv \
+  --output benchmarks/runs/mercari/serving-comparison.json \
+  --rows 100000 --repeats 3 --threads 4 --fm-threads 2
+```
+
+Adjust model paths to your actual output directories. The command checks each
+model's predictions against its own warm-up, alternates model order, records
+arithmetic mean/min/max/std and raw samples, and restores the Numba thread count.
+Loading, input I/O and prediction checks are outside the timed region. Pickle
+files must be trusted; they can execute code. This compares the supplied complete
+systems, including any differences in their training sizes and capacity.
+
 To reproduce the fixed local protocol, use `--mode study`. It reports selection
 RMSLE without evaluating the holdout. Add `--audit-holdout` only after freezing
 decisions. Retraining and the audit are substantial full-data computations.
@@ -194,6 +213,18 @@ For tree fundamentals, see the offline [interactive learning guide](../../docs/L
 and [native prediction-path guide](../../docs/explain.md).
 
 ## Tests and references
+
+[Verification evidence](optimization-verification.json) records **47 passing
+Mercari tests and 977/977 covered Python statements**, plus four separate
+compiled-FM tests. The serving CLI adds **three passing tests and 72/72 covered
+statements**, checked separately, and a replay using both real saved models.
+The core retains **505/505 Python statements and 2,790/2,790
+C++ lines covered**. [GitHub Actions run 39040397779](https://github.com/wxwidget/libtree/actions/runs/39040397779)
+passed all jobs, including sanitizer, thread sanitizer and the new installed-wheel
+Mercari integration job. The installed-wheel check prevents an unbuilt source
+package from shadowing its compiled native library in CI. The
+[workflow](../../.github/workflows/test.yml) contains the exact dependency,
+coverage and compiled-kernel verification commands.
 
 Tests cover train-only preprocessing, legacy refits, scalar/model tokens,
 group separation, dense/sparse numerical equivalence, exact factorization
