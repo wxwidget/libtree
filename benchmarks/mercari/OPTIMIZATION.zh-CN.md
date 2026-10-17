@@ -77,7 +77,7 @@ Kaggle 内不再搜索参数或根据榜单选择模型。
 
 ```sh
 python -m pip install '.[mercari]' kaggle
-PYTHONPATH=python:. python -m benchmarks.mercari_advanced \
+PYTHONPATH=. python -m benchmarks.mercari_advanced \
   --data-dir benchmarks/runs/mercari/data \
   --config benchmarks/mercari/optimized-config.json \
   --output-dir benchmarks/runs/mercari/optimized-final --mode final

@@ -8,13 +8,15 @@ jobs:
       TF_CPP_MIN_LOG_LEVEL: '3'
       TF_NUM_INTRAOP_THREADS: '2'
       TF_NUM_INTEROP_THREADS: '1'
-      PYTHONPATH: python:.
+      PYTHONPATH: .
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: python -m pip install '.[mercari]' pytest pytest-cov
+      - name: Verify the installed wheel includes its native library
+        run: python -c 'import libtree; libtree._library()'
       - name: Full statement coverage with executable reference kernels
         run: >-
           NUMBA_DISABLE_JIT=1 python -m pytest
