@@ -42,6 +42,12 @@ the frozen 10.28% local holdout improvement, sparse text models, loss ablations,
 CPU costs and reproduction commands. This is post-competition practice; the
 accuracy gain comes from the complete ensemble and increases serving cost.
 
+Read the [Mercari technical retrospective](benchmarks/mercari/TECHNICAL_REPORT.md)
+for the architecture, successful and failed experiments, theory references and
+evidence limits. The separate [beginner walkthrough](benchmarks/mercari/BEGINNER_GUIDE.md)
+starts with a credential-free synthetic run and explains how to reproduce training,
+prediction explanations, performance measurements and Kaggle submissions.
+
 ## At a glance
 
 - One C++ implementation powers both the C++ and Python APIs; Python does not

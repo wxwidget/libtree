@@ -2,6 +2,10 @@
 
 [中文记录](README.zh-CN.md) · [Competition](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle Kernel](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
+**Reading paths:** [Beginner walkthrough](BEGINNER_GUIDE.md) for concepts and a
+small runnable example; [technical retrospective](TECHNICAL_REPORT.md) for
+architecture, theory, successful/failed experiments and reproducibility limits.
+
 The [optimization study](OPTIMIZATION.md) achieved an actual **10.46% Kaggle
 private RMSLE reduction**, from **0.43776 to 0.39199** (public **0.39110**), with
 submission [57318931](kaggle-submission-57318931.json), status **COMPLETE**.

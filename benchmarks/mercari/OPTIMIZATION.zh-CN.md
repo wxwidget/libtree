@@ -2,6 +2,9 @@
 
 [English](OPTIMIZATION.md) · [比赛记录](README.zh-CN.md) · [冻结参数](optimized-config.json)
 
+架构、理论和成功／失败经验见[技术复盘](TECHNICAL_REPORT.zh-CN.md)；
+从零开始运行见[初学者实战指南](BEGINNER_GUIDE.zh-CN.md)。
+
 目标是让 Kaggle private RMSLE 相对原成绩 **0.43776** 再下降 **10%**，即达到
 **0.393984** 或更低。这里的 10% 指误差指标；训练与推理时间单独报告。
 原比赛已经结束，当前是补赛练习，不宣称获得原赛事名次。

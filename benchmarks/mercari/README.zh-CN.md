@@ -2,6 +2,9 @@
 
 [English](README.md) · [比赛链接](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle 运行页面](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
+**阅读入口：**[初学者实战指南](BEGINNER_GUIDE.zh-CN.md)从概念和小练习开始；
+[技术复盘报告](TECHNICAL_REPORT.zh-CN.md)解释架构、理论、成功／失败经验和复现边界。
+
 [独立优化报告](OPTIMIZATION.zh-CN.md)已取得实际 **10.46% Kaggle private RMSLE
 降幅**：**0.43776 → 0.39199**，public 为 **0.39110**，提交
 [57318931](kaggle-submission-57318931.json) 状态为 **COMPLETE**。报告包含特征工程、

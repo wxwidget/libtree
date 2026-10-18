@@ -2,6 +2,9 @@
 
 [中文](OPTIMIZATION.zh-CN.md) · [Competition journal](README.md) · [Frozen configuration](optimized-config.json)
 
+See the [technical retrospective](TECHNICAL_REPORT.md) for an explanation of
+successful and failed decisions, or start with the [beginner walkthrough](BEGINNER_GUIDE.md).
+
 The primary target is a **10% relative reduction in Kaggle private RMSLE** from
 the scored baseline **0.43776**: the target is **0.393984 or lower**. Training
 and inference costs are reported separately. This is a closed-competition

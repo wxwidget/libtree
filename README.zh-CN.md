@@ -8,6 +8,10 @@ RMSLE 下降 10.28%；实际 Kaggle private RMSLE 从 0.43776 降到
 **0.39199（下降 10.46%）**。报告包含多模型融合、损失消融、CPU 成本与复现方法。这是赛后练习；
 精度收益来自完整融合系统，同时增加了推理成本。
 
+[Mercari 技术复盘](benchmarks/mercari/TECHNICAL_REPORT.zh-CN.md)介绍架构、成功与失败的
+实验、理论引用及证据边界；独立的[初学者实战指南](benchmarks/mercari/BEGINNER_GUIDE.zh-CN.md)
+从无需凭据的小练习开始，逐步解释训练、预测解释、性能测量和 Kaggle 提交的复现方法。
+
 风险建模新增 boosting 开关、类别平衡、Hellinger 二分类准则与 KS 指标：
 [优化方法及引用](docs/c5-risk.zh-CN.md) · [风险评测](benchmarks/RISK_REPORT.zh-CN.md)。
 
