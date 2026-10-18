@@ -106,27 +106,18 @@
     "note": "A passing intermediate run did not establish a stable fix; the subsequent recurrence was diagnosed through public CI annotations."
   },
   "latest_verified_remote_ci": {
-    "run_id": "39131856949",
-    "url": "https://github.com/wxwidget/libtree/actions/runs/39131856949",
-    "commit": "4ce3daf",
-    "previous_failed_run": "39130627842",
-    "jobs": {
-      "mercari-transformer": [
-        "completed successfully: "
-      ],
-      "mercari-optimization": [
-        "completed successfully: "
-      ],
-      "minimum-python-integration": [
-        "completed successfully: "
-      ],
-      "linux": [
-        "completed successfully: "
-      ]
-    },
+    "commit": "cc6bef9",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39134083792",
+    "run_id": "39134083792",
     "all_jobs_passed": true,
-    "checked_utc": "2026-10-18T13:36:13.332020+00:00",
-    "note": "Historical passing run before recurrence; the boundary-test fix requires its own new passing CI run."
+    "checked_utc": "2026-10-18T14:07:13.931851+00:00",
+    "jobs": {
+      "mercari-transformer": "completed successfully",
+      "mercari-optimization": "completed successfully",
+      "minimum-python-integration": "completed successfully",
+      "linux": "completed successfully"
+    },
+    "note": "Deterministic exact-zero and tiny-positive ablation boundary regression cases passed; frozen model code and weights unchanged."
   },
   "hosted_status_snapshot": "full-ensemble-status.json",
   "diagnosed_recurring_coverage_failure": {

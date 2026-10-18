@@ -1,5 +1,5 @@
 {
-  "captured_utc": "2026-10-18T13:44:46.406410+00:00",
+  "captured_utc": "2026-10-18T14:07:13.931851+00:00",
   "competition": "mercari-price-suggestion-challenge",
   "candidate": "Original complete frozen ensemble; inferior compact candidate rejected",
   "reference_local_confirmation_rmsle": 0.3809068531888245,
@@ -21,26 +21,18 @@
     "matched": true
   },
   "ci": {
-    "run_id": "39131856949",
-    "url": "https://github.com/wxwidget/libtree/actions/runs/39131856949",
-    "commit": "4ce3daf",
-    "previous_failed_run": "39130627842",
-    "jobs": {
-      "mercari-transformer": [
-        "completed successfully: "
-      ],
-      "mercari-optimization": [
-        "completed successfully: "
-      ],
-      "minimum-python-integration": [
-        "completed successfully: "
-      ],
-      "linux": [
-        "completed successfully: "
-      ]
-    },
+    "commit": "cc6bef9",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39134083792",
+    "run_id": "39134083792",
     "all_jobs_passed": true,
-    "checked_utc": "2026-10-18T13:36:13.332020+00:00"
+    "checked_utc": "2026-10-18T14:07:13.931851+00:00",
+    "jobs": {
+      "mercari-transformer": "completed successfully",
+      "mercari-optimization": "completed successfully",
+      "minimum-python-integration": "completed successfully",
+      "linux": "completed successfully"
+    },
+    "note": "Deterministic exact-zero and tiny-positive ablation boundary regression cases passed; frozen model code and weights unchanged."
   },
   "guarded_one_time_watcher_running_at_capture": true,
   "next_action": "After successful full training, verify exact version/source/report/weights/IDs/row count and submit this version once, then wait for actual COMPLETE public/private scores",
