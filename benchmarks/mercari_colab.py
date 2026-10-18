@@ -63,7 +63,7 @@ try:
                 options=(['--epochs',TRANSFORMER_EPOCHS,'--batch-size','512'] if mode=='finetuned' else ['--max-features','150000'])
                 if SMALLTEXT:
                     task=[sys.executable,'-u','-m','benchmarks.mercari_smalltext']
-                    options=['--max-parameters','8000000','--length','96','--width','128']
+                    options=['--max-parameters','8000000','--length','96','--width','128','--cache-dir',str(root/'text-cache')]
                 remaining=max(1,3600-(time.monotonic()-study_start)) if SMALLTEXT else 5400
                 run=subprocess.run([*task,'--data-dir',str(data),'--output-dir',str(results/mode),'--threads','4',*options,*extra],
                     stdout=log,stderr=subprocess.STDOUT,timeout=remaining)

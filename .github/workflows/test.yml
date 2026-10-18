@@ -18,7 +18,7 @@ jobs:
       - run: python -m pip install 'sentence-transformers==5.2.0' 'lightgbm==4.7.0'
       - run: python -m pip install . --no-deps
       - name: Real tiny model training and full transformer statement coverage
-        run: python -m pytest tests/test_mercari_transformer.py tests/test_mercari_final_torch.py tests/test_mercari_smalltext.py --cov=benchmarks.mercari_smalltext --cov=benchmarks.mercari_transformer --cov=benchmarks.mercari_final_torch --cov-report=term-missing --cov-fail-under=100
+        run: python -m pytest tests/test_mercari_transformer.py tests/test_mercari_final_torch.py tests/test_mercari_smalltext.py tests/test_mercari_text_cache.py --cov=benchmarks.mercari_text_cache --cov=benchmarks.mercari_smalltext --cov=benchmarks.mercari_transformer --cov=benchmarks.mercari_final_torch --cov-report=term-missing --cov-fail-under=100
   mercari-optimization:
     runs-on: ubuntu-latest
     timeout-minutes: 20

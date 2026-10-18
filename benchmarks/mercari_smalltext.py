@@ -24,6 +24,7 @@ from benchmarks.mercari_frontier import (
     save_predictions,
     score,
 )
+from benchmarks.mercari_text_cache import TextCache, identity
 from benchmarks.mercari_transformer import (
     ListingInputs,
     PriceTransformer,
@@ -109,6 +110,7 @@ def main(argv=None):
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--loss", choices=["mse", "huber"], default="mse")
     parser.add_argument("--allow-cpu", action="store_true")
+    parser.add_argument("--cache-dir", type=Path, help="Trusted immutable input cache")
     args = parser.parse_args(argv)
     if (
         min(
@@ -137,7 +139,16 @@ def main(argv=None):
     frame = read_windows(args.data_dir)
     if "price" in frame["confirmation"]:
         raise ValueError("confirmation labels must stay local")
-    inputs = ListingInputs().fit(frame["train"])
+    cache = (
+        TextCache(
+            args.cache_dir,
+            identity(args.data_dir, args.model_id, revision, args.length),
+        )
+        if args.cache_dir
+        else None
+    )
+    cached = cache.load() if cache else None
+    inputs = cached[0] if cached else ListingInputs().fit(frame["train"])
     numeric_features = inputs.transform(
         frame["train"].iloc[:1], tokenizer, args.length
     )["numeric"].shape[1]
@@ -156,10 +167,13 @@ def main(argv=None):
             backbone, inputs.cardinalities_, numeric_features, args.width
         )
     counts = parameter_counts(model, args.max_parameters)
-    encoded = {}
-    for name, part in frame.items():
-        encoded[name] = inputs.transform(part, tokenizer, args.length)
-        print("Inputs ready:", name, len(part), flush=True)
+    encoded = cached[1] if cached else {}
+    if not cached:
+        for name, part in frame.items():
+            encoded[name] = inputs.transform(part, tokenizer, args.length)
+            print("Inputs ready:", name, len(part), flush=True)
+        if cache:
+            cache.save(inputs, encoded)
     model = model.to(device)
     y, selection_y = [
         np.log1p(frame[name].price.to_numpy()) for name in ("train", "selection")
@@ -217,6 +231,7 @@ def main(argv=None):
             model_id=args.model_id,
             revision=revision,
             architecture=args.architecture,
+            input_cache_hit=cached is not None,
             parameters=counts,
             max_parameters=args.max_parameters,
             tokenizer_pretrained=True,

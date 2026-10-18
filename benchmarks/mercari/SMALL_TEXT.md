@@ -59,8 +59,9 @@ ensemble size or full serving memory; the original ensemble has shared upstream
 models and calibration dependencies.
 
 Colab CPUs handle decoding, metadata and tokenization; T4 executes regression
-training and prediction with mixed precision. Repeated per-candidate preparation
-is included in reported worker times. Those times are single runs, not controlled
+training and prediction with mixed precision. The initial measured run (`3828d76`) repeats per-candidate preparation,
+included in its worker times. The current launcher reuses an input cache for
+subsequent candidates on the same VM. Those times are single runs, not controlled
 speed rankings, scaling claims or training variability estimates. The average
 per-row squared log error defines RMSLE; no median aggregation is used.
 
@@ -79,6 +80,8 @@ transfers `evaluation.npz`. Do not paste OAuth credentials into scripts or Git.
 Install the project in the local launcher environment and supply the CLI path:
 
 ```bash
+# Local CPU launcher/tests; keep GPU Torch preinstalled on the Colab VM.
+python -m pip install 'torch==2.9.0+cpu' --index-url https://download.pytorch.org/whl/cpu
 python -m pip install '.[mercari-transformer]' pytest pytest-cov
 python -m benchmarks.mercari_colab \
   --data-dir benchmarks/runs/mercari/frontier/data \
@@ -107,15 +110,37 @@ padding invariance, checkpoint restoration, exact IDs and label isolation.
 
 ```bash
 USE_TF=0 python -m pytest tests/test_mercari_smalltext.py \
-  tests/test_mercari_transformer.py tests/test_mercari_colab.py \
-  --cov=benchmarks.mercari_smalltext --cov=benchmarks.mercari_colab \
+  tests/test_mercari_text_cache.py tests/test_mercari_transformer.py \
+  tests/test_mercari_final_torch.py tests/test_mercari_colab.py \
+  --cov=benchmarks.mercari_smalltext --cov=benchmarks.mercari_text_cache \
+  --cov=benchmarks.mercari_transformer --cov=benchmarks.mercari_final_torch \
+  --cov=benchmarks.mercari_colab \
   --cov-report=term-missing --cov-fail-under=100
 ```
 
-The initial targeted verification passes **22 tests**, covering **202/202
-statements** in the new worker and lifecycle launcher. This is statement
-coverage, not complete branch or GPU-instruction coverage. CI includes the new
-worker in its existing offline transformer coverage gate.
+Local verification passes **25 tests / 469 statements / zero missed** across
+five worker/lifecycle modules. CI includes the new worker and cache in its
+existing offline transformer coverage gate. This is statement coverage, not
+complete branch or GPU-instruction coverage.
+
+## Reusing encoded inputs
+
+The current small-text profile shares one cache across the three candidates;
+individual workers opt in with `--cache-dir trusted-new-cache`. Cache identity
+includes every grouped input file hash, immutable tokenizer revision, length,
+encoding source hashes and library versions. All 16 arrays and the base-only
+input mapping are content-hashed and checked before reuse. Mismatched, corrupt
+or partial caches fail instead of silently mixing data. Exclusive directory
+creation prevents concurrent writers overwriting a cache; choose a new directory
+after an interrupted first write. No fitted price regressor is stored in this
+cache. Load only caches you created: hashes detect stale/corrupt content, not
+hostile pickle files.
+
+Copy-on-write memory maps avoid bulk array copies while protecting stored
+arrays. CPU tests verify exact cached/uncached training outputs for both model
+architectures and that mutating a mapped array does not change the stored file.
+The measured initial GPU profile predates this change; do not label its timings
+as cached. For its original uncached launcher, check out commit `3828d76`.
 
 [fasttext]: https://aclanthology.org/E17-2068/
 [tinybert]: https://arxiv.org/abs/1908.08962

@@ -65,6 +65,11 @@ The earlier frozen local blend reaches **0.380907 RMSLE versus 0.394153 (3.36% l
 on the reused audit window; this is not a new Kaggle score.
 The [complete frozen ensemble pipeline](benchmarks/mercari/FULL_ENSEMBLE.md) preserves
 the 0.380907 local candidate and its now-stopped GPU deployment workflow.
+The [bounded Colab small-text study](benchmarks/mercari/SMALL_TEXT.md) adds
+subword-bag regression and BERT-tiny with parameter/runtime ceilings, retained
+checkpoints and verified train-only input caching. These are benchmark experts;
+the native LibTree learner remains CPU based.
+
 The [modern text/GPU extension](benchmarks/mercari/FRONTIER.md) adds train-only
 LSA, pretrained sentence vectors, T4/A100 neural experiments and reproducible
 tree/regression blending, with explicit failure records and validation boundaries.

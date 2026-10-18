@@ -91,6 +91,8 @@ def test_worker_freezes_on_selection_retains_replay_and_ids(
         "1",
         "--max-parameters",
         "100000",
+        "--cache-dir",
+        str(tmp_path / "cache"),
     ]
     with pytest.raises(RuntimeError, match="GPU"):
         small.main(args)
@@ -99,6 +101,21 @@ def test_worker_freezes_on_selection_retains_replay_and_ids(
     assert report["confirmation_labels_loaded"] is False and report["gpu"] is None
     assert report["parameters"]["total"] < 100000
     assert report["revision"] == "offline-revision"
+    assert report["input_cache_hit"] is False
+    small.main([*args, "--output-dir", str(tmp_path / "repeat"), "--allow-cpu"])
+    cached = json.loads((tmp_path / "repeat/report.json").read_text())
+    assert cached["input_cache_hit"] is True
+    with (
+        np.load(tmp_path / "out" / (architecture + "_mse.npz")) as a,
+        np.load(tmp_path / "repeat" / (architecture + "_mse.npz")) as b,
+    ):
+        for key in a.files:
+            np.testing.assert_array_equal(a[key], b[key])
+    small.main([*args[:-2], "--output-dir", str(tmp_path / "uncached"), "--allow-cpu"])
+    assert (
+        json.loads((tmp_path / "uncached/report.json").read_text())["input_cache_hit"]
+        is False
+    )
     assert len(report["history"]) == 2 and report["prediction_seconds"] > 0
     assert (tmp_path / "out/checkpoint.pt").is_file() and (
         tmp_path / "out/inputs.pkl"

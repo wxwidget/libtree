@@ -45,8 +45,8 @@ fastText 分类接口**；使用 WordPiece 子词，也不是 fastText 的字符
 和原始预测不提交 Git。训练时间包含各候选重复的预处理，单次测量不能当成
 稳定性能排名或扩展性证明。指标使用全体样本的平均平方对数误差，再开平方。
 
-先测后写的本地验证已通过 22 项测试，新增 worker 与生命周期 launcher
-共 202/202 条语句覆盖。覆盖率不是全部分支或 GPU 指令覆盖。CI 已加入
+先测后写的本地验证已通过 25 项测试，五个 worker/生命周期模块
+共 469/469 条语句覆盖。覆盖率不是全部分支或 GPU 指令覆盖。CI 已加入
 离线小模型真实训练测试。实验不会自动提交 Kaggle，只有完整评分回执
 才能称为新榜单成绩。
 
@@ -55,6 +55,8 @@ fastText 分类接口**；使用 WordPiece 子词，也不是 fastText 的字符
 先按[原实验](FRONTIER.zh-CN.md)准备分组数据并完成官方 Colab CLI 授权。
 
 ```bash
+# 本地 launcher / 测试使用 CPU Torch；Colab 保留其预装 GPU Torch。
+python -m pip install 'torch==2.9.0+cpu' --index-url https://download.pytorch.org/whl/cpu
 python -m pip install '.[mercari-transformer]' pytest pytest-cov
 python -m benchmarks.mercari_colab \
   --data-dir benchmarks/runs/mercari/frontier/data \
@@ -65,3 +67,15 @@ python -m benchmarks.mercari_colab \
 输出目录须为新目录。逐个候选的执行命令与测试命令见[英文页](SMALL_TEXT.md)。
 CPU 机器可加 `--allow-cpu` 执行独立 worker，CUDA 可用时仍优先使用 GPU。
 不要把 OAuth 凭证写进命令、代码或 Git。
+
+## 编码缓存
+
+初次远程实测使用 `3828d76`，逐个候选重复准备数据。当前 launcher 在同一实例中
+共享输入缓存，独立 worker 可用 `--cache-dir` 指定缓存目录。缓存键包含所有窗口的
+文件哈希、分词器固定版本、长度、编码源码和依赖版本；载入前校验 16 个数组及
+输入映射的文件哈希。身份不符、内容损坏或写入中断均拒绝复用；中断后换新目录。
+独占创建目录可防止多个写入者互相覆盖。缓存不存储价格回归模型。
+
+内存映射采用写时复制，模型不能修改缓存磁盘内容。CPU 测试验证两种架构在缓存
+前后的训练输出完全一致。缓存只能读取自己生成的可信文件，哈希不能认证恶意
+pickle。原始 GPU 耗时没有享受此缓存，不会改写成缓存优化后的成绩。
