@@ -291,3 +291,24 @@ def test_ablation_distinguishes_exact_zero_from_solver_boundary_noise(tmp_path, 
     assert calls == ([3, 2] if inactive_weight == 0 else [3, 2, 2])
     with np.load(out / 'ensemble.npz') as prediction:
         np.testing.assert_allclose(prediction['selection'], y, atol=1e-12)
+
+
+def test_product_calibration_statistics_fit_base_only_and_reject_confirmation_prices(windows,tmp_path):
+    baseline=tmp_path/'baseline.pkl';baseline.write_bytes(pickle.dumps(ConstantEntry()))
+    parts=frontier.read_windows(windows)
+    encoder=frontier.LatentText(components=4,max_features=100,min_df=1).fit(parts['train'])
+    encoder_path=tmp_path/'encoder.pkl';encoder_path.write_bytes(pickle.dumps(encoder))
+    out=tmp_path/'product-calibration'
+    frontier.calibration_study(settings(windows,out,baseline=baseline,lsa_encoder=encoder_path,experts=[],product_views=True))
+    report=json.loads((out/'report.json').read_text())
+    assert len(report['product_feature_names'])==90
+    assert report['confirmation_labels_loaded'] is False
+    with (out/'product-views.pkl').open('rb') as stream:views=pickle.load(stream)
+    assert len(views)==6
+    for view in views.values():
+        assert view.prior_==pytest.approx(np.log1p(parts['train'].price).mean())
+        assert sum(view.sufficient_['title']['count'])==len(parts['train'])
+    parts['confirmation'].assign(price=1).to_csv(windows/'confirmation.tsv.gz',sep='\t',index=False)
+    with pytest.raises(ValueError,match='confirmation labels'):
+        frontier.calibration_study(settings(windows,tmp_path/'leaky-product',baseline=baseline,
+                                           lsa_encoder=encoder_path,experts=[],product_views=True))

@@ -119,7 +119,7 @@ USE_TF=0 python -m pytest tests/test_mercari_smalltext.py \
 ```
 
 Local verification passes **26 tests / 473 statements / zero missed** across
-five worker/lifecycle modules; 13 frontier tests cover a further 358 statements. CI includes the new worker and cache in its
+five worker/lifecycle modules; 14 frontier tests cover a further 372 statements. CI includes the new worker and cache in its
 existing offline transformer coverage gate. This is statement coverage, not
 complete branch or GPU-instruction coverage.
 
@@ -183,3 +183,25 @@ Fusion commands should pass `--external-pretrained-data` when pretrained
 initialization exists anywhere upstream, including a frozen baseline whose
 filename hides MiniLM. This explicit declaration prevents misleading provenance
 from expert-name inference. It changes report metadata, not fitted predictions.
+
+## Product-feature calibration extension
+
+`mercari_frontier calibrate --product-views` adds 90 numeric features: five
+product identity keys, three statistics per key (smoothed log-price mean,
+support, dispersion), global/brand-category-parent priors and smoothing 5/20/100.
+It fits all six maps on the **base window only**, saves them for replay and
+rejects confirmation files containing prices. This reuses the
+[previous product-statistics method](CPU_MULTIVIEW.md), following
+[Micci-Barreca (2001)](https://doi.org/10.1145/507533.507538). Tree calibration
+uses the existing metadata, LSA and out-of-calibration expert predictions; it
+never uses a previously calibrated model's in-sample predictions as a fitting
+feature. Positive Ridge controls use only expert predictions, so their duplicate
+product-view variants are excluded from the outer pool.
+
+This CPU extension was chosen after weak small-model selection curves and
+before viewing this round's confirmation scores. It is an adaptive research
+extension, not a preregistered blind experiment. The fixed comparison is the
+same tree capacities with/without product views; the confirmation audit remains
+reused. The full outer pool has 15 branches, with a frozen historical-best anchor,
+three small experts, six basic calibrators, four product-aware tree calibrators
+and one cached CPU multiscale ensemble. Branches share upstream models.

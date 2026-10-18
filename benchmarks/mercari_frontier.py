@@ -131,7 +131,20 @@ def calibration_study(args):
     from sklearn.linear_model import Ridge
     from xgboost import XGBRegressor
     args.output_dir.mkdir(parents=True, exist_ok=False)
-    frame = {k: v for k, v in read_windows(args.data_dir).items() if k in WINDOWS}
+    parts = read_windows(args.data_dir)
+    frame = {k: parts[k] for k in WINDOWS}
+    if 'price' in frame['confirmation']:
+        raise ValueError('confirmation labels must stay local')
+    product_views = {}
+    if getattr(args, 'product_views', False):
+        from benchmarks.mercari_multiview import ProductStatistics
+        # Base-only smoothing: Micci-Barreca (2001), doi:10.1145/507533.507538.
+        statistics = ProductStatistics(20.).fit(parts['train'], np.log1p(parts['train'].price.to_numpy()))
+        product_views = {f'{prior}{alpha}': statistics.reparameterize(alpha, hierarchical=prior == 'parent')
+                         for prior in ('global', 'parent') for alpha in (5, 20, 100)}
+        with (args.output_dir / 'product-views.pkl').open('wb') as stream:
+            pickle.dump(product_views, stream)
+    del parts
     with args.baseline.open('rb') as stream:
         entry = pickle.load(stream)
     with args.lsa_encoder.open('rb') as stream:
@@ -143,6 +156,8 @@ def calibration_study(args):
             prediction[window] = (experts @ entry.config['weights'])[:, None]
             latent = encoder.transform(part)[:, :encoder.categorical_indices_[0]]
             features[window] = np.column_stack([metadata, latent, TextAttributes().transform(part)])
+            if product_views:
+                features[window] = np.column_stack([features[window], *[view.transform(part) for view in product_views.values()]])
     finally:
         entry.close()
     for root in args.experts:
@@ -204,7 +219,8 @@ def calibration_study(args):
     dump(args.output_dir / 'report.json', dict(models=metrics, expert_names=names, weights=weights.tolist(),
         calibration_rows=len(target), selection_rows=len(y['selection']), tree_rounds=args.tree_rounds,
         confirmation_labels_loaded=False, feature_count=x['calibration'].shape[1],
-        text_attribute_names=TextAttributes().feature_names_))
+        text_attribute_names=TextAttributes().feature_names_,
+        product_feature_names=[f'{name}_{feature}' for name, view in product_views.items() for feature in view.feature_names_]))
 
 
 def gpu_study(args):
@@ -448,6 +464,8 @@ def main(argv=None):
     parser.add_argument('--sparse-width', type=int, default=256)
     parser.add_argument('--revision', help='Pinned pretrained model revision; recorded if resolved automatically')
     parser.add_argument('--embedding-dtype', choices=['float32', 'float16'], default='float32')
+    parser.add_argument('--product-views', action='store_true',
+                        help='Append base-only multiscale product statistics to calibration tree features')
     parser.add_argument('--external-pretrained-data', action='store_true',
                         help='Declare pretrained data in any expert or upstream baseline')
     parser.add_argument('--allow-cpu', action='store_true', help='Only for functional tests, never GPU evidence')
