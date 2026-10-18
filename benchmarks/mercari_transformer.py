@@ -92,7 +92,7 @@ def move(batch, device):
 def autocast(device, enabled=True):
     if device.type != 'cuda' or not enabled:
         return nullcontext()
-    dtype = torch.bfloat16 if device.type == 'cuda' and torch.cuda.is_bf16_supported() else torch.float16
+    dtype = torch.bfloat16 if device.type == 'cuda' and torch.cuda.is_bf16_supported(including_emulation=False) else torch.float16
     return torch.autocast('cuda', dtype=dtype)
 
 
@@ -100,7 +100,7 @@ def train_epoch(model, batches, algorithm, device, loss='huber', mixed_precision
     if loss not in ('mse', 'huber'):
         raise ValueError('unknown regression loss')
     model.train()
-    scaler = torch.amp.GradScaler('cuda', enabled=mixed_precision and device.type == 'cuda' and not torch.cuda.is_bf16_supported())
+    scaler = torch.amp.GradScaler('cuda', enabled=mixed_precision and device.type == 'cuda' and not torch.cuda.is_bf16_supported(including_emulation=False))
     total, count = 0., 0
     for step, batch in enumerate(batches, 1):
         ids, mask, categories, numeric, y = move(batch, device)
@@ -202,7 +202,7 @@ def main(argv=None):
         mean=mean, scale=scale, width=args.width, max_length=args.length, batch_size=args.batch_size,
         preparation_seconds=preparation_seconds, total_seconds=time.perf_counter() - start,
         train_rows=len(y), gpu=torch.cuda.get_device_name() if device.type == 'cuda' else None,
-        amp='bfloat16' if device.type == 'cuda' and torch.cuda.is_bf16_supported() else 'float16' if device.type == 'cuda' else None,
+        amp='bfloat16' if device.type == 'cuda' and torch.cuda.is_bf16_supported(including_emulation=False) else 'float16' if device.type == 'cuda' else None,
         models={name: dict(selection_rmsle=best, history=history)}, confirmation_labels_loaded=False,
         versions={name: importlib.metadata.version(name) for name in ('torch', 'transformers', 'numpy', 'pandas')}))
 

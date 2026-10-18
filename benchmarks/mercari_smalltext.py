@@ -252,6 +252,13 @@ def main(argv=None):
             revision=revision,
             architecture=args.architecture,
             precision=args.precision,
+            autocast_dtype=(
+                "float32"
+                if device.type != "cuda" or args.precision == "fp32"
+                else "bfloat16"
+                if torch.cuda.is_bf16_supported(including_emulation=False)
+                else "float16"
+            ),
             input_cache_hit=cached is not None,
             parameters=counts,
             max_parameters=args.max_parameters,

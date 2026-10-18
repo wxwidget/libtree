@@ -1,7 +1,7 @@
 {
   "cpu_gpu_replay": {
     "tolerance_passed": false,
-    "scope": "Same fitted bag checkpoint and grouped input content; local 4-thread CPU float32 versus historical T4 autocast float16. Model-only inference, no preprocessing or general GPU speed claim.",
+    "scope": "Same fitted bag checkpoint and grouped input content; local 4-thread CPU float32 versus historical T4 automatic AMP (emulated BF16). Model-only inference, no preprocessing or general GPU speed claim.",
     "tolerance": 0.01,
     "windows": {
       "calibration": {
@@ -62,8 +62,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.360029220581055,
         "gpu_fp32": 6.360029220581055,
-        "gpu_fp16": 6.371811866760254,
-        "saved_gpu_fp16": 6.371811866760254
+        "gpu_amp": 6.371811866760254,
+        "saved_gpu_amp": 6.371811866760254
       },
       {
         "window": "calibration",
@@ -71,8 +71,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.173561096191406,
         "gpu_fp32": 6.173561096191406,
-        "gpu_fp16": 6.161231994628906,
-        "saved_gpu_fp16": 6.161231994628906
+        "gpu_amp": 6.161231994628906,
+        "saved_gpu_amp": 6.161231994628906
       },
       {
         "window": "calibration",
@@ -80,8 +80,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.218164443969727,
         "gpu_fp32": 6.218164443969727,
-        "gpu_fp16": 6.208027362823486,
-        "saved_gpu_fp16": 6.208027362823486
+        "gpu_amp": 6.208027362823486,
+        "saved_gpu_amp": 6.208027362823486
       },
       {
         "window": "calibration",
@@ -89,8 +89,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.568994522094727,
         "gpu_fp32": 6.568994522094727,
-        "gpu_fp16": 6.558994293212891,
-        "saved_gpu_fp16": 6.558994293212891
+        "gpu_amp": 6.558994293212891,
+        "saved_gpu_amp": 6.558994293212891
       },
       {
         "window": "selection",
@@ -98,8 +98,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.383065223693848,
         "gpu_fp32": 6.383065223693848,
-        "gpu_fp16": 6.371811866760254,
-        "saved_gpu_fp16": 6.371811866760254
+        "gpu_amp": 6.371811866760254,
+        "saved_gpu_amp": 6.371811866760254
       },
       {
         "window": "selection",
@@ -107,8 +107,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.570634841918945,
         "gpu_fp32": 6.5706353187561035,
-        "gpu_fp16": 6.558994293212891,
-        "saved_gpu_fp16": 6.558994293212891
+        "gpu_amp": 6.558994293212891,
+        "saved_gpu_amp": 6.558994293212891
       },
       {
         "window": "selection",
@@ -116,8 +116,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.290650367736816,
         "gpu_fp32": 6.290650367736816,
-        "gpu_fp16": 6.301618576049805,
-        "saved_gpu_fp16": 6.301618576049805
+        "gpu_amp": 6.301618576049805,
+        "saved_gpu_amp": 6.301618576049805
       },
       {
         "window": "selection",
@@ -125,8 +125,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.0978684425354,
         "gpu_fp32": 6.0978684425354,
-        "gpu_fp16": 6.114436149597168,
-        "saved_gpu_fp16": 6.114436149597168
+        "gpu_amp": 6.114436149597168,
+        "saved_gpu_amp": 6.114436149597168
       },
       {
         "window": "confirmation",
@@ -134,8 +134,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.195668697357178,
         "gpu_fp32": 6.195668697357178,
-        "gpu_fp16": 6.208027362823486,
-        "saved_gpu_fp16": 6.208027362823486
+        "gpu_amp": 6.208027362823486,
+        "saved_gpu_amp": 6.208027362823486
       },
       {
         "window": "confirmation",
@@ -143,8 +143,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.525721549987793,
         "gpu_fp32": 6.525721549987793,
-        "gpu_fp16": 6.5121989250183105,
-        "saved_gpu_fp16": 6.5121989250183105
+        "gpu_amp": 6.5121989250183105,
+        "saved_gpu_amp": 6.5121989250183105
       },
       {
         "window": "confirmation",
@@ -152,8 +152,8 @@
         "inputs_exact": true,
         "cpu_fp32": 6.33604621887207,
         "gpu_fp32": 6.33604621887207,
-        "gpu_fp16": 6.348414421081543,
-        "saved_gpu_fp16": 6.348414421081543
+        "gpu_amp": 6.348414421081543,
+        "saved_gpu_amp": 6.348414421081543
       },
       {
         "window": "confirmation",
@@ -161,21 +161,24 @@
         "inputs_exact": true,
         "cpu_fp32": 6.4072394371032715,
         "gpu_fp32": 6.4072394371032715,
-        "gpu_fp16": 6.418607711791992,
-        "saved_gpu_fp16": 6.418607711791992
+        "gpu_amp": 6.418607711791992,
+        "saved_gpu_amp": 6.418607711791992
       }
     ],
     "max_cpu_gpu_fp32_difference": 4.76837158203125e-07,
-    "max_gpu_fp16_saved_difference": 0.0,
-    "max_fp32_fp16_difference": 0.016567707061767578,
+    "max_gpu_amp_saved_difference": 0.0,
+    "max_fp32_amp_difference": 0.016567707061767578,
     "original_batch_size": 2048,
     "tf32": false,
     "confirmation_labels_loaded": false,
-    "scope": "Worst four FP32/FP16 differences in each window; exact inputs, matched original 2048-row prediction batches"
+    "scope": "Worst four FP32/automatic-AMP differences in each window; exact inputs, matched original 2048-row prediction batches"
   },
   "auxiliary_kernel": {
     "purpose": "Same-checkpoint precision investigation on existing VM; no additional assignment",
     "cleanup_verified": true,
     "executed": true
-  }
+  },
+  "precision_label_correction": "The initial probe called its automatic AMP variable fp16. A same-version T4 hardware check confirmed the old helper chose emulated BF16, not FP16. Numeric outputs and the failed tolerance test are unchanged; public keys now say AMP.",
+  "verified_initial_amp_dtype": "bfloat16 (emulated on SM75)",
+  "hardware_evidence": "smalltext-native-amp-001.json"
 }

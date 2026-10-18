@@ -149,7 +149,19 @@ def test_precision_control_skips_cuda_context_and_selects_supported_amp_dtype(mo
         pass
     assert not calls
     for bf16 in (False, True):
-        monkeypatch.setattr(torch.cuda,'is_bf16_supported',lambda:bf16)
+        monkeypatch.setattr(torch.cuda,'is_bf16_supported',lambda including_emulation=False:bf16)
         with neural.autocast(torch.device('cuda'), enabled=True):
             pass
     assert calls==[('cuda',torch.float16),('cuda',torch.bfloat16)]
+
+
+def test_amp_uses_hardware_support_instead_of_bfloat16_emulation(monkeypatch):
+    from contextlib import nullcontext
+    queries=[];calls=[]
+    def support(including_emulation=True):
+        queries.append(including_emulation)
+        return including_emulation
+    monkeypatch.setattr(torch.cuda,'is_bf16_supported',support)
+    monkeypatch.setattr(torch,'autocast',lambda device,**kw:calls.append(kw['dtype']) or nullcontext())
+    with neural.autocast(torch.device('cuda')):pass
+    assert calls==[torch.float16] and queries==[False]

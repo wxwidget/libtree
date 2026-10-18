@@ -118,7 +118,7 @@ USE_TF=0 python -m pytest tests/test_mercari_smalltext.py \
   --cov-report=term-missing --cov-fail-under=100
 ```
 
-Local verification passes **26 tests / 473 statements / zero missed** across
+Local verification passes **27 tests / 473 statements / zero missed** across
 five worker/lifecycle modules; 14 frontier tests cover a further 372 statements. CI includes the new worker and cache in its
 existing offline transformer coverage gate. This is statement coverage, not
 complete branch or GPU-instruction coverage.
@@ -161,19 +161,19 @@ The key was subsequently tightened to include Python and the window reader.
 
 [Replay and matched-batch GPU evidence](smalltext-precision-001.json) retain the
 failed initial tolerance check. With the same fitted bag checkpoint, CPU FP32
-versus T4 FP16 differs by up to **0.0165677 log-price units**; **23/296,509**
+versus T4 automatic AMP (emulated BF16) differs by up to **0.0165677 log-price units**; **23/296,509**
 outputs exceed the predeclared .01 absolute tolerance. Mean absolute differences
 are approximately .00096 in each window. The tolerance has not been relaxed.
 
 A new short kernel on the **same T4 VM** checked the four worst rows from each
 window using their original 2,048-row batches. Encoded inputs match exactly;
-GPU FP16 reproduces the saved outputs exactly. GPU FP32 (TF32 disabled) versus
+GPU automatic AMP reproduces the saved outputs exactly. GPU FP32 (TF32 disabled) versus
 CPU FP32 differs by at most **4.77e-7** on those 12 rows. This isolates a mixed-
 precision tail effect in this check, rather than changed cached inputs. It does
 not bound every FP32 CUDA/CPU output. The auxiliary kernel was deleted afterward.
 
 The current small-text worker exposes **`--precision fp32`** for explicit full-
-precision training and inference; default `amp` keeps the original behavior.
+precision training and inference; default `amp` now selects hardware-native BF16 or FP16.
 The initial training results remain AMP results. CPU inference replay took
 7.95 s for all three windows after warmup, versus the original T4 AMP 3.57 s;
 these are single model-only observations on different hardware/precision, not
@@ -205,3 +205,35 @@ same tree capacities with/without product views; the confirmation audit remains
 reused. The full outer pool has 15 branches, with a frozen historical-best anchor,
 three small experts, six basic calibrators, four product-aware tree calibrators
 and one cached CPU multiscale ensemble. Branches share upstream models.
+
+## Native AMP fix: T4 must not select emulated BF16
+
+The initial replay mistakenly called the automatic precision FP16. The
+[same-version T4 probe](smalltext-native-amp-001.json) confirms **PyTorch
+2.11.0+cu130 reports `is_bf16_supported() == True` but
+`is_bf16_supported(including_emulation=False) == False`** on SM75. Therefore the
+initial full run and replay used **emulated BF16**. The numeric evidence is
+unchanged; the precision label has been corrected. The current helper, gradient
+scaler decision and report metadata all use native support. T4 chooses FP16;
+A100 can keep native BF16. See the [PyTorch API][bf16-api].
+
+A separate short T4 allocation tested the exact 4,564,501-parameter BERT-tiny
+regression architecture and real fixed encoded inputs, with random initialization
+and synthetic zero targets. It is a **precision microbenchmark, not an accuracy
+run or complete training replay**. After five warmup steps, 20 synchronized
+training steps and 20 inference batches were recorded for each mode:
+
+| Precision | Mean training step, ms | Mean inference batch, ms | Peak CUDA allocated MiB |
+| --- | ---: | ---: | ---: |
+| Emulated BF16, old choice | 116.69 | 30.53 | 966.83 |
+| **Native FP16, corrected choice** | **35.28** | **11.31** | **786.28** |
+| FP32 | 66.20 | 21.34 | 1,082.09 |
+
+This is **3.31× per-step** and **2.70× per-inference-batch** improvement for this
+fixed workload. FP16 outputs remain finite and its gradient scale stays 65,536
+through measured steps. No whole-pipeline speedup or unchanged fitted accuracy
+is inferred. The initial full-study scores still belong to the old emulated-
+BF16 run; a complete corrected-FP16 quality run has not been measured here.
+Both allocations and the auxiliary diagnostic kernel were released.
+
+[bf16-api]: https://docs.pytorch.org/docs/stable/generated/torch.cuda.is_bf16_supported.html

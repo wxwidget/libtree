@@ -100,6 +100,7 @@ def test_worker_freezes_on_selection_retains_replay_and_ids(
     report = json.loads((tmp_path / "out/report.json").read_text())
     assert report["confirmation_labels_loaded"] is False and report["gpu"] is None
     assert report["parameters"]["total"] < 100000
+    assert report["autocast_dtype"] == "float32"
     assert report["revision"] == "offline-revision"
     assert report["input_cache_hit"] is False
     small.main([*args, "--output-dir", str(tmp_path / "repeat"), "--allow-cpu"])
