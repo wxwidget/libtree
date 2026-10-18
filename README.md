@@ -67,7 +67,10 @@ The [complete frozen ensemble pipeline](benchmarks/mercari/FULL_ENSEMBLE.md) pre
 the 0.380907 local candidate and its now-stopped GPU deployment workflow.
 The [bounded Colab small-text study](benchmarks/mercari/SMALL_TEXT.md) adds
 subword-bag regression and BERT-tiny with parameter/runtime ceilings, retained
-checkpoints and verified train-only input caching. These are benchmark experts;
+checkpoints and verified train-only input caching. The [measured follow-up](benchmarks/mercari/SMALL_TEXT_REPORT.md)
+reaches **0.380616 local audit RMSLE**, 0.0763% below the earlier 0.380907.
+A native-AMP fix gives **3.31× training-step / 2.70× inference-batch** improvements
+in a controlled T4 microbenchmark, not complete-training speedups. These are benchmark experts;
 the native LibTree learner remains CPU based.
 
 The [modern text/GPU extension](benchmarks/mercari/FRONTIER.md) adds train-only

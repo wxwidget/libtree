@@ -1,8 +1,14 @@
 # Deploying the frozen full Mercari ensemble
 
+**Current research:** [bounded Colab small-text/product calibration](SMALL_TEXT_REPORT.md)
+resumes CPU/GPU work and reaches 0.380616 in a reused local audit. This page
+preserves the older 0.380907 deployment plan; its deleted job and watcher remain
+disabled. It is not the new candidate's completed Kaggle refit.
+
+
 [中文](FULL_ENSEMBLE.zh-CN.md) · [Text/GPU experiments](FRONTIER.md) · [Beginner guide](BEGINNER_GUIDE.md)
 
-**Current direction: [budgeted CPU-only study](CPU_STUDY.md).** On 18 October,
+**Earlier direction: [budgeted CPU-only study](CPU_STUDY.md).** On 18 October,
 the user stopped the GPU deployment direction. Its queued Kernel was removed
 after exact source/metadata backup and verification of zero outputs; its watcher
 and automatic submission were disabled. The frozen configuration and measured

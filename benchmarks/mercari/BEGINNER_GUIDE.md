@@ -430,3 +430,18 @@ bundles on October 18, 2026. Full-data scores above remain the archived October
 17 measurements. Local links were checked; several external learning sites
 could not be reached through this environment's proxy, so their availability
 was not reverified here.
+
+## Small encoders and GPU precision
+
+The [small-text walkthrough](SMALL_TEXT.md) and [measured report](SMALL_TEXT_REPORT.md)
+explain the new bounded experiment. A bag averages learned subword vectors and
+uses hashed neighboring pairs; a tiny BERT lets each token depend on its context.
+Both output a number for log price. A weaker guess can still help a residual
+tree decide when another guess is wrong. Caching token IDs reuses preprocessing,
+not fitted price-model weights.
+
+FP16 and BF16 both store 16-bit numbers but have different ranges and precision.
+Hardware support also differs: T4 has native FP16, while A100 supports native
+BF16. Being able to create a BF16 tensor does not prove fast BF16 arithmetic.
+The report shows the observed failure, corrected hardware check and measured
+fixed-batch costs; it keeps this distinction separate from Kaggle accuracy.

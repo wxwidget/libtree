@@ -1,5 +1,7 @@
 # Colab 小尺寸文本模型实验
 
+[实测报告：0.380616 与 T4 原生精度修复](SMALL_TEXT_REPORT.zh-CN.md)
+
 [English](SMALL_TEXT.md) · [原文本实验](FRONTIER.zh-CN.md) · [初学者指南](BEGINNER_GUIDE.zh-CN.md)
 
 2026 年 10 月 18 日重新授权使用 Colab CPU/GPU。这轮只使用一个 T4，

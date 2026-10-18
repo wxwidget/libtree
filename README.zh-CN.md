@@ -27,7 +27,10 @@ RMSLE 下降 10.28%；实际 Kaggle private RMSLE 从 0.43776 降到
 记录现已停止的 GPU 部署工作流。
 [Colab 小尺寸文本实验](benchmarks/mercari/SMALL_TEXT.zh-CN.md)增加词袋回归与
 BERT-tiny，限制参数和运行预算、保留检查点，并校验和复用编码缓存。
-这些是 benchmark 专家模型，LibTree 原生学习器仍在 CPU 上运行。
+[本轮实测报告](benchmarks/mercari/SMALL_TEXT_REPORT.zh-CN.md)：本地复核 RMSLE
+**0.380616**，较旧 0.380907 改善 0.0763%；T4 原生精度修复在固定批量微基准中
+训练步 **3.31 倍**、推理批次 **2.70 倍**，不是端到端加速。这些是 benchmark
+专家模型，LibTree 原生学习器仍在 CPU 上运行。
 
 [现代文本与 GPU 实验](benchmarks/mercari/FRONTIER.zh-CN.md)增加 LSA、预训练句向量、
 T4/A100 神经网络和树／回归融合，提供复现命令、失败记录与验证边界。

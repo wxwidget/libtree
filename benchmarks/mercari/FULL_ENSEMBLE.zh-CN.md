@@ -1,5 +1,10 @@
 # 原完整融合：最终重训与 Kaggle 提交
 
+**当前研究：**[小文本/产品校准实测](SMALL_TEXT_REPORT.zh-CN.md)恢复受控 CPU/GPU
+实验，本地复核为 0.380616。本页保留旧 0.380907 部署计划；已删除的任务和
+watcher 不恢复，也不代表新候选已完成 Kaggle 全量重训。
+
+
 [English](FULL_ENSEMBLE.md) · [原实验报告](FRONTIER.zh-CN.md) · [零基础指南](BEGINNER_GUIDE.zh-CN.md)
 
 **当前方向：[有限预算的 CPU 实验](CPU_STUDY.zh-CN.md)。** 10 月 18 日用户改为不用 GPU。

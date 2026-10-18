@@ -1,0 +1,2662 @@
+{
+  "created_utc": "2026-10-18T17:18:40.967714+00:00",
+  "status": "Local reused confirmation only; not a new Kaggle score or rank",
+  "gpu_training_source_commit": "3828d76",
+  "product_calibration_source_commit": "06f2dd5",
+  "balance_observations": {
+    "before_compute_units": 190.81,
+    "after_compute_units": 189.92,
+    "approximately_consumed": 0.89,
+    "active_assignments_after": 0,
+    "note": "Rounded balance observations, not a settled billing receipt."
+  },
+  "gpu_job": {
+    "session": "libtree-mercari-7c0127c96339",
+    "created_utc": "2026-10-18T16:03:23.830736+00:00",
+    "gpu": "T4",
+    "high_mem": false,
+    "profile": "smalltext",
+    "transformer_epochs": 2,
+    "allocation_confirmed": true,
+    "cleanup_verified": true,
+    "source_sha256": "2d673019131c5657754f18d44e0a9d8c18ca1b336f5f6df8733f056be8509078",
+    "execution_exit_code": 0,
+    "artifact_downloaded": true,
+    "cleanup_exit_code": 0
+  },
+  "gpu_status": {
+    "bag_mse": {
+      "exit_code": 0,
+      "seconds": 686.303375023
+    },
+    "bag_huber": {
+      "exit_code": 0,
+      "seconds": 687.8555753609999
+    },
+    "bert_tiny": {
+      "exit_code": 0,
+      "seconds": 1540.5712224
+    }
+  },
+  "gpu_models": {
+    "bag_mse": {
+      "model_id": "prajjwal1/bert-tiny",
+      "revision": "6f75de8b60a9f8a2fdf7b69cbd86d9e64bcb3837",
+      "architecture": "bag",
+      "parameters": {
+        "total": 3196069,
+        "trainable": 3196069
+      },
+      "max_parameters": 8000000,
+      "tokenizer_pretrained": true,
+      "backbone_pretrained": false,
+      "mean": 2.9791278963449948,
+      "scale": 0.7487303234754139,
+      "width": 128,
+      "embedding_dim": 48,
+      "buckets": 32768,
+      "max_length": 96,
+      "batch_size": 2048,
+      "threads": 4,
+      "loss": "mse",
+      "train_rows": 1186026,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.49513654609331764,
+          "selection_rmsle": 0.48298203989311134,
+          "seconds": 28.348229501999867
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.3917600637627865,
+          "selection_rmsle": 0.4713302821618204,
+          "seconds": 27.57640073100015
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.3713027972765951,
+          "selection_rmsle": 0.46638747850163326,
+          "seconds": 27.574200753000014
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.3599235355328158,
+          "selection_rmsle": 0.4641836351229613,
+          "seconds": 27.876810020999983
+        }
+      ],
+      "best_selection_rmsle": 0.4641836351229613,
+      "preparation_seconds": 561.6100002620001,
+      "prediction_seconds": 3.5747233720001077,
+      "total_seconds": 676.9028699139999,
+      "process_cpu_seconds": 673.0114919380001,
+      "gpu": "Tesla T4",
+      "confirmation_labels_loaded": false,
+      "versions": {
+        "torch": "2.11.0+cu130",
+        "transformers": "4.57.1",
+        "numpy": "2.1.3",
+        "pandas": "2.2.3"
+      },
+      "verified_initial_autocast_dtype": "bfloat16 (emulated on T4 SM75)"
+    },
+    "bag_huber": {
+      "model_id": "prajjwal1/bert-tiny",
+      "revision": "6f75de8b60a9f8a2fdf7b69cbd86d9e64bcb3837",
+      "architecture": "bag",
+      "parameters": {
+        "total": 3196069,
+        "trainable": 3196069
+      },
+      "max_parameters": 8000000,
+      "tokenizer_pretrained": true,
+      "backbone_pretrained": false,
+      "mean": 2.9791278963449948,
+      "scale": 0.7487303234754139,
+      "width": 128,
+      "embedding_dim": 48,
+      "buckets": 32768,
+      "max_length": 96,
+      "batch_size": 2048,
+      "threads": 4,
+      "loss": "huber",
+      "train_rows": 1186026,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.16618087219374858,
+          "selection_rmsle": 0.4856775114846763,
+          "seconds": 28.783779105999884
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.13863516533651374,
+          "selection_rmsle": 0.47240301740127233,
+          "seconds": 28.64717413900007
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.1328443131051006,
+          "selection_rmsle": 0.4668006612425633,
+          "seconds": 28.882177572000046
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.12955707251391174,
+          "selection_rmsle": 0.4641294615179062,
+          "seconds": 28.43656368799998
+        }
+      ],
+      "best_selection_rmsle": 0.4641294615179062,
+      "preparation_seconds": 564.5928804120001,
+      "prediction_seconds": 3.9677500969999073,
+      "total_seconds": 683.6357415990001,
+      "process_cpu_seconds": 682.626799866,
+      "gpu": "Tesla T4",
+      "confirmation_labels_loaded": false,
+      "versions": {
+        "torch": "2.11.0+cu130",
+        "transformers": "4.57.1",
+        "numpy": "2.1.3",
+        "pandas": "2.2.3"
+      },
+      "verified_initial_autocast_dtype": "bfloat16 (emulated on T4 SM75)"
+    },
+    "bert_tiny": {
+      "model_id": "prajjwal1/bert-tiny",
+      "revision": "6f75de8b60a9f8a2fdf7b69cbd86d9e64bcb3837",
+      "architecture": "bert",
+      "parameters": {
+        "total": 4564501,
+        "trainable": 4564501
+      },
+      "max_parameters": 8000000,
+      "tokenizer_pretrained": true,
+      "backbone_pretrained": true,
+      "mean": 2.9791278963449948,
+      "scale": 0.7487303234754139,
+      "width": 128,
+      "embedding_dim": 48,
+      "buckets": 32768,
+      "max_length": 96,
+      "batch_size": 512,
+      "threads": 4,
+      "loss": "mse",
+      "train_rows": 1186026,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.48218196034605343,
+          "selection_rmsle": 0.4751475552240068,
+          "seconds": 315.89936084500005
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.39359993771354385,
+          "selection_rmsle": 0.45822100082722406,
+          "seconds": 321.9245100950002
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.3699211186694615,
+          "selection_rmsle": 0.44877349905705016,
+          "seconds": 321.97381309799994
+        }
+      ],
+      "best_selection_rmsle": 0.44877349905705016,
+      "preparation_seconds": 553.5241525659999,
+      "prediction_seconds": 22.668673679999756,
+      "total_seconds": 1536.3402818549998,
+      "process_cpu_seconds": 1532.266335919,
+      "gpu": "Tesla T4",
+      "confirmation_labels_loaded": false,
+      "versions": {
+        "torch": "2.11.0+cu130",
+        "transformers": "4.57.1",
+        "numpy": "2.1.3",
+        "pandas": "2.2.3"
+      },
+      "verified_initial_autocast_dtype": "bfloat16 (emulated on T4 SM75)"
+    }
+  },
+  "plan": {
+    "created_utc": "2026-10-18T16:08:58.328283+00:00",
+    "reference": "frontier-001/ensemble-family/full",
+    "reference_confirmation_rmsle": 0.3809068531888245,
+    "candidates": [
+      "bag_mse",
+      "bag_huber",
+      "bert_mse"
+    ],
+    "calibration": {
+      "implementation": "benchmarks.mercari_frontier.calibration_study",
+      "train_window": "calibration",
+      "features": "Existing out-of-calibration base experts, LSA, metadata, lexical flags, plus new small experts; never previously calibrated ensemble as a fit feature",
+      "models": [
+        "LibTree depth 3",
+        "LibTree depth 5",
+        "LightGBM leaves 15",
+        "XGBoost depth 4",
+        "positive Ridge alpha 10",
+        "positive Ridge alpha 100"
+      ],
+      "rounds": 400,
+      "threads": 4
+    },
+    "primary_outer_pool": "Frozen historical best anchor + 3 small experts + 6 basic new calibrators + 4 product-aware tree calibrators + cached CPU multiscale (15 columns)",
+    "blend": "Existing nonnegative sum-one selection-only blend_weights, penalty 1e-4",
+    "selection_promotion_min_absolute_rmsle": 1e-05,
+    "freeze_before_confirmation": true,
+    "ablations": [
+      "Historical reference only",
+      "Raw small experts only",
+      "CPU multiscale only",
+      "Basic small-expert calibration without product views",
+      "Full pool without product-aware calibrators",
+      "Full pool without CPU multiscale"
+    ],
+    "confirmation_previously_inspected": true,
+    "automatic_kaggle_submission": false,
+    "reason": "Keep the existing historical inner weights fixed; restrict new outer flexibility and shrink toward the actual best, not the older .394153 baseline.",
+    "updated_utc": "2026-10-18T16:53:58.521431+00:00",
+    "adaptation_reason": "After observing weak standalone small-expert selection curves, add one fixed base-only product-feature calibration view; no confirmation prices accessed.",
+    "product_views": {
+      "smoothing": [
+        5,
+        20,
+        100
+      ],
+      "priors": [
+        "global",
+        "brand/category parent"
+      ],
+      "fit_window": "base only",
+      "columns": 90,
+      "rounds": 400,
+      "tree_capacities": "same as basic calibration"
+    },
+    "cpu_calibration_seconds_per_phase": 600
+  },
+  "selection_gate": {
+    "created_utc": "2026-10-18T17:03:34.141352+00:00",
+    "names": [
+      "baseline",
+      "bag_huber",
+      "bag_mse",
+      "bert_mse",
+      "cal_libtree3",
+      "cal_libtree5",
+      "cal_lightgbm",
+      "cal_meta_ridge10",
+      "cal_meta_ridge100",
+      "cal_xgboost",
+      "product_cal_libtree3",
+      "product_cal_libtree5",
+      "product_cal_lightgbm",
+      "product_cal_xgboost",
+      "cpu_multiscale"
+    ],
+    "proposed_weights": [
+      0.38457753030378045,
+      0.0,
+      0.0,
+      2.522007826374726e-18,
+      2.1109018802818085e-19,
+      4.2687183134121386e-19,
+      3.03205021042086e-19,
+      1.0732865198952906e-19,
+      1.308338162758359e-19,
+      0.0,
+      1.587859035352278e-19,
+      0.2659062376229842,
+      0.2009645230576685,
+      0.10015753103218897,
+      0.04839417798337784
+    ],
+    "reference_selection_rmsle": 0.38249845572819624,
+    "proposed_selection_rmsle": 0.38219124676752747,
+    "required_absolute_gain": 1e-05,
+    "passed_selection_gate": true,
+    "retained_weights": [
+      0.38457753030378045,
+      0.0,
+      0.0,
+      2.522007826374726e-18,
+      2.1109018802818085e-19,
+      4.2687183134121386e-19,
+      3.03205021042086e-19,
+      1.0732865198952906e-19,
+      1.308338162758359e-19,
+      0.0,
+      1.587859035352278e-19,
+      0.2659062376229842,
+      0.2009645230576685,
+      0.10015753103218897,
+      0.04839417798337784
+    ],
+    "confirmation_labels_loaded": false,
+    "upstream_external_pretrained_data": true,
+    "candidate_sha256": {
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree3.npz": "646764e7f8f3a98c1e4c843170387e8464e32f32dba964446a81791aacfa443c",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree5.npz": "1975596262cf4742cc819a211f71f51a02dd0a48f0a130a5e989d4eda1434a85",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_lightgbm.npz": "3cf5843c1a89ea87644f43881b285bc82fb4e1e83b5efec46365f6dc9b772c4e",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge10.npz": "a81f9998bba7fc90522068203c3bb317bcce9f4e06777e498def166e268448d4",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge100.npz": "d50d60276c0e8100c102585f1cf38c6eb4e0a13b3aff2664e79d83ac978c3652",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_xgboost.npz": "60754d8eb035309d43a010ccfc9648c66f66d6d185b16064d18ee2172ee20a06",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree3.npz": "de879f21c4293b6f4e258e5e4aed65fa6ea765705d5b094c2a562063b7994f76",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree5.npz": "fae7ed35e164bfd0d5de073493e4860b2045432c1ed8cca3f114efc3341df8e9",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_lightgbm.npz": "0b5c0a5887373833de2191ff79f895760e9eb3d979398a0490ae8f673d928e01",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_xgboost.npz": "dd4ac0a964518986db6f3cec66869a6a4e15290535011ab0256743c0bd0f108c",
+      "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/cpu-expert/cpu_multiscale.npz": "de5639b984b2f47e5e985894447f8db8bc31aa7a53e1c60e1262c12d5081bb4c"
+    }
+  },
+  "selection_gate_order_note": {
+    "maximum_named_weight_difference": 1.782857040000252e-06,
+    "explanation": "The independent pre-audit gate used a different column order. Finite-difference optimizer rounding changes tiny coefficients; both pass the same threshold. primary.frozen contains the authoritative weights written before confirmation access."
+  },
+  "primary": {
+    "frozen": {
+      "created_utc": "2026-10-18T17:03:36.368193+00:00",
+      "names": [
+        "baseline",
+        "cpu_multiscale",
+        "cal_libtree3",
+        "cal_libtree5",
+        "cal_lightgbm",
+        "cal_meta_ridge10",
+        "cal_meta_ridge100",
+        "cal_xgboost",
+        "product_cal_libtree3",
+        "product_cal_libtree5",
+        "product_cal_lightgbm",
+        "product_cal_xgboost",
+        "bag_huber",
+        "bag_mse",
+        "bert_mse"
+      ],
+      "weights": [
+        0.38457931316082045,
+        0.048394167048959214,
+        5.281979610239872e-19,
+        1.159826928534221e-18,
+        1.7083825868507815e-18,
+        0.0,
+        0.0,
+        1.880051685693715e-18,
+        0.0,
+        0.2659060193613578,
+        0.20096350051924172,
+        0.10015699990962085,
+        2.7777588087549636e-19,
+        0.0,
+        0.0
+      ],
+      "selection_rmsle": 0.3821912471375558,
+      "candidate_sha256": {
+        "benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+        "benchmarks/runs/mercari/smalltext-t4-001/cpu-expert/cpu_multiscale.npz": "de5639b984b2f47e5e985894447f8db8bc31aa7a53e1c60e1262c12d5081bb4c",
+        "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree3.npz": "646764e7f8f3a98c1e4c843170387e8464e32f32dba964446a81791aacfa443c",
+        "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree5.npz": "1975596262cf4742cc819a211f71f51a02dd0a48f0a130a5e989d4eda1434a85",
+        "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_lightgbm.npz": "3cf5843c1a89ea87644f43881b285bc82fb4e1e83b5efec46365f6dc9b772c4e",
+        "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge10.npz": "a81f9998bba7fc90522068203c3bb317bcce9f4e06777e498def166e268448d4",
+        "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge100.npz": "d50d60276c0e8100c102585f1cf38c6eb4e0a13b3aff2664e79d83ac978c3652",
+        "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_xgboost.npz": "60754d8eb035309d43a010ccfc9648c66f66d6d185b16064d18ee2172ee20a06",
+        "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree3.npz": "de879f21c4293b6f4e258e5e4aed65fa6ea765705d5b094c2a562063b7994f76",
+        "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree5.npz": "fae7ed35e164bfd0d5de073493e4860b2045432c1ed8cca3f114efc3341df8e9",
+        "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_lightgbm.npz": "0b5c0a5887373833de2191ff79f895760e9eb3d979398a0490ae8f673d928e01",
+        "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_xgboost.npz": "dd4ac0a964518986db6f3cec66869a6a4e15290535011ab0256743c0bd0f108c",
+        "benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+        "benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+        "benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57"
+      },
+      "confirmation_previously_inspected": true,
+      "external_pretrained_data": true
+    },
+    "individual": {
+      "baseline": {
+        "selection_rmsle": 0.38249845572819624,
+        "confirmation_rmsle": 0.38090685318882356
+      },
+      "cpu_multiscale": {
+        "selection_rmsle": 0.39421236557818307,
+        "confirmation_rmsle": 0.39284572358989084
+      },
+      "cal_libtree3": {
+        "selection_rmsle": 0.3825346853217659,
+        "confirmation_rmsle": 0.38094595119362984
+      },
+      "cal_libtree5": {
+        "selection_rmsle": 0.38262108785670884,
+        "confirmation_rmsle": 0.38101636131715094
+      },
+      "cal_lightgbm": {
+        "selection_rmsle": 0.3827173243496131,
+        "confirmation_rmsle": 0.3809635513993273
+      },
+      "cal_meta_ridge10": {
+        "selection_rmsle": 0.38390403409759066,
+        "confirmation_rmsle": 0.3822156237076174
+      },
+      "cal_meta_ridge100": {
+        "selection_rmsle": 0.3839033287248644,
+        "confirmation_rmsle": 0.38220896769045876
+      },
+      "cal_xgboost": {
+        "selection_rmsle": 0.3825687724210255,
+        "confirmation_rmsle": 0.38103860856687244
+      },
+      "product_cal_libtree3": {
+        "selection_rmsle": 0.38256551707311837,
+        "confirmation_rmsle": 0.38095355829870853
+      },
+      "product_cal_libtree5": {
+        "selection_rmsle": 0.38249337775567366,
+        "confirmation_rmsle": 0.38090545686151855
+      },
+      "product_cal_lightgbm": {
+        "selection_rmsle": 0.3824124345203222,
+        "confirmation_rmsle": 0.3808547401903747
+      },
+      "product_cal_xgboost": {
+        "selection_rmsle": 0.3824457362142697,
+        "confirmation_rmsle": 0.3808469381446818
+      },
+      "bag_huber": {
+        "selection_rmsle": 0.4641294615179062,
+        "confirmation_rmsle": 0.4629145743039116
+      },
+      "bag_mse": {
+        "selection_rmsle": 0.4641836351229613,
+        "confirmation_rmsle": 0.46261802250930834
+      },
+      "bert_mse": {
+        "selection_rmsle": 0.44877349905705016,
+        "confirmation_rmsle": 0.44761881881458204
+      }
+    },
+    "comparison": {
+      "baseline_rmsle": 0.3809068531888245,
+      "candidate_rmsle": 0.380616254569956,
+      "rmsle_delta": -0.00029059861886848726,
+      "ci95": [
+        -0.000364648544632544,
+        -0.0002190527477088409
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    },
+    "leave_one_expert_out": {
+      "cpu_multiscale": {
+        "selection_rmsle": 0.38223273955125125,
+        "confirmation_rmsle": 0.38064845165450295
+      },
+      "cal_libtree3": {
+        "selection_rmsle": 0.3821912463961908,
+        "confirmation_rmsle": 0.38061625386046394
+      },
+      "cal_libtree5": {
+        "selection_rmsle": 0.38219124719417497,
+        "confirmation_rmsle": 0.38061625459209986
+      },
+      "cal_lightgbm": {
+        "selection_rmsle": 0.38219124681790345,
+        "confirmation_rmsle": 0.3806162542520646
+      },
+      "cal_xgboost": {
+        "selection_rmsle": 0.38219124280456473,
+        "confirmation_rmsle": 0.38061624893603685
+      },
+      "product_cal_libtree5": {
+        "selection_rmsle": 0.3822499730469704,
+        "confirmation_rmsle": 0.38067528649698
+      },
+      "product_cal_lightgbm": {
+        "selection_rmsle": 0.3822238550563937,
+        "confirmation_rmsle": 0.38064277064549745
+      },
+      "product_cal_xgboost": {
+        "selection_rmsle": 0.38219770345390575,
+        "confirmation_rmsle": 0.3806248858759079
+      },
+      "bag_huber": {
+        "selection_rmsle": 0.38219124675832783,
+        "confirmation_rmsle": 0.38061625418971695
+      }
+    },
+    "residual_correlation": [
+      [
+        1.0,
+        0.9676362262346621,
+        0.9993622084445966,
+        0.9993336180879383,
+        0.9989785105350442,
+        0.9970434341032984,
+        0.9970518958698712,
+        0.9990831921972172,
+        0.9989760427284033,
+        0.9976975370329918,
+        0.9984752415282759,
+        0.9985314702013844,
+        0.8417588694268319,
+        0.84100332173045,
+        0.8707924822988433
+      ],
+      [
+        0.9676362262346621,
+        1.0,
+        0.9649144033382666,
+        0.9661406913970279,
+        0.963890956802099,
+        0.9675330825259786,
+        0.9682300673719106,
+        0.9639707689185636,
+        0.9654956574314412,
+        0.9635313290673667,
+        0.9645910902983755,
+        0.9646445359505452,
+        0.8469396439243823,
+        0.8469831937027085,
+        0.8598382415263556
+      ],
+      [
+        0.9993622084445964,
+        0.9649144033382665,
+        1.0,
+        0.9991787211014485,
+        0.9987020952518859,
+        0.9964410367754781,
+        0.9964562612156477,
+        0.9990018081620583,
+        0.9992914680454945,
+        0.9978649773938738,
+        0.9982931524814868,
+        0.9984925372267758,
+        0.8352070141619746,
+        0.8345244667452602,
+        0.8639782693094855
+      ],
+      [
+        0.9993336180879382,
+        0.966140691397028,
+        0.9991787211014485,
+        0.9999999999999999,
+        0.9983328109844998,
+        0.9978412231285844,
+        0.9978485785240286,
+        0.9985211118846621,
+        0.9988184357654789,
+        0.9975213633941662,
+        0.9979592076676203,
+        0.9980572439214933,
+        0.8420678869710349,
+        0.8409853924565837,
+        0.870073878121268
+      ],
+      [
+        0.9989785105350442,
+        0.963890956802099,
+        0.9987020952518858,
+        0.9983328109844998,
+        1.0,
+        0.9951683551503694,
+        0.9951862324693224,
+        0.9987238881690512,
+        0.9982955491755262,
+        0.9974686692142845,
+        0.9985937598871464,
+        0.9981440312443395,
+        0.832655855128817,
+        0.8320861335724495,
+        0.8612075991354277
+      ],
+      [
+        0.9970434341032984,
+        0.9675330825259786,
+        0.9964410367754781,
+        0.9978412231285845,
+        0.9951683551503693,
+        0.9999999999999999,
+        0.9999845834971933,
+        0.9952078821320817,
+        0.9962881575629032,
+        0.9935398307563043,
+        0.9949440164037741,
+        0.9950058450019906,
+        0.8510924774477863,
+        0.8492665551233819,
+        0.8791211819452063
+      ],
+      [
+        0.9970518958698712,
+        0.9682300673719106,
+        0.9964562612156477,
+        0.9978485785240285,
+        0.9951862324693224,
+        0.9999845834971932,
+        0.9999999999999999,
+        0.9952290830123054,
+        0.9963072921987424,
+        0.9935574473033211,
+        0.9949644362547962,
+        0.9950262774792894,
+        0.8511022343543833,
+        0.8493237838998504,
+        0.878658655177733
+      ],
+      [
+        0.9990831921972173,
+        0.9639707689185636,
+        0.9990018081620584,
+        0.9985211118846622,
+        0.9987238881690513,
+        0.9952078821320818,
+        0.9952290830123054,
+        0.9999999999999999,
+        0.9985437800557304,
+        0.997768504851747,
+        0.9982346889620327,
+        0.9988126880107132,
+        0.8321036497654695,
+        0.8315816892555457,
+        0.8608604839872832
+      ],
+      [
+        0.9989760427284033,
+        0.9654956574314413,
+        0.9992914680454945,
+        0.9988184357654789,
+        0.9982955491755262,
+        0.9962881575629031,
+        0.9963072921987424,
+        0.9985437800557304,
+        0.9999999999999999,
+        0.9984170079897893,
+        0.9986707863862424,
+        0.9989813992819832,
+        0.836189724254957,
+        0.8355374483583786,
+        0.8647390046683655
+      ],
+      [
+        0.9976975370329918,
+        0.9635313290673667,
+        0.9978649773938739,
+        0.9975213633941662,
+        0.9974686692142845,
+        0.9935398307563043,
+        0.9935574473033211,
+        0.997768504851747,
+        0.9984170079897893,
+        0.9999999999999999,
+        0.998006816399084,
+        0.9983538695857482,
+        0.8296505001978948,
+        0.8291193770386902,
+        0.8582456362571588
+      ],
+      [
+        0.9984752415282759,
+        0.9645910902983755,
+        0.9982931524814868,
+        0.9979592076676201,
+        0.9985937598871464,
+        0.994944016403774,
+        0.9949644362547962,
+        0.9982346889620327,
+        0.9986707863862423,
+        0.998006816399084,
+        1.0,
+        0.9986815701865063,
+        0.8329428349469054,
+        0.8324264116588815,
+        0.8615677411414975
+      ],
+      [
+        0.9985314702013844,
+        0.9646445359505452,
+        0.9984925372267757,
+        0.9980572439214932,
+        0.9981440312443394,
+        0.9950058450019907,
+        0.9950262774792893,
+        0.9988126880107131,
+        0.9989813992819832,
+        0.9983538695857481,
+        0.9986815701865063,
+        0.9999999999999999,
+        0.832436412213538,
+        0.8319001280078017,
+        0.8612880824996385
+      ],
+      [
+        0.8417588694268319,
+        0.8469396439243823,
+        0.8352070141619746,
+        0.8420678869710349,
+        0.832655855128817,
+        0.8510924774477863,
+        0.8511022343543833,
+        0.8321036497654694,
+        0.836189724254957,
+        0.8296505001978948,
+        0.8329428349469055,
+        0.832436412213538,
+        1.0,
+        0.9902408513925541,
+        0.8843142347412024
+      ],
+      [
+        0.84100332173045,
+        0.8469831937027086,
+        0.8345244667452603,
+        0.8409853924565837,
+        0.8320861335724496,
+        0.8492665551233819,
+        0.8493237838998504,
+        0.8315816892555458,
+        0.8355374483583787,
+        0.8291193770386901,
+        0.8324264116588816,
+        0.8319001280078017,
+        0.9902408513925541,
+        1.0,
+        0.8847788779761974
+      ],
+      [
+        0.8707924822988432,
+        0.8598382415263556,
+        0.8639782693094856,
+        0.870073878121268,
+        0.8612075991354277,
+        0.8791211819452063,
+        0.8786586551777331,
+        0.8608604839872832,
+        0.8647390046683655,
+        0.8582456362571589,
+        0.8615677411414976,
+        0.8612880824996384,
+        0.8843142347412023,
+        0.8847788779761974,
+        1.0
+      ]
+    ],
+    "status": "local confirmation only; not a new Kaggle score or rank"
+  },
+  "relative_confirmation_improvement_percent": 0.0762912550498089,
+  "ablations": {
+    "raw_only": {
+      "frozen": {
+        "created_utc": "2026-10-18T17:06:41.198516+00:00",
+        "names": [
+          "baseline",
+          "bag_huber",
+          "bag_mse",
+          "bert_mse"
+        ],
+        "weights": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "selection_rmsle": 0.38249845572819624,
+        "candidate_sha256": {
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57"
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true
+      },
+      "individual": {
+        "baseline": {
+          "selection_rmsle": 0.38249845572819624,
+          "confirmation_rmsle": 0.38090685318882356
+        },
+        "bag_huber": {
+          "selection_rmsle": 0.4641294615179062,
+          "confirmation_rmsle": 0.4629145743039116
+        },
+        "bag_mse": {
+          "selection_rmsle": 0.4641836351229613,
+          "confirmation_rmsle": 0.46261802250930834
+        },
+        "bert_mse": {
+          "selection_rmsle": 0.44877349905705016,
+          "confirmation_rmsle": 0.44761881881458204
+        }
+      },
+      "comparison": {
+        "baseline_rmsle": 0.3809068531888245,
+        "candidate_rmsle": 0.3809068531888245,
+        "rmsle_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "leave_one_expert_out": {},
+      "residual_correlation": [
+        [
+          1.0,
+          0.8417588694268318,
+          0.8410033217304503,
+          0.8707924822988433
+        ],
+        [
+          0.8417588694268316,
+          1.0,
+          0.9902408513925541,
+          0.8843142347412024
+        ],
+        [
+          0.8410033217304504,
+          0.9902408513925541,
+          1.0,
+          0.8847788779761974
+        ],
+        [
+          0.8707924822988432,
+          0.8843142347412023,
+          0.8847788779761974,
+          1.0
+        ]
+      ],
+      "status": "local confirmation only; not a new Kaggle score or rank"
+    },
+    "cpu_only": {
+      "frozen": {
+        "created_utc": "2026-10-18T17:06:43.065394+00:00",
+        "names": [
+          "baseline",
+          "cpu_multiscale"
+        ],
+        "weights": [
+          0.9604282981284648,
+          0.039571701871535296
+        ],
+        "selection_rmsle": 0.3824773769312273,
+        "candidate_sha256": {
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/cpu-expert/cpu_multiscale.npz": "de5639b984b2f47e5e985894447f8db8bc31aa7a53e1c60e1262c12d5081bb4c"
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true
+      },
+      "individual": {
+        "baseline": {
+          "selection_rmsle": 0.38249845572819624,
+          "confirmation_rmsle": 0.38090685318882356
+        },
+        "cpu_multiscale": {
+          "selection_rmsle": 0.39421236557818307,
+          "confirmation_rmsle": 0.39284572358989084
+        }
+      },
+      "comparison": {
+        "baseline_rmsle": 0.3809068531888245,
+        "candidate_rmsle": 0.3808940068851878,
+        "rmsle_delta": -1.2846303636682155e-05,
+        "ci95": [
+          -3.9658704751685536e-05,
+          1.437149535617326e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "leave_one_expert_out": {
+        "cpu_multiscale": {
+          "selection_rmsle": 0.38249845572819624,
+          "confirmation_rmsle": 0.38090685318882356
+        }
+      },
+      "residual_correlation": [
+        [
+          1.0,
+          0.9676362262346621
+        ],
+        [
+          0.9676362262346621,
+          1.0
+        ]
+      ],
+      "status": "local confirmation only; not a new Kaggle score or rank"
+    },
+    "basic_calibration": {
+      "frozen": {
+        "created_utc": "2026-10-18T17:06:45.286987+00:00",
+        "names": [
+          "baseline",
+          "cal_libtree3",
+          "cal_libtree5",
+          "cal_lightgbm",
+          "cal_meta_ridge10",
+          "cal_meta_ridge100",
+          "cal_xgboost",
+          "bag_huber",
+          "bag_mse",
+          "bert_mse"
+        ],
+        "weights": [
+          0.670269887987272,
+          0.10174704051595226,
+          0.02906056666747288,
+          0.02747309123183254,
+          3.654956322092705e-19,
+          2.0135106438688834e-19,
+          0.17144941359747035,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "selection_rmsle": 0.38243974010434056,
+        "candidate_sha256": {
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree3.npz": "646764e7f8f3a98c1e4c843170387e8464e32f32dba964446a81791aacfa443c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree5.npz": "1975596262cf4742cc819a211f71f51a02dd0a48f0a130a5e989d4eda1434a85",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_lightgbm.npz": "3cf5843c1a89ea87644f43881b285bc82fb4e1e83b5efec46365f6dc9b772c4e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge10.npz": "a81f9998bba7fc90522068203c3bb317bcce9f4e06777e498def166e268448d4",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge100.npz": "d50d60276c0e8100c102585f1cf38c6eb4e0a13b3aff2664e79d83ac978c3652",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_xgboost.npz": "60754d8eb035309d43a010ccfc9648c66f66d6d185b16064d18ee2172ee20a06",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57"
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true
+      },
+      "individual": {
+        "baseline": {
+          "selection_rmsle": 0.38249845572819624,
+          "confirmation_rmsle": 0.38090685318882356
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.3825346853217659,
+          "confirmation_rmsle": 0.38094595119362984
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.38262108785670884,
+          "confirmation_rmsle": 0.38101636131715094
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3827173243496131,
+          "confirmation_rmsle": 0.3809635513993273
+        },
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.38390403409759066,
+          "confirmation_rmsle": 0.3822156237076174
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3839033287248644,
+          "confirmation_rmsle": 0.38220896769045876
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3825687724210255,
+          "confirmation_rmsle": 0.38103860856687244
+        },
+        "bag_huber": {
+          "selection_rmsle": 0.4641294615179062,
+          "confirmation_rmsle": 0.4629145743039116
+        },
+        "bag_mse": {
+          "selection_rmsle": 0.4641836351229613,
+          "confirmation_rmsle": 0.46261802250930834
+        },
+        "bert_mse": {
+          "selection_rmsle": 0.44877349905705016,
+          "confirmation_rmsle": 0.44761881881458204
+        }
+      },
+      "comparison": {
+        "baseline_rmsle": 0.3809068531888245,
+        "candidate_rmsle": 0.3808540261865764,
+        "rmsle_delta": -5.2827002248123645e-05,
+        "ci95": [
+          -7.694310360660261e-05,
+          -2.7051873229436144e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "leave_one_expert_out": {
+        "cal_libtree3": {
+          "selection_rmsle": 0.38244540293288976,
+          "confirmation_rmsle": 0.38085828384906517
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.38244096712744274,
+          "confirmation_rmsle": 0.3808554956331202
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3824405625269578,
+          "confirmation_rmsle": 0.38085970659402557
+        },
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.38243974027171534,
+          "confirmation_rmsle": 0.38085402447428607
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3824397400860199,
+          "confirmation_rmsle": 0.3808540251294152
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3824584936064523,
+          "confirmation_rmsle": 0.3808548102787835
+        }
+      },
+      "residual_correlation": [
+        [
+          1.0,
+          0.9993622084445966,
+          0.9993336180879383,
+          0.9989785105350442,
+          0.9970434341032984,
+          0.9970518958698712,
+          0.9990831921972172,
+          0.8417588694268318,
+          0.8410033217304503,
+          0.8707924822988433
+        ],
+        [
+          0.9993622084445964,
+          1.0,
+          0.9991787211014485,
+          0.9987020952518859,
+          0.9964410367754781,
+          0.9964562612156477,
+          0.9990018081620583,
+          0.8352070141619746,
+          0.8345244667452602,
+          0.8639782693094858
+        ],
+        [
+          0.9993336180879382,
+          0.9991787211014485,
+          0.9999999999999999,
+          0.9983328109844998,
+          0.9978412231285844,
+          0.9978485785240286,
+          0.9985211118846621,
+          0.8420678869710349,
+          0.8409853924565835,
+          0.8700738781212684
+        ],
+        [
+          0.9989785105350442,
+          0.9987020952518858,
+          0.9983328109844998,
+          1.0,
+          0.9951683551503694,
+          0.9951862324693224,
+          0.9987238881690512,
+          0.8326558551288169,
+          0.8320861335724498,
+          0.8612075991354275
+        ],
+        [
+          0.9970434341032984,
+          0.9964410367754781,
+          0.9978412231285845,
+          0.9951683551503693,
+          0.9999999999999999,
+          0.9999845834971933,
+          0.9952078821320817,
+          0.8510924774477862,
+          0.8492665551233818,
+          0.8791211819452065
+        ],
+        [
+          0.9970518958698712,
+          0.9964562612156477,
+          0.9978485785240285,
+          0.9951862324693224,
+          0.9999845834971932,
+          0.9999999999999999,
+          0.9952290830123054,
+          0.8511022343543833,
+          0.8493237838998506,
+          0.878658655177733
+        ],
+        [
+          0.9990831921972173,
+          0.9990018081620584,
+          0.9985211118846622,
+          0.9987238881690513,
+          0.9952078821320818,
+          0.9952290830123054,
+          0.9999999999999999,
+          0.8321036497654696,
+          0.8315816892555459,
+          0.8608604839872832
+        ],
+        [
+          0.8417588694268316,
+          0.8352070141619746,
+          0.8420678869710349,
+          0.8326558551288169,
+          0.8510924774477862,
+          0.8511022343543833,
+          0.8321036497654695,
+          1.0,
+          0.9902408513925541,
+          0.8843142347412024
+        ],
+        [
+          0.8410033217304504,
+          0.8345244667452603,
+          0.8409853924565835,
+          0.8320861335724499,
+          0.8492665551233817,
+          0.8493237838998506,
+          0.8315816892555459,
+          0.9902408513925541,
+          1.0,
+          0.8847788779761974
+        ],
+        [
+          0.8707924822988432,
+          0.8639782693094858,
+          0.8700738781212682,
+          0.8612075991354275,
+          0.8791211819452065,
+          0.8786586551777331,
+          0.8608604839872832,
+          0.8843142347412023,
+          0.8847788779761974,
+          1.0
+        ]
+      ],
+      "status": "local confirmation only; not a new Kaggle score or rank"
+    },
+    "without_product": {
+      "frozen": {
+        "created_utc": "2026-10-18T17:06:47.992230+00:00",
+        "names": [
+          "baseline",
+          "cpu_multiscale",
+          "cal_libtree3",
+          "cal_libtree5",
+          "cal_lightgbm",
+          "cal_meta_ridge10",
+          "cal_meta_ridge100",
+          "cal_xgboost",
+          "bag_huber",
+          "bag_mse",
+          "bert_mse"
+        ],
+        "weights": [
+          0.5765460971444364,
+          0.04974886869617353,
+          0.11758449197124447,
+          0.014049062443796289,
+          0.048261316416309256,
+          0.0,
+          2.3244886046609285e-18,
+          0.19381016332804002,
+          0.0,
+          0.0,
+          1.9056998236675957e-18
+        ],
+        "selection_rmsle": 0.382396951270682,
+        "candidate_sha256": {
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/cpu-expert/cpu_multiscale.npz": "de5639b984b2f47e5e985894447f8db8bc31aa7a53e1c60e1262c12d5081bb4c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree3.npz": "646764e7f8f3a98c1e4c843170387e8464e32f32dba964446a81791aacfa443c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree5.npz": "1975596262cf4742cc819a211f71f51a02dd0a48f0a130a5e989d4eda1434a85",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_lightgbm.npz": "3cf5843c1a89ea87644f43881b285bc82fb4e1e83b5efec46365f6dc9b772c4e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge10.npz": "a81f9998bba7fc90522068203c3bb317bcce9f4e06777e498def166e268448d4",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge100.npz": "d50d60276c0e8100c102585f1cf38c6eb4e0a13b3aff2664e79d83ac978c3652",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_xgboost.npz": "60754d8eb035309d43a010ccfc9648c66f66d6d185b16064d18ee2172ee20a06",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57"
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true
+      },
+      "individual": {
+        "baseline": {
+          "selection_rmsle": 0.38249845572819624,
+          "confirmation_rmsle": 0.38090685318882356
+        },
+        "cpu_multiscale": {
+          "selection_rmsle": 0.39421236557818307,
+          "confirmation_rmsle": 0.39284572358989084
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.3825346853217659,
+          "confirmation_rmsle": 0.38094595119362984
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.38262108785670884,
+          "confirmation_rmsle": 0.38101636131715094
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3827173243496131,
+          "confirmation_rmsle": 0.3809635513993273
+        },
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.38390403409759066,
+          "confirmation_rmsle": 0.3822156237076174
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3839033287248644,
+          "confirmation_rmsle": 0.38220896769045876
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3825687724210255,
+          "confirmation_rmsle": 0.38103860856687244
+        },
+        "bag_huber": {
+          "selection_rmsle": 0.4641294615179062,
+          "confirmation_rmsle": 0.4629145743039116
+        },
+        "bag_mse": {
+          "selection_rmsle": 0.4641836351229613,
+          "confirmation_rmsle": 0.46261802250930834
+        },
+        "bert_mse": {
+          "selection_rmsle": 0.44877349905705016,
+          "confirmation_rmsle": 0.44761881881458204
+        }
+      },
+      "comparison": {
+        "baseline_rmsle": 0.3809068531888245,
+        "candidate_rmsle": 0.38081943538104956,
+        "rmsle_delta": -8.741780777493657e-05,
+        "ci95": [
+          -0.00012474556445191408,
+          -5.20753367200977e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "leave_one_expert_out": {
+        "cpu_multiscale": {
+          "selection_rmsle": 0.38243973951330823,
+          "confirmation_rmsle": 0.38085402338298235
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.38240520908461195,
+          "confirmation_rmsle": 0.38082590742329003
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.3823975465318727,
+          "confirmation_rmsle": 0.3808201802401746
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3823995275582018,
+          "confirmation_rmsle": 0.3808304782889106
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3823969515257826,
+          "confirmation_rmsle": 0.380819435435255
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3824221220592907,
+          "confirmation_rmsle": 0.3808241148763005
+        },
+        "bert_mse": {
+          "selection_rmsle": 0.3823969503504266,
+          "confirmation_rmsle": 0.3808194348771095
+        }
+      },
+      "residual_correlation": [
+        [
+          1.0,
+          0.9676362262346621,
+          0.9993622084445966,
+          0.9993336180879383,
+          0.9989785105350442,
+          0.9970434341032984,
+          0.9970518958698712,
+          0.9990831921972172,
+          0.8417588694268318,
+          0.8410033217304503,
+          0.8707924822988433
+        ],
+        [
+          0.9676362262346621,
+          1.0,
+          0.9649144033382666,
+          0.9661406913970279,
+          0.963890956802099,
+          0.9675330825259786,
+          0.9682300673719106,
+          0.9639707689185636,
+          0.8469396439243823,
+          0.8469831937027084,
+          0.8598382415263556
+        ],
+        [
+          0.9993622084445964,
+          0.9649144033382665,
+          1.0,
+          0.9991787211014485,
+          0.9987020952518859,
+          0.9964410367754781,
+          0.9964562612156477,
+          0.9990018081620583,
+          0.8352070141619746,
+          0.8345244667452602,
+          0.8639782693094858
+        ],
+        [
+          0.9993336180879382,
+          0.966140691397028,
+          0.9991787211014485,
+          0.9999999999999999,
+          0.9983328109844998,
+          0.9978412231285844,
+          0.9978485785240286,
+          0.9985211118846621,
+          0.8420678869710349,
+          0.8409853924565835,
+          0.8700738781212684
+        ],
+        [
+          0.9989785105350442,
+          0.963890956802099,
+          0.9987020952518858,
+          0.9983328109844998,
+          1.0,
+          0.9951683551503694,
+          0.9951862324693224,
+          0.9987238881690512,
+          0.8326558551288169,
+          0.8320861335724498,
+          0.8612075991354275
+        ],
+        [
+          0.9970434341032984,
+          0.9675330825259786,
+          0.9964410367754781,
+          0.9978412231285845,
+          0.9951683551503693,
+          0.9999999999999999,
+          0.9999845834971933,
+          0.9952078821320817,
+          0.8510924774477862,
+          0.8492665551233818,
+          0.8791211819452065
+        ],
+        [
+          0.9970518958698712,
+          0.9682300673719106,
+          0.9964562612156477,
+          0.9978485785240285,
+          0.9951862324693224,
+          0.9999845834971932,
+          0.9999999999999999,
+          0.9952290830123054,
+          0.8511022343543833,
+          0.8493237838998506,
+          0.878658655177733
+        ],
+        [
+          0.9990831921972173,
+          0.9639707689185636,
+          0.9990018081620584,
+          0.9985211118846622,
+          0.9987238881690513,
+          0.9952078821320818,
+          0.9952290830123054,
+          0.9999999999999999,
+          0.8321036497654696,
+          0.8315816892555459,
+          0.8608604839872832
+        ],
+        [
+          0.8417588694268316,
+          0.8469396439243823,
+          0.8352070141619746,
+          0.8420678869710349,
+          0.8326558551288169,
+          0.8510924774477862,
+          0.8511022343543833,
+          0.8321036497654695,
+          1.0,
+          0.9902408513925541,
+          0.8843142347412024
+        ],
+        [
+          0.8410033217304504,
+          0.8469831937027084,
+          0.8345244667452603,
+          0.8409853924565835,
+          0.8320861335724499,
+          0.8492665551233817,
+          0.8493237838998506,
+          0.8315816892555459,
+          0.9902408513925541,
+          1.0,
+          0.8847788779761974
+        ],
+        [
+          0.8707924822988432,
+          0.8598382415263556,
+          0.8639782693094858,
+          0.8700738781212682,
+          0.8612075991354275,
+          0.8791211819452065,
+          0.8786586551777331,
+          0.8608604839872832,
+          0.8843142347412023,
+          0.8847788779761974,
+          1.0
+        ]
+      ],
+      "status": "local confirmation only; not a new Kaggle score or rank"
+    },
+    "without_cpu": {
+      "frozen": {
+        "created_utc": "2026-10-18T17:06:51.101617+00:00",
+        "names": [
+          "baseline",
+          "cal_libtree3",
+          "cal_libtree5",
+          "cal_lightgbm",
+          "cal_meta_ridge10",
+          "cal_meta_ridge100",
+          "cal_xgboost",
+          "product_cal_libtree3",
+          "product_cal_libtree5",
+          "product_cal_lightgbm",
+          "product_cal_xgboost",
+          "bag_huber",
+          "bag_mse",
+          "bert_mse"
+        ],
+        "weights": [
+          0.4476792877851833,
+          0.0,
+          3.501541869222664e-18,
+          0.0,
+          0.0,
+          7.624396232204102e-20,
+          0.0,
+          2.5426663991757623e-19,
+          0.2596772566065448,
+          0.19674252633990022,
+          0.09590092926837175,
+          0.0,
+          4.710375273000055e-18,
+          8.884918765379655e-19
+        ],
+        "selection_rmsle": 0.38223273939209906,
+        "candidate_sha256": {
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/blend-data/baseline.npz": "dee1db769d97b4653e75a5e3304f504469dd54eab946ec93567ba6b537b2ca6c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree3.npz": "646764e7f8f3a98c1e4c843170387e8464e32f32dba964446a81791aacfa443c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree5.npz": "1975596262cf4742cc819a211f71f51a02dd0a48f0a130a5e989d4eda1434a85",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_lightgbm.npz": "3cf5843c1a89ea87644f43881b285bc82fb4e1e83b5efec46365f6dc9b772c4e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge10.npz": "a81f9998bba7fc90522068203c3bb317bcce9f4e06777e498def166e268448d4",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge100.npz": "d50d60276c0e8100c102585f1cf38c6eb4e0a13b3aff2664e79d83ac978c3652",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_xgboost.npz": "60754d8eb035309d43a010ccfc9648c66f66d6d185b16064d18ee2172ee20a06",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree3.npz": "de879f21c4293b6f4e258e5e4aed65fa6ea765705d5b094c2a562063b7994f76",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree5.npz": "fae7ed35e164bfd0d5de073493e4860b2045432c1ed8cca3f114efc3341df8e9",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_lightgbm.npz": "0b5c0a5887373833de2191ff79f895760e9eb3d979398a0490ae8f673d928e01",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_xgboost.npz": "dd4ac0a964518986db6f3cec66869a6a4e15290535011ab0256743c0bd0f108c",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+          "/workspace/libtree/benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57"
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true
+      },
+      "individual": {
+        "baseline": {
+          "selection_rmsle": 0.38249845572819624,
+          "confirmation_rmsle": 0.38090685318882356
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.3825346853217659,
+          "confirmation_rmsle": 0.38094595119362984
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.38262108785670884,
+          "confirmation_rmsle": 0.38101636131715094
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3827173243496131,
+          "confirmation_rmsle": 0.3809635513993273
+        },
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.38390403409759066,
+          "confirmation_rmsle": 0.3822156237076174
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3839033287248644,
+          "confirmation_rmsle": 0.38220896769045876
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3825687724210255,
+          "confirmation_rmsle": 0.38103860856687244
+        },
+        "product_cal_libtree3": {
+          "selection_rmsle": 0.38256551707311837,
+          "confirmation_rmsle": 0.38095355829870853
+        },
+        "product_cal_libtree5": {
+          "selection_rmsle": 0.38249337775567366,
+          "confirmation_rmsle": 0.38090545686151855
+        },
+        "product_cal_lightgbm": {
+          "selection_rmsle": 0.3824124345203222,
+          "confirmation_rmsle": 0.3808547401903747
+        },
+        "product_cal_xgboost": {
+          "selection_rmsle": 0.3824457362142697,
+          "confirmation_rmsle": 0.3808469381446818
+        },
+        "bag_huber": {
+          "selection_rmsle": 0.4641294615179062,
+          "confirmation_rmsle": 0.4629145743039116
+        },
+        "bag_mse": {
+          "selection_rmsle": 0.4641836351229613,
+          "confirmation_rmsle": 0.46261802250930834
+        },
+        "bert_mse": {
+          "selection_rmsle": 0.44877349905705016,
+          "confirmation_rmsle": 0.44761881881458204
+        }
+      },
+      "comparison": {
+        "baseline_rmsle": 0.3809068531888245,
+        "candidate_rmsle": 0.3806484516924057,
+        "rmsle_delta": -0.00025840149641881416,
+        "ci95": [
+          -0.00032143376119941197,
+          -0.00018459582258949098
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "leave_one_expert_out": {
+        "cal_libtree5": {
+          "selection_rmsle": 0.38223273992468443,
+          "confirmation_rmsle": 0.3806484521092942
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.38223273916459427,
+          "confirmation_rmsle": 0.38064845124099284
+        },
+        "product_cal_libtree3": {
+          "selection_rmsle": 0.3822327404859664,
+          "confirmation_rmsle": 0.3806484527905649
+        },
+        "product_cal_libtree5": {
+          "selection_rmsle": 0.38228812109557336,
+          "confirmation_rmsle": 0.38070398125363714
+        },
+        "product_cal_lightgbm": {
+          "selection_rmsle": 0.3822628599587187,
+          "confirmation_rmsle": 0.38067235497121904
+        },
+        "product_cal_xgboost": {
+          "selection_rmsle": 0.38223876069668283,
+          "confirmation_rmsle": 0.3806562791616071
+        },
+        "bag_mse": {
+          "selection_rmsle": 0.38223274041549604,
+          "confirmation_rmsle": 0.3806484525202954
+        },
+        "bert_mse": {
+          "selection_rmsle": 0.3822327396441222,
+          "confirmation_rmsle": 0.38064845170946215
+        }
+      },
+      "residual_correlation": [
+        [
+          1.0,
+          0.9993622084445966,
+          0.9993336180879383,
+          0.9989785105350442,
+          0.9970434341032984,
+          0.9970518958698712,
+          0.9990831921972172,
+          0.9989760427284036,
+          0.9976975370329918,
+          0.9984752415282759,
+          0.9985314702013844,
+          0.8417588694268316,
+          0.84100332173045,
+          0.8707924822988433
+        ],
+        [
+          0.9993622084445964,
+          1.0,
+          0.9991787211014485,
+          0.9987020952518859,
+          0.9964410367754781,
+          0.9964562612156477,
+          0.9990018081620583,
+          0.9992914680454946,
+          0.9978649773938738,
+          0.9982931524814868,
+          0.9984925372267758,
+          0.8352070141619747,
+          0.8345244667452602,
+          0.8639782693094855
+        ],
+        [
+          0.9993336180879382,
+          0.9991787211014485,
+          0.9999999999999999,
+          0.9983328109844998,
+          0.9978412231285844,
+          0.9978485785240286,
+          0.9985211118846621,
+          0.9988184357654787,
+          0.9975213633941662,
+          0.9979592076676203,
+          0.9980572439214933,
+          0.8420678869710347,
+          0.8409853924565837,
+          0.870073878121268
+        ],
+        [
+          0.9989785105350442,
+          0.9987020952518858,
+          0.9983328109844998,
+          1.0,
+          0.9951683551503694,
+          0.9951862324693224,
+          0.9987238881690512,
+          0.9982955491755258,
+          0.9974686692142845,
+          0.9985937598871464,
+          0.9981440312443395,
+          0.832655855128817,
+          0.8320861335724495,
+          0.8612075991354277
+        ],
+        [
+          0.9970434341032984,
+          0.9964410367754781,
+          0.9978412231285845,
+          0.9951683551503693,
+          0.9999999999999999,
+          0.9999845834971933,
+          0.9952078821320817,
+          0.9962881575629033,
+          0.9935398307563043,
+          0.9949440164037741,
+          0.9950058450019906,
+          0.8510924774477862,
+          0.8492665551233819,
+          0.8791211819452063
+        ],
+        [
+          0.9970518958698712,
+          0.9964562612156477,
+          0.9978485785240285,
+          0.9951862324693224,
+          0.9999845834971932,
+          0.9999999999999999,
+          0.9952290830123054,
+          0.9963072921987424,
+          0.9935574473033211,
+          0.9949644362547962,
+          0.9950262774792894,
+          0.8511022343543834,
+          0.8493237838998504,
+          0.878658655177733
+        ],
+        [
+          0.9990831921972173,
+          0.9990018081620584,
+          0.9985211118846622,
+          0.9987238881690513,
+          0.9952078821320818,
+          0.9952290830123054,
+          0.9999999999999999,
+          0.9985437800557306,
+          0.997768504851747,
+          0.9982346889620327,
+          0.9988126880107132,
+          0.8321036497654694,
+          0.8315816892555457,
+          0.8608604839872832
+        ],
+        [
+          0.9989760427284036,
+          0.9992914680454946,
+          0.9988184357654787,
+          0.9982955491755258,
+          0.9962881575629035,
+          0.9963072921987424,
+          0.9985437800557305,
+          0.9999999999999999,
+          0.9984170079897893,
+          0.9986707863862424,
+          0.9989813992819832,
+          0.8361897242549569,
+          0.8355374483583786,
+          0.8647390046683655
+        ],
+        [
+          0.9976975370329918,
+          0.9978649773938739,
+          0.9975213633941662,
+          0.9974686692142845,
+          0.9935398307563043,
+          0.9935574473033211,
+          0.997768504851747,
+          0.9984170079897893,
+          0.9999999999999999,
+          0.998006816399084,
+          0.9983538695857482,
+          0.8296505001978947,
+          0.8291193770386902,
+          0.8582456362571588
+        ],
+        [
+          0.9984752415282759,
+          0.9982931524814868,
+          0.9979592076676201,
+          0.9985937598871464,
+          0.994944016403774,
+          0.9949644362547962,
+          0.9982346889620327,
+          0.9986707863862423,
+          0.998006816399084,
+          1.0,
+          0.9986815701865063,
+          0.8329428349469052,
+          0.8324264116588815,
+          0.8615677411414975
+        ],
+        [
+          0.9985314702013844,
+          0.9984925372267757,
+          0.9980572439214932,
+          0.9981440312443394,
+          0.9950058450019907,
+          0.9950262774792893,
+          0.9988126880107131,
+          0.9989813992819832,
+          0.9983538695857481,
+          0.9986815701865063,
+          0.9999999999999999,
+          0.8324364122135379,
+          0.8319001280078017,
+          0.8612880824996385
+        ],
+        [
+          0.8417588694268316,
+          0.8352070141619746,
+          0.8420678869710347,
+          0.832655855128817,
+          0.8510924774477862,
+          0.8511022343543833,
+          0.8321036497654694,
+          0.8361897242549569,
+          0.8296505001978948,
+          0.8329428349469054,
+          0.8324364122135379,
+          1.0,
+          0.9902408513925539,
+          0.8843142347412017
+        ],
+        [
+          0.84100332173045,
+          0.8345244667452603,
+          0.8409853924565837,
+          0.8320861335724496,
+          0.8492665551233819,
+          0.8493237838998504,
+          0.8315816892555458,
+          0.8355374483583787,
+          0.8291193770386901,
+          0.8324264116588816,
+          0.8319001280078017,
+          0.9902408513925539,
+          1.0,
+          0.8847788779761974
+        ],
+        [
+          0.8707924822988432,
+          0.8639782693094856,
+          0.870073878121268,
+          0.8612075991354277,
+          0.8791211819452063,
+          0.8786586551777331,
+          0.8608604839872832,
+          0.8647390046683655,
+          0.8582456362571589,
+          0.8615677411414976,
+          0.8612880824996384,
+          0.8843142347412019,
+          0.8847788779761974,
+          1.0
+        ]
+      ],
+      "status": "local confirmation only; not a new Kaggle score or rank"
+    }
+  },
+  "control_verification": {
+    "verified_utc": "2026-10-18T16:21:15.672920+00:00",
+    "models": {
+      "cal_libtree3": 0.0,
+      "cal_libtree5": 0.0,
+      "cal_lightgbm": 0.0,
+      "cal_meta_ridge10": 0.0,
+      "cal_meta_ridge100": 0.0,
+      "cal_xgboost": 0.0
+    },
+    "maximum_absolute_log_prediction_difference": 0.0,
+    "confirmation_labels_loaded": false,
+    "rows_per_model": 296509
+  },
+  "calibration": {
+    "control-calibration": {
+      "models": {
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.3837734796693828,
+          "coefficients": [
+            0.02771921399233883,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0806765366320847,
+            0.00019587895389067697,
+            0.0,
+            0.0,
+            0.0,
+            0.020907228600866055,
+            0.0559594923632515,
+            0.030401562349507603,
+            0.07296639793492124,
+            0.11292388653439431,
+            0.019919167453480952,
+            0.11772642187603746,
+            0.12477001406363711,
+            0.060747098187620356,
+            0.28619804702354557
+          ],
+          "intercept": -0.030406062226790098,
+          "seconds": 0.11732937899796525
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.383766665031649,
+          "coefficients": [
+            0.031481734853782646,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.07921347475815911,
+            0.00468447856237245,
+            0.0,
+            0.0,
+            0.0,
+            0.024304666825156616,
+            0.05708550063900863,
+            0.03112741858713566,
+            0.07327229277706032,
+            0.1107486913127515,
+            0.021873759605913107,
+            0.11539529595564005,
+            0.1221290259686907,
+            0.0603011031947233,
+            0.27986792053678927
+          ],
+          "intercept": -0.031344656020983575,
+          "seconds": 0.19786284700239776
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.3826856412501523,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.38367165378729207,
+            "0.25": 0.38322586623815097,
+            "0.5": 0.38291274086299404,
+            "1.0": 0.3826856412501523
+          },
+          "seconds": 10.266717329999665
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.3827119938593506,
+          "strength": 0.5,
+          "strength_scores": {
+            "0.0": 0.38367165378729207,
+            "0.25": 0.3830610650081845,
+            "0.5": 0.3827119938593506,
+            "1.0": 0.3828007301727475
+          },
+          "seconds": 13.339244845999929
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.38270352985961453,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.38367165378729207,
+            "0.25": 0.3831390888648408,
+            "0.5": 0.38279991930877433,
+            "1.0": 0.38270352985961453
+          },
+          "seconds": 11.647017548002623
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3827245751664676,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.38367165378729207,
+            "0.25": 0.38315063196782817,
+            "0.5": 0.3828188302786526,
+            "1.0": 0.3827245751664676
+          },
+          "seconds": 11.620094121000875
+        }
+      },
+      "expert_names": [
+        "old_uncorrected",
+        "lsa_lgbm_31",
+        "lsa_lgbm_63",
+        "lsa_ridge_10",
+        "lsa_ridge_100",
+        "cnn128_mse",
+        "gru96_huber",
+        "minilm_lgbm63",
+        "minilm_ridge_10",
+        "minilm_ridge_100",
+        "sparse256_binary_bins",
+        "sparse256_binary_huber",
+        "sparse256_tfidf_mse",
+        "sparse512_binary_bins",
+        "sparse512_binary_huber",
+        "sparse512_tfidf_mse",
+        "stemmed_sparse512_binary_bins",
+        "stemmed_sparse512_binary_huber",
+        "stemmed_sparse512_tfidf_mse",
+        "finetuned_minilm_huber"
+      ],
+      "weights": [
+        0.054901540611750475,
+        0.0,
+        5.232795208557917e-18,
+        0.0,
+        3.8760322436053934e-18,
+        0.06352212743700512,
+        0.01670638255134274,
+        0.0,
+        0.0,
+        0.0,
+        0.00040511785713954817,
+        0.06030882765342569,
+        0.032700826185211467,
+        0.0493789958852634,
+        0.09309665954647571,
+        0.03043237889944423,
+        0.08370396349416545,
+        0.14766464596423792,
+        0.07936797740137053,
+        0.2878105565131678
+      ],
+      "calibration_rows": 74129,
+      "selection_rows": 74126,
+      "tree_rounds": 400,
+      "confirmation_labels_loaded": false,
+      "feature_count": 212,
+      "text_attribute_names": [
+        "name_storage_gb",
+        "name_max_number",
+        "name_redactions",
+        "name_unlocked",
+        "name_accessory",
+        "name_damaged",
+        "name_box_only",
+        "name_bundle",
+        "name_new",
+        "description_storage_gb",
+        "description_max_number",
+        "description_redactions",
+        "description_unlocked",
+        "description_accessory",
+        "description_damaged",
+        "description_box_only",
+        "description_bundle",
+        "description_new"
+      ]
+    },
+    "new-calibration": {
+      "models": {
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.38390403409759066,
+          "coefficients": [
+            0.05173283294800673,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.06663545324399894,
+            0.03314488273357521,
+            0.0,
+            0.0,
+            0.0,
+            0.04837876164070718,
+            0.06401522826829757,
+            0.018105200894130806,
+            0.07872421115583794,
+            0.09950930965416128,
+            0.021031046479594095,
+            0.10304078829500159,
+            0.10907255367751474,
+            0.04329575465369252,
+            0.27722701586891657,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "intercept": -0.03773752655660667,
+          "seconds": 0.37320748799902503
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3839033287248644,
+          "coefficients": [
+            0.0531456173378141,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.06712330249234535,
+            0.035749592455570786,
+            0.0,
+            0.0,
+            0.0,
+            0.0501545857144725,
+            0.06486689329381576,
+            0.02038206583414915,
+            0.07877981557540752,
+            0.09836430916954536,
+            0.023338351968554695,
+            0.10176407500916945,
+            0.10743274282080797,
+            0.044322255003984096,
+            0.26846300265574546,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "intercept": -0.03753177284422193,
+          "seconds": 0.42670512499898905
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.3825346853217659,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.3831816526782267,
+            "0.5": 0.38282859594318563,
+            "1.0": 0.3825346853217659
+          },
+          "seconds": 9.014841587999399
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.38262108785670884,
+          "strength": 0.5,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.3830100509073322,
+            "0.5": 0.38262108785670884,
+            "1.0": 0.38266382413887073
+          },
+          "seconds": 12.120028565001121
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3827173243496131,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.3831344242518112,
+            "0.5": 0.38279599285922683,
+            "1.0": 0.3827173243496131
+          },
+          "seconds": 11.169776206003007
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3825687724210255,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.3830974368108124,
+            "0.5": 0.38272187911564687,
+            "1.0": 0.3825687724210255
+          },
+          "seconds": 10.553761597002449
+        }
+      },
+      "expert_names": [
+        "old_uncorrected",
+        "lsa_lgbm_31",
+        "lsa_lgbm_63",
+        "lsa_ridge_10",
+        "lsa_ridge_100",
+        "cnn128_mse",
+        "gru96_huber",
+        "minilm_lgbm63",
+        "minilm_ridge_10",
+        "minilm_ridge_100",
+        "sparse256_binary_bins",
+        "sparse256_binary_huber",
+        "sparse256_tfidf_mse",
+        "sparse512_binary_bins",
+        "sparse512_binary_huber",
+        "sparse512_tfidf_mse",
+        "stemmed_sparse512_binary_bins",
+        "stemmed_sparse512_binary_huber",
+        "stemmed_sparse512_tfidf_mse",
+        "finetuned_minilm_huber",
+        "bag_huber",
+        "bag_mse",
+        "bert_mse"
+      ],
+      "weights": [
+        0.05490167767730035,
+        0.0,
+        3.131746605476252e-18,
+        2.037844646591531e-18,
+        0.0,
+        0.06352205121561975,
+        0.016706446576847844,
+        0.0,
+        3.00022075546741e-19,
+        0.0,
+        0.00040504626960769023,
+        0.06030881310913917,
+        0.03270085366408009,
+        0.049378956799918175,
+        0.09309670419668845,
+        0.030432246514835663,
+        0.08370400202866539,
+        0.14766460263241454,
+        0.07936802257769131,
+        0.2878105767371916,
+        4.381996717441192e-18,
+        1.7799115034759767e-18,
+        1.1718471685690847e-17
+      ],
+      "calibration_rows": 74129,
+      "selection_rows": 74126,
+      "tree_rounds": 400,
+      "confirmation_labels_loaded": false,
+      "feature_count": 215,
+      "text_attribute_names": [
+        "name_storage_gb",
+        "name_max_number",
+        "name_redactions",
+        "name_unlocked",
+        "name_accessory",
+        "name_damaged",
+        "name_box_only",
+        "name_bundle",
+        "name_new",
+        "description_storage_gb",
+        "description_max_number",
+        "description_redactions",
+        "description_unlocked",
+        "description_accessory",
+        "description_damaged",
+        "description_box_only",
+        "description_bundle",
+        "description_new"
+      ],
+      "product_feature_names": []
+    },
+    "product-calibration": {
+      "models": {
+        "cal_meta_ridge10": {
+          "selection_rmsle": 0.38390403409759066,
+          "coefficients": [
+            0.05173283294800673,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.06663545324399894,
+            0.03314488273357521,
+            0.0,
+            0.0,
+            0.0,
+            0.04837876164070718,
+            0.06401522826829757,
+            0.018105200894130806,
+            0.07872421115583794,
+            0.09950930965416128,
+            0.021031046479594095,
+            0.10304078829500159,
+            0.10907255367751474,
+            0.04329575465369252,
+            0.27722701586891657,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "intercept": -0.03773752655660667,
+          "seconds": 0.0823985970018839
+        },
+        "cal_meta_ridge100": {
+          "selection_rmsle": 0.3839033287248644,
+          "coefficients": [
+            0.0531456173378141,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.06712330249234535,
+            0.035749592455570786,
+            0.0,
+            0.0,
+            0.0,
+            0.0501545857144725,
+            0.06486689329381576,
+            0.02038206583414915,
+            0.07877981557540752,
+            0.09836430916954536,
+            0.023338351968554695,
+            0.10176407500916945,
+            0.10743274282080797,
+            0.044322255003984096,
+            0.26846300265574546,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "intercept": -0.03753177284422193,
+          "seconds": 0.12266387199997553
+        },
+        "cal_libtree3": {
+          "selection_rmsle": 0.38256551707311837,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.38317785034140867,
+            "0.5": 0.3828286563974697,
+            "1.0": 0.38256551707311837
+          },
+          "seconds": 10.389745592998224
+        },
+        "cal_libtree5": {
+          "selection_rmsle": 0.38249337775567366,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.38295478593250243,
+            "0.5": 0.38251891341885313,
+            "1.0": 0.38249337775567366
+          },
+          "seconds": 15.571498195000459
+        },
+        "cal_lightgbm": {
+          "selection_rmsle": 0.3824124345203222,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.38304210967228663,
+            "0.5": 0.38262198893432525,
+            "1.0": 0.3824124345203222
+          },
+          "seconds": 10.859960120000324
+        },
+        "cal_xgboost": {
+          "selection_rmsle": 0.3824457362142697,
+          "strength": 1.0,
+          "strength_scores": {
+            "0.0": 0.3836716538208917,
+            "0.25": 0.38305116670720724,
+            "0.5": 0.38263962546098157,
+            "1.0": 0.3824457362142697
+          },
+          "seconds": 11.687025127001107
+        }
+      },
+      "expert_names": [
+        "old_uncorrected",
+        "lsa_lgbm_31",
+        "lsa_lgbm_63",
+        "lsa_ridge_10",
+        "lsa_ridge_100",
+        "cnn128_mse",
+        "gru96_huber",
+        "minilm_lgbm63",
+        "minilm_ridge_10",
+        "minilm_ridge_100",
+        "sparse256_binary_bins",
+        "sparse256_binary_huber",
+        "sparse256_tfidf_mse",
+        "sparse512_binary_bins",
+        "sparse512_binary_huber",
+        "sparse512_tfidf_mse",
+        "stemmed_sparse512_binary_bins",
+        "stemmed_sparse512_binary_huber",
+        "stemmed_sparse512_tfidf_mse",
+        "finetuned_minilm_huber",
+        "bag_huber",
+        "bag_mse",
+        "bert_mse"
+      ],
+      "weights": [
+        0.05490167767730035,
+        0.0,
+        3.131746605476252e-18,
+        2.037844646591531e-18,
+        0.0,
+        0.06352205121561975,
+        0.016706446576847844,
+        0.0,
+        3.00022075546741e-19,
+        0.0,
+        0.00040504626960769023,
+        0.06030881310913917,
+        0.03270085366408009,
+        0.049378956799918175,
+        0.09309670419668845,
+        0.030432246514835663,
+        0.08370400202866539,
+        0.14766460263241454,
+        0.07936802257769131,
+        0.2878105767371916,
+        4.381996717441192e-18,
+        1.7799115034759767e-18,
+        1.1718471685690847e-17
+      ],
+      "calibration_rows": 74129,
+      "selection_rows": 74126,
+      "tree_rounds": 400,
+      "confirmation_labels_loaded": false,
+      "feature_count": 305,
+      "text_attribute_names": [
+        "name_storage_gb",
+        "name_max_number",
+        "name_redactions",
+        "name_unlocked",
+        "name_accessory",
+        "name_damaged",
+        "name_box_only",
+        "name_bundle",
+        "name_new",
+        "description_storage_gb",
+        "description_max_number",
+        "description_redactions",
+        "description_unlocked",
+        "description_accessory",
+        "description_damaged",
+        "description_box_only",
+        "description_bundle",
+        "description_new"
+      ],
+      "product_feature_names": [
+        "global5_title_mean",
+        "global5_title_support",
+        "global5_title_std",
+        "global5_identity_mean",
+        "global5_identity_support",
+        "global5_identity_std",
+        "global5_prefix_mean",
+        "global5_prefix_support",
+        "global5_prefix_std",
+        "global5_brand_condition_mean",
+        "global5_brand_condition_support",
+        "global5_brand_condition_std",
+        "global5_model_mean",
+        "global5_model_support",
+        "global5_model_std",
+        "global20_title_mean",
+        "global20_title_support",
+        "global20_title_std",
+        "global20_identity_mean",
+        "global20_identity_support",
+        "global20_identity_std",
+        "global20_prefix_mean",
+        "global20_prefix_support",
+        "global20_prefix_std",
+        "global20_brand_condition_mean",
+        "global20_brand_condition_support",
+        "global20_brand_condition_std",
+        "global20_model_mean",
+        "global20_model_support",
+        "global20_model_std",
+        "global100_title_mean",
+        "global100_title_support",
+        "global100_title_std",
+        "global100_identity_mean",
+        "global100_identity_support",
+        "global100_identity_std",
+        "global100_prefix_mean",
+        "global100_prefix_support",
+        "global100_prefix_std",
+        "global100_brand_condition_mean",
+        "global100_brand_condition_support",
+        "global100_brand_condition_std",
+        "global100_model_mean",
+        "global100_model_support",
+        "global100_model_std",
+        "parent5_title_mean",
+        "parent5_title_support",
+        "parent5_title_std",
+        "parent5_identity_mean",
+        "parent5_identity_support",
+        "parent5_identity_std",
+        "parent5_prefix_mean",
+        "parent5_prefix_support",
+        "parent5_prefix_std",
+        "parent5_brand_condition_mean",
+        "parent5_brand_condition_support",
+        "parent5_brand_condition_std",
+        "parent5_model_mean",
+        "parent5_model_support",
+        "parent5_model_std",
+        "parent20_title_mean",
+        "parent20_title_support",
+        "parent20_title_std",
+        "parent20_identity_mean",
+        "parent20_identity_support",
+        "parent20_identity_std",
+        "parent20_prefix_mean",
+        "parent20_prefix_support",
+        "parent20_prefix_std",
+        "parent20_brand_condition_mean",
+        "parent20_brand_condition_support",
+        "parent20_brand_condition_std",
+        "parent20_model_mean",
+        "parent20_model_support",
+        "parent20_model_std",
+        "parent100_title_mean",
+        "parent100_title_support",
+        "parent100_title_std",
+        "parent100_identity_mean",
+        "parent100_identity_support",
+        "parent100_identity_std",
+        "parent100_prefix_mean",
+        "parent100_prefix_support",
+        "parent100_prefix_std",
+        "parent100_brand_condition_mean",
+        "parent100_brand_condition_support",
+        "parent100_brand_condition_std",
+        "parent100_model_mean",
+        "parent100_model_support",
+        "parent100_model_std"
+      ]
+    }
+  },
+  "tree_split_usage": {
+    "new-calibration_libtree3": {
+      "total_splits": 2704,
+      "new_expert_split_counts": {
+        "bag_huber": 20,
+        "bag_mse": 27,
+        "bert_mse": 73
+      },
+      "product_feature_splits": 0,
+      "interpretation": "Split counts show usage, not gain importance or causal contribution."
+    },
+    "new-calibration_libtree5": {
+      "total_splits": 8967,
+      "new_expert_split_counts": {
+        "bag_huber": 63,
+        "bag_mse": 50,
+        "bert_mse": 137
+      },
+      "product_feature_splits": 0,
+      "interpretation": "Split counts show usage, not gain importance or causal contribution."
+    },
+    "product-calibration_libtree3": {
+      "total_splits": 2698,
+      "new_expert_split_counts": {
+        "bag_huber": 11,
+        "bag_mse": 24,
+        "bert_mse": 67
+      },
+      "product_feature_splits": 365,
+      "interpretation": "Split counts show usage, not gain importance or causal contribution."
+    },
+    "product-calibration_libtree5": {
+      "total_splits": 8616,
+      "new_expert_split_counts": {
+        "bag_huber": 38,
+        "bag_mse": 50,
+        "bert_mse": 129
+      },
+      "product_feature_splits": 1042,
+      "interpretation": "Split counts show usage, not gain importance or causal contribution."
+    }
+  },
+  "audit_segments": {
+    "category_<missing>": {
+      "rows": 633,
+      "reference_rmsle": 0.47113594235091094,
+      "candidate_rmsle": 0.4715442457337912
+    },
+    "category_Beauty": {
+      "rows": 20706,
+      "reference_rmsle": 0.36502496893091035,
+      "candidate_rmsle": 0.3646560341039393
+    },
+    "category_Electronics": {
+      "rows": 12223,
+      "reference_rmsle": 0.37487916873069166,
+      "candidate_rmsle": 0.37457047643294394
+    },
+    "category_Handmade": {
+      "rows": 3045,
+      "reference_rmsle": 0.39480963343028636,
+      "candidate_rmsle": 0.39408241955480705
+    },
+    "category_Home": {
+      "rows": 6936,
+      "reference_rmsle": 0.4129976649942981,
+      "candidate_rmsle": 0.4128204185383564
+    },
+    "category_Kids": {
+      "rows": 17243,
+      "reference_rmsle": 0.3955851723630822,
+      "candidate_rmsle": 0.3953653808205883
+    },
+    "category_Men": {
+      "rows": 9212,
+      "reference_rmsle": 0.3835319045469952,
+      "candidate_rmsle": 0.38334739720873295
+    },
+    "category_Other": {
+      "rows": 4550,
+      "reference_rmsle": 0.43638456655504254,
+      "candidate_rmsle": 0.4359039530695492
+    },
+    "category_Sports & Outdoors": {
+      "rows": 2475,
+      "reference_rmsle": 0.39224524913756253,
+      "candidate_rmsle": 0.39160126079147056
+    },
+    "category_Vintage & Collectibles": {
+      "rows": 4681,
+      "reference_rmsle": 0.49660651878848977,
+      "candidate_rmsle": 0.4963127690278632
+    },
+    "category_Women": {
+      "rows": 66550,
+      "reference_rmsle": 0.36322798236858067,
+      "candidate_rmsle": 0.3629576486100732
+    },
+    "price_under_10": {
+      "rows": 27703,
+      "reference_rmsle": 0.4312055220365161,
+      "candidate_rmsle": 0.4312476839950736
+    },
+    "price_10_to_50": {
+      "rows": 104531,
+      "reference_rmsle": 0.3234881001612977,
+      "candidate_rmsle": 0.32329567636656786
+    },
+    "price_50_to_100": {
+      "rows": 11565,
+      "reference_rmsle": 0.5019915713472684,
+      "candidate_rmsle": 0.5013389695651556
+    },
+    "price_100_plus": {
+      "rows": 4455,
+      "reference_rmsle": 0.7500397987431999,
+      "candidate_rmsle": 0.7480569525350769
+    }
+  },
+  "product_statistics_artifact_bytes": 1046998691,
+  "tests": {
+    "torch_tests": 27,
+    "torch_module_statements": 473,
+    "frontier_tests": 14,
+    "frontier_statements": 372,
+    "statement_coverage_percent": 100,
+    "scope": "Six modules; not whole-repository branch/GPU instruction coverage"
+  },
+  "notes": [
+    "Primary was fixed before its confirmation audit; ablations did not select a replacement.",
+    "Calibration basic/product base weights are equal; only tree feature columns differ.",
+    "Initial full GPU study used emulated BF16. Corrected native FP16 has only a fixed-batch performance test, not a full accuracy rerun.",
+    "Full-reference and CPU pipeline training costs are excluded from incremental new timings.",
+    "Product variants of positive Ridge use no product features and duplicate basic controls; not included twice in outer pool.",
+    "Audit-only inverse-log prices are rounded to 8 decimals before price-band assignment to remove boundary roundoff; RMSLE uses original log labels."
+  ],
+  "implementation_ci": {
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39148472156",
+    "commit": "2a0759b",
+    "jobs": {
+      "mercari-transformer": {
+        "concluded": true,
+        "success": true
+      },
+      "mercari-optimization": {
+        "concluded": true,
+        "success": true
+      },
+      "minimum-python-integration": {
+        "concluded": true,
+        "success": true
+      },
+      "linux": {
+        "concluded": true,
+        "success": true
+      }
+    }
+  }
+}

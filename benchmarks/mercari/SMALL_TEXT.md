@@ -1,5 +1,7 @@
 # Budgeted small text models on Colab
 
+[Measured report: 0.380616 and native T4 precision](SMALL_TEXT_REPORT.md)
+
 [中文](SMALL_TEXT.zh-CN.md) · [Previous text study](FRONTIER.md) · [Beginner guide](BEGINNER_GUIDE.md)
 
 The 18 October 2026 request re-enables Colab CPU/GPU experiments. The former

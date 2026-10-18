@@ -1,0 +1,41 @@
+objective=squared_error num_features=305 tree_count=400
+base_score=0.003818108674273785 learning_rate=0.040000000000000001
+tree 0
+  node 0: "global20_prefix_mean" [f213] <= 3.7960736751556396 -> 8; > -> 1; missing -> 8
+    node 1: "item_description_lsa_50" [f146] <= -0.0087766833603382111 -> 2; > -> 3; missing -> 2
+      node 2: leaf_value=-0.0018125922428679205 contribution=-7.2503689714716824e-05
+      node 3: "parent5_title_std" [f239] <= 0.76220160722732544 -> 5; > -> 4; missing -> 5
+        node 4: leaf_value=-0.2117930210495611 contribution=-0.0084717208419824441
+        node 5: "item_description_lsa_56" [f152] <= 0.0030464909505099058 -> 7; > -> 6; missing -> 7
+          node 6: leaf_value=0.00093953546144272509 contribution=3.7581418457709007e-05
+          node 7: leaf_value=-0.12872190614979026 contribution=-0.0051488762459916109
+    node 8: "expert_sparse512_binary_huber" [f296] <= 4.1048521995544434 -> 24; > -> 9; missing -> 24
+      node 9: "global100_brand_condition_mean" [f231] <= 3.1123495101928711 -> 10; > -> 17; missing -> 10
+        node 10: "item_description_lsa_10" [f106] <= -0.010035693645477295 -> 11; > -> 14; missing -> 11
+          node 11: "legacy_metadata_5" [f5] <= 3.7841897010803223 -> 12; > -> 13; missing -> 12
+            node 12: leaf_value=-0.051212560287304539 contribution=-0.0020485024114921817
+            node 13: leaf_value=0.13450276834025285 contribution=0.0053801107336101141
+          node 14: "name_lsa_25" [f57] <= 0.0011839919025078416 -> 15; > -> 16; missing -> 15
+            node 15: leaf_value=0.25087888413571102 contribution=0.010035155365428441
+            node 16: leaf_value=0.061391874779058324 contribution=0.0024556749911623329
+        node 17: "legacy_metadata_24" [f24] <= 3.2486109733581543 -> 18; > -> 21; missing -> 18
+          node 18: "name_lsa_57" [f89] <= -0.0080568511039018631 -> 19; > -> 20; missing -> 19
+            node 19: leaf_value=-0.0054559545511750256 contribution=-0.00021823818204700103
+            node 20: leaf_value=0.11593830576647157 contribution=0.0046375322306588633
+          node 21: "item_description_lsa_8" [f104] <= -0.032401800155639648 -> 22; > -> 23; missing -> 22
+            node 22: leaf_value=-0.055689054346255477 contribution=-0.0022275621738502191
+            node 23: leaf_value=0.0096941206794114824 contribution=0.0003877648271764593
+      node 24: "parent20_prefix_mean" [f258] <= 3.9512131214141846 -> 30; > -> 25; missing -> 30
+        node 25: "item_description_lsa_62" [f158] <= 0.022562127560377121 -> 27; > -> 26; missing -> 27
+          node 26: leaf_value=0.035081152660980809 contribution=0.0014032461064392323
+          node 27: "expert_sparse512_binary_bins" [f295] <= 3.4024550914764404 -> 28; > -> 29; missing -> 28
+            node 28: leaf_value=-0.17801847370578591 contribution=-0.0071207389482314367
+            node 29: leaf_value=-0.050710622720361795 contribution=-0.0020284249088144716
+        node 30: "legacy_metadata_30" [f30] <= 2.7852518558502197 -> 31; > -> 34; missing -> 31
+          node 31: "legacy_metadata_29" [f29] <= 2.6375348567962646 -> 32; > -> 33; missing -> 32
+            node 32: leaf_value=-0.00099086439177053587 contribution=-3.9634575670821437e-05
+            node 33: leaf_value=-0.028603375298918089 contribution=-0.0011441350119567235
+          node 34: "parent20_brand_condition_mean" [f261] <= 2.8080291748046875 -> 35; > -> 36; missing -> 35
+            node 35: leaf_value=0.026872851582472931 contribution=0.0010749140632989173
+            node 36: leaf_value=0.00043015667581532472 contribution=1.7206267032612989e-05
+
