@@ -162,7 +162,15 @@ python -m benchmarks.mercari_final \
 functional but potentially expensive. The model selection/audit protocol is
 in [FRONTIER.md](FRONTIER.md); do not retune weights from Kaggle feedback.
 
-Local release validation passes **131 distinct tests and 2,258/2,258 statements across 18 Mercari modules**. This is statement coverage, not branch or whole-repository coverage. [Verification JSON](full-ensemble-verification.json) and [real Kaggle smoke report](full-ensemble-smoke.json) preserve the evidence.
+Local release validation passes **133 distinct tests and 2,258/2,258 statements across 18 Mercari modules**. This is statement coverage, not branch or whole-repository coverage. [Verification JSON](full-ensemble-verification.json) and [real Kaggle smoke report](full-ensemble-smoke.json) preserve the evidence.
+
+The recurring coverage failure was traced to the experiment ablation loop: an
+integration fixture assumed the numerical solver would return an exact zero,
+but it sometimes returned a tiny positive value. Separate deterministic
+fixtures now verify both 0 and 1e-18 while the real optimizer integration test
+remains. No prediction code, frozen weights, penalty or numerical threshold
+was changed. Public CI annotations and JUnit/coverage artifacts preserve
+future diagnostics.
 
 ## Submission gates
 

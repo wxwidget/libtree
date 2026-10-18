@@ -15,7 +15,7 @@
   "tests": [
     {
       "suite": "TensorFlow, feature/model kernels and full refit/ensemble/export",
-      "passed": 123,
+      "passed": 125,
       "statements": 2038,
       "missed": 0,
       "statement_coverage": 1.0
@@ -28,7 +28,7 @@
       "statement_coverage": 1.0
     }
   ],
-  "distinct_tests": 131,
+  "distinct_tests": 133,
   "total_statements": 2258,
   "total_modules": 18,
   "coverage_scope": "Mercari modules, statement coverage; not branch or whole-repository coverage",
@@ -85,11 +85,11 @@
   "clean_environment_reproduction": {
     "python": "3.12.14",
     "inherits_system_packages": false,
-    "passed": 123,
+    "passed": 125,
     "statements": 2038,
     "missed": 0,
     "statement_coverage": 1.0,
-    "seconds": 183.54,
+    "seconds": 159.95,
     "scope": "Same dependency extras and pytest command as the CI Mercari job; exact GitHub Python 3.12.15 runtime unavailable locally"
   },
   "first_remote_ci": {
@@ -102,8 +102,8 @@
     ],
     "failed_job": "mercari-optimization",
     "failure_step": "Full statement coverage with executable reference kernels",
-    "root_cause": "Unknown: authenticated step log required; clean local reproduction passes. Submission CI gate remains closed.",
-    "note": "Subsequent run with unchanged model code passed all four jobs; initial failure remains unreproduced, not claimed root-cause-fixed."
+    "root_cause": "Initial authenticated traceback unavailable; a later recurrence in the same step identified an optimizer-dependent zero-weight ablation coverage fixture. The initial run was not separately log-confirmed.",
+    "note": "A passing intermediate run did not establish a stable fix; the subsequent recurrence was diagnosed through public CI annotations."
   },
   "latest_verified_remote_ci": {
     "run_id": "39131856949",
@@ -125,7 +125,20 @@
       ]
     },
     "all_jobs_passed": true,
-    "checked_utc": "2026-10-18T13:36:13.332020+00:00"
+    "checked_utc": "2026-10-18T13:36:13.332020+00:00",
+    "note": "Historical passing run before recurrence; the boundary-test fix requires its own new passing CI run."
   },
-  "hosted_status_snapshot": "full-ensemble-status.json"
+  "hosted_status_snapshot": "full-ensemble-status.json",
+  "diagnosed_recurring_coverage_failure": {
+    "commit": "eaf7aee",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39132892857",
+    "file": "benchmarks/mercari_frontier.py",
+    "line": 417,
+    "cause": "Integration fixture relied on SLSQP returning exact zero for a weak expert; some platforms returned a tiny positive coefficient and did not execute the skip branch.",
+    "classification": "Nondeterministic coverage fixture, not a failed prediction assertion",
+    "repair": "Add explicit exact-zero and 1e-18 boundary fixtures while retaining real optimization integration tests.",
+    "prediction_code_changed": false,
+    "frozen_weights_changed": false,
+    "regression_cases": 2
+  }
 }

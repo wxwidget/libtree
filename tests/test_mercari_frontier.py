@@ -254,3 +254,39 @@ def test_main_validates_resources_and_dispatches(monkeypatch, tmp_path):
     with pytest.raises(SystemExit) as error:
         runpy.run_module('benchmarks.mercari_frontier', run_name='__main__')
     assert error.value.code == 0
+
+
+@pytest.mark.parametrize('inactive_weight', [0., 1e-18])
+def test_ablation_distinguishes_exact_zero_from_solver_boundary_noise(tmp_path, monkeypatch, inactive_weight):
+    """Workflow branches are explicit; real SLSQP is tested independently.
+
+    Depending on BLAS/optimizer rounding, the existing integration fixture can
+    return an exact zero or a tiny positive bound value for its weak expert.
+    Neither case should decide whether CI reaches the zero-weight branch.
+    """
+    data, experts = tmp_path / 'data', tmp_path / 'experts'
+    data.mkdir(); experts.mkdir()
+    y = np.linspace(1., 4., 100)
+    error = .2 + np.arange(len(y)) / 1000.
+    identifiers = {window + '_ids': np.arange(len(y)) for window in frontier.WINDOWS}
+    np.savez(data / 'evaluation.npz', **identifiers, **{window: y for window in frontier.WINDOWS})
+    np.savez(data / 'baseline.npz', **identifiers, **{window: y + error for window in frontier.WINDOWS})
+    np.savez(experts / 'good.npz', **identifiers, **{window: y - error / 2 for window in frontier.WINDOWS})
+    np.savez(experts / 'inactive.npz', **identifiers, **{window: y + 5. + error for window in frontier.WINDOWS})
+    original = frontier.blend_weights
+    calls = []
+    def controlled_boundary(predictions, labels, **kwargs):
+        calls.append(predictions.shape[1])
+        if predictions.shape[1] == 3:
+            return np.array([1 / 3, 2 / 3 - inactive_weight, inactive_weight])
+        return original(predictions, labels, **kwargs)
+    monkeypatch.setattr(frontier, 'blend_weights', controlled_boundary)
+    out = tmp_path / 'blend'
+    frontier.ensemble_study(settings(data, out, experts=[experts]))
+    report = json.loads((out / 'report.json').read_text())
+    assert report['frozen']['names'] == ['baseline', 'good', 'inactive']
+    assert report['frozen']['weights'][-1] == inactive_weight
+    assert set(report['leave_one_expert_out']) == ({'good'} if inactive_weight == 0 else {'good', 'inactive'})
+    assert calls == ([3, 2] if inactive_weight == 0 else [3, 2, 2])
+    with np.load(out / 'ensemble.npz') as prediction:
+        np.testing.assert_allclose(prediction['selection'], y, atol=1e-12)
