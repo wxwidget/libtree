@@ -52,7 +52,36 @@ jobs:
           --cov=benchmarks.mercari_semantics --cov=benchmarks.mercari_frontier
           --cov=benchmarks.mercari_colab --cov=benchmarks.mercari_ensemble
           --cov=benchmarks.mercari_final --cov=benchmarks.mercari_full_kernel
+          --junitxml=benchmarks/runs/ci/mercari-junit.xml
+          --cov-report=json:benchmarks/runs/ci/mercari-coverage.json
           --cov-report=term-missing --cov-fail-under=100
+      - name: Publish inspectable failure diagnostics
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          def annotate(message):
+              escaped = message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print('::error title=Mercari verification::' + escaped)
+          junit = Path('benchmarks/runs/ci/mercari-junit.xml')
+          if junit.exists():
+              for case in ET.parse(junit).iter('testcase'):
+                  for failure in list(case.findall('failure')) + list(case.findall('error')):
+                      annotate(case.get('classname', '') + '.' + case.get('name', '') + ': ' + (failure.text or '')[-2500:])
+          coverage = Path('benchmarks/runs/ci/mercari-coverage.json')
+          if coverage.exists():
+              for name, result in json.loads(coverage.read_text())['files'].items():
+                  missing = result['missing_lines']
+                  if missing:
+                      annotate(name + ': uncovered lines ' + ', '.join(map(str, missing[:30])))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mercari-verification
+          path: benchmarks/runs/ci/mercari-*
       - name: Compiled parallel FM arithmetic and learning
         run: python -m pytest tests/test_mercari_fm.py -q
   minimum-python-integration:

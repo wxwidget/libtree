@@ -81,5 +81,27 @@
     "benchmarks/mercari/full-ensemble-config.json": "bf854c71a1c8587104fc3fa232cf18c53693e5836a067682184e6c0f5f331901"
   },
   "native_sources_changed": false,
-  "remote_ci": "Check GitHub Actions for the resulting commit; this file records local evidence, not an advance assertion of remote CI success"
+  "remote_ci": "Check GitHub Actions for the resulting commit; this file records local evidence, not an advance assertion of remote CI success",
+  "clean_environment_reproduction": {
+    "python": "3.12.14",
+    "inherits_system_packages": false,
+    "passed": 123,
+    "statements": 2038,
+    "missed": 0,
+    "statement_coverage": 1.0,
+    "seconds": 183.54,
+    "scope": "Same dependency extras and pytest command as the CI Mercari job; exact GitHub Python 3.12.15 runtime unavailable locally"
+  },
+  "first_remote_ci": {
+    "commit": "060cab1",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39130627842",
+    "passed_jobs": [
+      "mercari-transformer",
+      "minimum-python-integration",
+      "linux"
+    ],
+    "failed_job": "mercari-optimization",
+    "failure_step": "Full statement coverage with executable reference kernels",
+    "root_cause": "Unknown: authenticated step log required; clean local reproduction passes. Submission CI gate remains closed."
+  }
 }
