@@ -111,10 +111,24 @@ def test_worker_freezes_on_selection_retains_replay_and_ids(
     ):
         for key in a.files:
             np.testing.assert_array_equal(a[key], b[key])
-    small.main([*args[:-2], "--output-dir", str(tmp_path / "uncached"), "--allow-cpu"])
+    small.main(
+        [
+            *args[:-2],
+            "--output-dir",
+            str(tmp_path / "uncached"),
+            "--allow-cpu",
+            "--precision",
+            "fp32",
+        ]
+    )
     assert (
         json.loads((tmp_path / "uncached/report.json").read_text())["input_cache_hit"]
         is False
+    )
+    assert report["precision"] == "amp"
+    assert (
+        json.loads((tmp_path / "uncached/report.json").read_text())["precision"]
+        == "fp32"
     )
     assert len(report["history"]) == 2 and report["prediction_seconds"] > 0
     assert (tmp_path / "out/checkpoint.pt").is_file() and (

@@ -118,8 +118,8 @@ USE_TF=0 python -m pytest tests/test_mercari_smalltext.py \
   --cov-report=term-missing --cov-fail-under=100
 ```
 
-Local verification passes **25 tests / 469 statements / zero missed** across
-five worker/lifecycle modules. CI includes the new worker and cache in its
+Local verification passes **26 tests / 473 statements / zero missed** across
+five worker/lifecycle modules; 13 frontier tests cover a further 358 statements. CI includes the new worker and cache in its
 existing offline transformer coverage gate. This is statement coverage, not
 complete branch or GPU-instruction coverage.
 
@@ -128,7 +128,7 @@ complete branch or GPU-instruction coverage.
 The current small-text profile shares one cache across the three candidates;
 individual workers opt in with `--cache-dir trusted-new-cache`. Cache identity
 includes every grouped input file hash, immutable tokenizer revision, length,
-encoding source hashes and library versions. All 16 arrays and the base-only
+encoding/window-reader source hashes, Python and library versions. All 16 arrays and the base-only
 input mapping are content-hashed and checked before reuse. Mismatched, corrupt
 or partial caches fail instead of silently mixing data. Exclusive directory
 creation prevents concurrent writers overwriting a cache; choose a new directory
@@ -144,3 +144,42 @@ as cached. For its original uncached launcher, check out commit `3828d76`.
 
 [fasttext]: https://aclanthology.org/E17-2068/
 [tinybert]: https://arxiv.org/abs/1908.08962
+
+### Observed cache cost
+
+[Full input-cache measurements](smalltext-input-cache-001.json): all 1,482,535
+rows encoded and written on the local 4-CPU-quota Xeon took **261.34 seconds**;
+five warm, hash-verified loads averaged **0.86668 seconds**. Every array matched
+exactly. Cache size is **593,380,496 bytes**, maximum process RSS **4,121.59 MiB**.
+TSV reading (7.15 s) and tokenizer creation are excluded from both cache timers.
+The uncached path has one observation; targeted tests overlapped about 14 s of
+its preparation. These observations establish useful reuse, not a controlled
+full training speed ratio, cold-disk claim or GPU/CPU hardware comparison.
+The key was subsequently tightened to include Python and the window reader.
+
+### Precision replay: an observed failure and its cause
+
+[Replay and matched-batch GPU evidence](smalltext-precision-001.json) retain the
+failed initial tolerance check. With the same fitted bag checkpoint, CPU FP32
+versus T4 FP16 differs by up to **0.0165677 log-price units**; **23/296,509**
+outputs exceed the predeclared .01 absolute tolerance. Mean absolute differences
+are approximately .00096 in each window. The tolerance has not been relaxed.
+
+A new short kernel on the **same T4 VM** checked the four worst rows from each
+window using their original 2,048-row batches. Encoded inputs match exactly;
+GPU FP16 reproduces the saved outputs exactly. GPU FP32 (TF32 disabled) versus
+CPU FP32 differs by at most **4.77e-7** on those 12 rows. This isolates a mixed-
+precision tail effect in this check, rather than changed cached inputs. It does
+not bound every FP32 CUDA/CPU output. The auxiliary kernel was deleted afterward.
+
+The current small-text worker exposes **`--precision fp32`** for explicit full-
+precision training and inference; default `amp` keeps the original behavior.
+The initial training results remain AMP results. CPU inference replay took
+7.95 s for all three windows after warmup, versus the original T4 AMP 3.57 s;
+these are single model-only observations on different hardware/precision, not
+an end-to-end serving benchmark. No confirmation prices were used in this probe.
+
+Fusion commands should pass `--external-pretrained-data` when pretrained
+initialization exists anywhere upstream, including a frozen baseline whose
+filename hides MiniLM. This explicit declaration prevents misleading provenance
+from expert-name inference. It changes report metadata, not fitted predictions.

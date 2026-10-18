@@ -404,7 +404,8 @@ def ensemble_study(args):
     frozen = dict(created_utc=datetime.now(timezone.utc).isoformat(), names=names, weights=weights.tolist(),
         selection_rmsle=score(evaluation['selection'], prediction['selection'] @ weights),
         candidate_sha256={str(p): mercari.sha256(p) for p in paths},
-        confirmation_previously_inspected=True, external_pretrained_data=any('minilm' in n for n in names))
+        confirmation_previously_inspected=True, external_pretrained_data=(getattr(args, 'external_pretrained_data', False)
+            or any('minilm' in n for n in names)))
     dump(args.output_dir / 'frozen.json', frozen)
     individual = {n: dict(selection_rmsle=score(evaluation['selection'], prediction['selection'][:, i]),
                            confirmation_rmsle=score(evaluation['confirmation'], prediction['confirmation'][:, i]))
@@ -447,6 +448,8 @@ def main(argv=None):
     parser.add_argument('--sparse-width', type=int, default=256)
     parser.add_argument('--revision', help='Pinned pretrained model revision; recorded if resolved automatically')
     parser.add_argument('--embedding-dtype', choices=['float32', 'float16'], default='float32')
+    parser.add_argument('--external-pretrained-data', action='store_true',
+                        help='Declare pretrained data in any expert or upstream baseline')
     parser.add_argument('--allow-cpu', action='store_true', help='Only for functional tests, never GPU evidence')
     args = parser.parse_args(argv)
     if (min(args.threads, args.components, args.max_features, args.tree_rounds, args.sparse_width) < 1

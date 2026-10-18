@@ -109,6 +109,7 @@ def main(argv=None):
     parser.add_argument("--max-parameters", type=int, default=8000000)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--loss", choices=["mse", "huber"], default="mse")
+    parser.add_argument("--precision", choices=["amp", "fp32"], default="amp")
     parser.add_argument("--allow-cpu", action="store_true")
     parser.add_argument("--cache-dir", type=Path, help="Trusted immutable input cache")
     args = parser.parse_args(argv)
@@ -191,9 +192,20 @@ def main(argv=None):
     best, history = float("inf"), []
     for epoch in range(args.epochs):
         stamp = time.perf_counter()
-        train_loss = train_epoch(model, batches, algorithm, device, args.loss)
+        train_loss = train_epoch(
+            model,
+            batches,
+            algorithm,
+            device,
+            args.loss,
+            mixed_precision=args.precision == "amp",
+        )
         selection = mean + scale * predict(
-            model, encoded["selection"], device, args.batch_size
+            model,
+            encoded["selection"],
+            device,
+            args.batch_size,
+            mixed_precision=args.precision == "amp",
         )
         metric = score(selection_y, selection)
         history.append(
@@ -217,7 +229,15 @@ def main(argv=None):
     )
     stamp = time.perf_counter()
     prediction = {
-        k: mean + scale * predict(model, encoded[k], device, args.batch_size)
+        k: mean
+        + scale
+        * predict(
+            model,
+            encoded[k],
+            device,
+            args.batch_size,
+            mixed_precision=args.precision == "amp",
+        )
         for k in WINDOWS
     }
     prediction_seconds = time.perf_counter() - stamp
@@ -231,6 +251,7 @@ def main(argv=None):
             model_id=args.model_id,
             revision=revision,
             architecture=args.architecture,
+            precision=args.precision,
             input_cache_hit=cached is not None,
             parameters=counts,
             max_parameters=args.max_parameters,

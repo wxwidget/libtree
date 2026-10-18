@@ -136,8 +136,9 @@ def test_blend_freezes_before_confirmation_and_rejects_misaligned_ids(tmp_path, 
         assert (out / 'frozen.json').is_file()
         return original(*args, **kwargs)
     monkeypatch.setattr(frontier, 'paired_comparison', check_frozen)
-    frontier.ensemble_study(settings(data, out, experts=[experts]))
+    frontier.ensemble_study(settings(data, out, experts=[experts], external_pretrained_data=True))
     report = json.loads((out / 'report.json').read_text())
+    assert report['frozen']['external_pretrained_data'] is True
     assert report['comparison']['candidate_rmsle'] < .001
     assert 'good' in report['leave_one_expert_out']
     duplicate = tmp_path / 'duplicate'; duplicate.mkdir()

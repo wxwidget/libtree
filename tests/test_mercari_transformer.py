@@ -139,3 +139,17 @@ def test_module_execution_saves_importable_metadata(tmp_path, monkeypatch):
     with (out / 'inputs.pkl').open('rb') as stream:
         inputs = pickle.load(stream)
     assert inputs.__class__.__module__ == 'benchmarks.mercari_transformer'
+
+
+def test_precision_control_skips_cuda_context_and_selects_supported_amp_dtype(monkeypatch):
+    from contextlib import nullcontext
+    calls=[]
+    monkeypatch.setattr(torch,'autocast',lambda device,**kw:calls.append((device,kw['dtype'])) or nullcontext())
+    with neural.autocast(torch.device('cuda'), enabled=False):
+        pass
+    assert not calls
+    for bf16 in (False, True):
+        monkeypatch.setattr(torch.cuda,'is_bf16_supported',lambda:bf16)
+        with neural.autocast(torch.device('cuda'), enabled=True):
+            pass
+    assert calls==[('cuda',torch.float16),('cuda',torch.bfloat16)]

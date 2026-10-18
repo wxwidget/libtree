@@ -1,0 +1,52 @@
+{
+  "scope": "Encoding reuse on the same local CPU, excluding TSV read/tokenizer creation, no model training or GPU speed claim",
+  "row_counts": {
+    "train": 1186026,
+    "calibration": 74129,
+    "selection": 74126,
+    "confirmation": 148254
+  },
+  "data_read_seconds": 7.147686090000207,
+  "uncached_encode_and_cache_write_seconds": 261.3410952519989,
+  "cached_verified_load_seconds": [
+    1.0337064920022385,
+    0.645148962001258,
+    0.7186886230010714,
+    0.844787833000737,
+    1.0910665869996592
+  ],
+  "cached_verified_load_mean_seconds": 0.8666796994009929,
+  "maximum_array_difference": 0,
+  "confirmation_labels_loaded": false,
+  "cache_bytes": 593380496,
+  "max_rss_mib": 4121.5859375,
+  "cpu": "Intel Xeon Platinum 8573C",
+  "cgroup_cpu_quota": "400000 100000",
+  "identity": {
+    "model_id": "prajjwal1/bert-tiny",
+    "revision": "6f75de8b60a9f8a2fdf7b69cbd86d9e64bcb3837",
+    "length": 96,
+    "inputs": {
+      "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+      "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+      "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+      "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+    },
+    "source": {
+      "mercari.py": "ab697f418698b84177a3e9c2916b9f87fb1cf97168c8f6219793f8e062468e78",
+      "mercari_features.py": "ad5cd6961057e0ed8e0ccb95cf13f66b6909c2827b67cbb491a48eff7d73319b",
+      "mercari_semantics.py": "c8f12d1cf834f5d26e7f2a97ec4dc270bc15f42a505e7e45e6abfd2649828f96",
+      "mercari_transformer.py": "7ce7cf8071d25603b4ca911badef7c09ee40256a5a4952daf7742f0c2e5d198f",
+      "mercari_text_cache.py": "2d2ec4ac2b9da8c37f7cf50e26b8fe089885155050ba727cc71213448167417a"
+    },
+    "versions": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "scikit-learn": "1.8.0",
+      "transformers": "4.57.1",
+      "tokenizers": "0.22.2"
+    }
+  },
+  "implementation_commit": "6817d83",
+  "timing_notes": "One uncached observation; five warm verified-load observations. Targeted local tests (~14 seconds) overlapped part of uncached preparation. These are input reuse observations, not a controlled full-training speed ranking."
+}

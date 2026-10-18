@@ -89,21 +89,23 @@ def move(batch, device):
             for i, value in enumerate(batch)]
 
 
-def autocast(device):
+def autocast(device, enabled=True):
+    if device.type != 'cuda' or not enabled:
+        return nullcontext()
     dtype = torch.bfloat16 if device.type == 'cuda' and torch.cuda.is_bf16_supported() else torch.float16
-    return torch.autocast('cuda', dtype=dtype) if device.type == 'cuda' else nullcontext()
+    return torch.autocast('cuda', dtype=dtype)
 
 
-def train_epoch(model, batches, algorithm, device, loss='huber'):
+def train_epoch(model, batches, algorithm, device, loss='huber', mixed_precision=True):
     if loss not in ('mse', 'huber'):
         raise ValueError('unknown regression loss')
     model.train()
-    scaler = torch.amp.GradScaler('cuda', enabled=device.type == 'cuda' and not torch.cuda.is_bf16_supported())
+    scaler = torch.amp.GradScaler('cuda', enabled=mixed_precision and device.type == 'cuda' and not torch.cuda.is_bf16_supported())
     total, count = 0., 0
     for step, batch in enumerate(batches, 1):
         ids, mask, categories, numeric, y = move(batch, device)
         algorithm.zero_grad(set_to_none=True)
-        with autocast(device):
+        with autocast(device, enabled=mixed_precision):
             output = model(ids, mask, categories, numeric).float()
             value = nn.functional.huber_loss(output, y, delta=.5) if loss == 'huber' else nn.functional.mse_loss(output, y)
         scaler.scale(value).backward()
@@ -117,13 +119,13 @@ def train_epoch(model, batches, algorithm, device, loss='huber'):
     return total / count
 
 
-def predict(model, encoded, device, batch_size=512):
+def predict(model, encoded, device, batch_size=512, mixed_precision=True):
     model.eval()
     values = []
     with torch.inference_mode():
         for batch in loader(encoded, batch_size=batch_size):
             ids, mask, categories, numeric, _ = move(batch, device)
-            with autocast(device):
+            with autocast(device, enabled=mixed_precision):
                 output = model(ids, mask, categories, numeric)
             values.append(output.float().cpu().numpy())
     return np.concatenate(values)

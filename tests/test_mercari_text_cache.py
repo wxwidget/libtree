@@ -25,6 +25,8 @@ def test_real_input_cache_replays_exactly_and_rejects_mismatch_corruption_and_pa
         frame.to_csv(data / (name + ".tsv.gz"), sep="\t", index=False)
         frames[name] = frame
     key = cache.identity(data, "offline-bert", "fixed-revision", 12)
+    assert "mercari_frontier.py" in key["source"]
+    assert key["python"]
     inputs = ListingInputs().fit(frames["train"])
     encoded = {k: inputs.transform(v, TinyTokenizer(), 12) for k, v in frames.items()}
     store = cache.TextCache(tmp_path / "cache", key)

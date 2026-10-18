@@ -9,6 +9,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import pickle
+import sys
 
 import numpy as np
 
@@ -22,12 +23,14 @@ def identity(data, model_id, revision, length):
     source = Path(__file__).parent
     modules = (
         "mercari.py",
+        "mercari_frontier.py",
         "mercari_features.py",
         "mercari_semantics.py",
         "mercari_transformer.py",
         "mercari_text_cache.py",
     )
     return dict(
+        python=sys.version.split()[0],
         model_id=model_id,
         revision=revision,
         length=length,

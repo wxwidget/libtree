@@ -1,0 +1,181 @@
+{
+  "cpu_gpu_replay": {
+    "tolerance_passed": false,
+    "scope": "Same fitted bag checkpoint and grouped input content; local 4-thread CPU float32 versus historical T4 autocast float16. Model-only inference, no preprocessing or general GPU speed claim.",
+    "tolerance": 0.01,
+    "windows": {
+      "calibration": {
+        "rows": 74129,
+        "violations_over_tolerance": 4,
+        "max_absolute_log_difference": 0.0123291015625,
+        "mean_absolute_log_difference": 0.0009587371023371816
+      },
+      "selection": {
+        "rows": 74126,
+        "violations_over_tolerance": 8,
+        "max_absolute_log_difference": 0.016567707061767578,
+        "mean_absolute_log_difference": 0.000961208832450211
+      },
+      "confirmation": {
+        "rows": 148254,
+        "violations_over_tolerance": 11,
+        "max_absolute_log_difference": 0.013522624969482422,
+        "mean_absolute_log_difference": 0.0009587831445969641
+      }
+    },
+    "local_cpu_model_prediction_seconds": 7.947117060000892,
+    "recorded_t4_model_prediction_seconds": 3.5747233720001077,
+    "warmup_rows": 128,
+    "confirmation_labels_loaded": false,
+    "metadata_maps_exactly_equal": true,
+    "input_cache_identity": {
+      "model_id": "prajjwal1/bert-tiny",
+      "revision": "6f75de8b60a9f8a2fdf7b69cbd86d9e64bcb3837",
+      "length": 96,
+      "inputs": {
+        "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+        "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+        "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+        "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+      },
+      "source": {
+        "mercari.py": "ab697f418698b84177a3e9c2916b9f87fb1cf97168c8f6219793f8e062468e78",
+        "mercari_features.py": "ad5cd6961057e0ed8e0ccb95cf13f66b6909c2827b67cbb491a48eff7d73319b",
+        "mercari_semantics.py": "c8f12d1cf834f5d26e7f2a97ec4dc270bc15f42a505e7e45e6abfd2649828f96",
+        "mercari_transformer.py": "7ce7cf8071d25603b4ca911badef7c09ee40256a5a4952daf7742f0c2e5d198f",
+        "mercari_text_cache.py": "2d2ec4ac2b9da8c37f7cf50e26b8fe089885155050ba727cc71213448167417a"
+      },
+      "versions": {
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "scikit-learn": "1.8.0",
+        "transformers": "4.57.1",
+        "tokenizers": "0.22.2"
+      }
+    }
+  },
+  "matched_batch_precision_probe": {
+    "rows": [
+      {
+        "window": "calibration",
+        "position": 2657,
+        "inputs_exact": true,
+        "cpu_fp32": 6.360029220581055,
+        "gpu_fp32": 6.360029220581055,
+        "gpu_fp16": 6.371811866760254,
+        "saved_gpu_fp16": 6.371811866760254
+      },
+      {
+        "window": "calibration",
+        "position": 4291,
+        "inputs_exact": true,
+        "cpu_fp32": 6.173561096191406,
+        "gpu_fp32": 6.173561096191406,
+        "gpu_fp16": 6.161231994628906,
+        "saved_gpu_fp16": 6.161231994628906
+      },
+      {
+        "window": "calibration",
+        "position": 14103,
+        "inputs_exact": true,
+        "cpu_fp32": 6.218164443969727,
+        "gpu_fp32": 6.218164443969727,
+        "gpu_fp16": 6.208027362823486,
+        "saved_gpu_fp16": 6.208027362823486
+      },
+      {
+        "window": "calibration",
+        "position": 29932,
+        "inputs_exact": true,
+        "cpu_fp32": 6.568994522094727,
+        "gpu_fp32": 6.568994522094727,
+        "gpu_fp16": 6.558994293212891,
+        "saved_gpu_fp16": 6.558994293212891
+      },
+      {
+        "window": "selection",
+        "position": 40443,
+        "inputs_exact": true,
+        "cpu_fp32": 6.383065223693848,
+        "gpu_fp32": 6.383065223693848,
+        "gpu_fp16": 6.371811866760254,
+        "saved_gpu_fp16": 6.371811866760254
+      },
+      {
+        "window": "selection",
+        "position": 39143,
+        "inputs_exact": true,
+        "cpu_fp32": 6.570634841918945,
+        "gpu_fp32": 6.5706353187561035,
+        "gpu_fp16": 6.558994293212891,
+        "saved_gpu_fp16": 6.558994293212891
+      },
+      {
+        "window": "selection",
+        "position": 66672,
+        "inputs_exact": true,
+        "cpu_fp32": 6.290650367736816,
+        "gpu_fp32": 6.290650367736816,
+        "gpu_fp16": 6.301618576049805,
+        "saved_gpu_fp16": 6.301618576049805
+      },
+      {
+        "window": "selection",
+        "position": 69638,
+        "inputs_exact": true,
+        "cpu_fp32": 6.0978684425354,
+        "gpu_fp32": 6.0978684425354,
+        "gpu_fp16": 6.114436149597168,
+        "saved_gpu_fp16": 6.114436149597168
+      },
+      {
+        "window": "confirmation",
+        "position": 21451,
+        "inputs_exact": true,
+        "cpu_fp32": 6.195668697357178,
+        "gpu_fp32": 6.195668697357178,
+        "gpu_fp16": 6.208027362823486,
+        "saved_gpu_fp16": 6.208027362823486
+      },
+      {
+        "window": "confirmation",
+        "position": 38139,
+        "inputs_exact": true,
+        "cpu_fp32": 6.525721549987793,
+        "gpu_fp32": 6.525721549987793,
+        "gpu_fp16": 6.5121989250183105,
+        "saved_gpu_fp16": 6.5121989250183105
+      },
+      {
+        "window": "confirmation",
+        "position": 74017,
+        "inputs_exact": true,
+        "cpu_fp32": 6.33604621887207,
+        "gpu_fp32": 6.33604621887207,
+        "gpu_fp16": 6.348414421081543,
+        "saved_gpu_fp16": 6.348414421081543
+      },
+      {
+        "window": "confirmation",
+        "position": 85041,
+        "inputs_exact": true,
+        "cpu_fp32": 6.4072394371032715,
+        "gpu_fp32": 6.4072394371032715,
+        "gpu_fp16": 6.418607711791992,
+        "saved_gpu_fp16": 6.418607711791992
+      }
+    ],
+    "max_cpu_gpu_fp32_difference": 4.76837158203125e-07,
+    "max_gpu_fp16_saved_difference": 0.0,
+    "max_fp32_fp16_difference": 0.016567707061767578,
+    "original_batch_size": 2048,
+    "tf32": false,
+    "confirmation_labels_loaded": false,
+    "scope": "Worst four FP32/FP16 differences in each window; exact inputs, matched original 2048-row prediction batches"
+  },
+  "auxiliary_kernel": {
+    "purpose": "Same-checkpoint precision investigation on existing VM; no additional assignment",
+    "cleanup_verified": true,
+    "executed": true
+  }
+}
