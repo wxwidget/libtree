@@ -36,6 +36,9 @@ a reproducible LibTree price-prediction pipeline, text/structured-model ablation
 validation with duplicate listings kept together, and a separate record of actual
 Kaggle submissions. See the [Chinese journal](benchmarks/mercari/README.zh-CN.md)
 for results and the limits of historical leaderboard comparisons.
+The [original top-three source review](benchmarks/mercari/TOP3.md) traces numeric
+word features, unordered token pairs and conditional blending to primary sources,
+with full-base ablations and a selection gate that retains the stronger anchor.
 The [Mercari optimization study](benchmarks/mercari/OPTIMIZATION.md) documents
 an actual **10.46% Kaggle private RMSLE reduction** (0.43776 → 0.39199),
 the frozen 10.28% local holdout improvement, sparse text models, loss ablations,

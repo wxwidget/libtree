@@ -6,6 +6,11 @@
 small runnable example; [technical retrospective](TECHNICAL_REPORT.md) for
 architecture, theory, successful/failed experiments and reproducibility limits.
 
+The [original top-three source review and experiment](TOP3.md) distinguishes
+author reports from implementation inferences, adds bounded unordered token
+pairs and numeric-word features, and records their full-base ablation. The new
+experts did not improve the current ensemble; the frozen 0.380616 anchor remains.
+
 **Current direction:** the [small-text report](SMALL_TEXT_REPORT.md) records
 **0.380616 local audit RMSLE** and a verified T4 native-AMP fix. It includes
 small-model failures, product calibration, competitor tables, resource costs

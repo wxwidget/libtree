@@ -1,0 +1,463 @@
+{
+  "generated_utc": "2026-10-18T23:08:17.340295+00:00",
+  "parent_commit": "23c104267f6ff5af85630429d0c172be2c0f207e",
+  "historical_leaderboard_source": "https://github.com/pjankiewicz/mercari-solution/blob/374301ad1c32cbc93dcc40313d5d7bb9c5503746/presentation/img/leaderboard.png",
+  "historical_scores_are_not_local_audit_comparisons": true,
+  "sources": [
+    {
+      "url": "https://www.kaggle.com/competitions/mercari-price-suggestion-challenge/discussion/50256",
+      "title": "1st place solution",
+      "author": "paweljankiewicz",
+      "message_id": 286209,
+      "markdown_sha256": "83a9fc5282164c45efe5346626b0a985117898b3d060688b42209fbce8413a40",
+      "rank": 1,
+      "team": "Pawe\u0142 and Konstantin",
+      "final_private_score": 0.37758,
+      "repository": "https://github.com/pjankiewicz/mercari-solution",
+      "commit": "374301ad1c32cbc93dcc40313d5d7bb9c5503746",
+      "inspected_files": {
+        "mercari/transformers.py": "3dcc0f896e965bf0acece4cbed61fc58b7d82d10be3bb8a71eb768f747466c44",
+        "mercari/datasets_tf.py": "2023f6fe3b6a7f21b8372cf077f4805a29356a1c0f190a0caa101b7754e20e8e",
+        "mercari/regression_clf.py": "bfcf3c64486544eba4b2a7f95b07a98b6fe9aeaad6f72ae11ad7e7575c1645cd",
+        "presentation/5_modeling.tex": "70306bc918160a80ce8a8d3d7db406c0193b33ee16c665ff151ab087768f9658",
+        "presentation/4_data_preprocessing.tex": "4527141312bdb943255074d27f6e1589978ce0a59e3740447eb186c86fd15e31"
+      }
+    },
+    {
+      "url": "https://www.kaggle.com/competitions/mercari-price-suggestion-challenge/discussion/50499",
+      "title": "2nd Place Solution",
+      "author": "mchahhou",
+      "message_id": 287603,
+      "markdown_sha256": "ce4e350ef19ddd2fbc81bc3a3c2605cec5366a4b73daf01e219d4b2cb2ffc09c",
+      "rank": 2,
+      "team": "Mercaring (Nima & Chahou)",
+      "final_private_score": 0.38875,
+      "kernel_url": "https://www.kaggle.com/code/mchahhou/second-place-solution",
+      "kernel_sha256": "f895a9c6b75950e23f90e7735effd462de5501c9f96a2d0130421d5b6e27f9f0",
+      "released_kernel_author_report": {
+        "public": 0.38888,
+        "private": 0.38948,
+        "seconds": 2800,
+        "exact_winning_kernel": false
+      },
+      "inspected_functions": [
+        "clean_str",
+        "prepare_data",
+        "create_bigrams",
+        "fasttext_model",
+        "training loops",
+        "submission branch"
+      ]
+    },
+    {
+      "url": "https://www.kaggle.com/competitions/mercari-price-suggestion-challenge/discussion/50272",
+      "title": "3rd solution. 3300s to 0.3905 at public",
+      "author": "whitebird",
+      "message_id": 286313,
+      "markdown_sha256": "0581423e61a636c045ec2c9a69033169a20244dc91bc3ea7869f8ffcb0ac0639",
+      "rank": 3,
+      "team": "bird",
+      "final_private_score": 0.39134,
+      "kernel_url": "https://www.kaggle.com/code/whitebird/mercari-price-3rd-0-3905-cv-at-pb-in-3300-s",
+      "kernel_sha256": "19b53e553c02fc274ad53aa3d4701118d6559423e5ca498b194bf069737b306a",
+      "inspected_functions": [
+        "pre",
+        "pre2",
+        "CNN construction",
+        "Adam/Adagrad schedule",
+        "catew category blending"
+      ]
+    }
+  ],
+  "study": {
+    "frozen": {
+      "plan": {
+        "created_utc": "2026-10-18T22:59:44.235403+00:00",
+        "views": {
+          "lexical": [
+            "lexical"
+          ],
+          "pairs": [
+            "lexical",
+            "pairs"
+          ],
+          "quantities": [
+            "lexical",
+            "quantities"
+          ],
+          "both": [
+            "lexical",
+            "pairs",
+            "quantities"
+          ]
+        },
+        "minimum_selection_gain": 1e-05,
+        "anchor_sha256": "9dd8c8fe187556c86da15312c0fb1e16d534ed2e147ec8538753469cea8dabbf",
+        "data_sha256": {
+          "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+          "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+          "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+          "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+        },
+        "source_sha256": "5edf806ce0b297210bf5dd3245b507767776daa64b71ffa19216fab16b09e77a",
+        "settings": {
+          "data_dir": "benchmarks/runs/mercari/frontier-001/data",
+          "anchor": "benchmarks/runs/mercari/smalltext-t4-001/primary-blend/ensemble.npz",
+          "output_dir": "benchmarks/runs/mercari/top3-research-001/full",
+          "n_features": 262144,
+          "max_tokens": 60,
+          "pair_tokens": 20,
+          "description_prefix": 5,
+          "max_iter": 80,
+          "threads": 4,
+          "rows": 0,
+          "seed": 42,
+          "alpha": 20.0,
+          "tol": 0.002,
+          "minimum_gain": 1e-05,
+          "external_pretrained_data": true
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true
+      },
+      "pools": {
+        "anchor": {
+          "names": [
+            "anchor"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0
+            ],
+            "intercept": -9.673364330021744e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.38037390443323255,
+            "context": 0.38048634507320717
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "without_pairs": {
+          "names": [
+            "anchor",
+            "lexical",
+            "quantities"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              0.0,
+              1.1112265877015184e-19
+            ],
+            "intercept": -9.673364330021775e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.3803739044498363,
+            "context": 0.38048634586785207
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "without_quantities": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              0.0,
+              4.472438648361644e-19
+            ],
+            "intercept": -9.673364330021787e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.38037390503344987,
+            "context": 0.3804863455248704
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "full": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs",
+            "quantities",
+            "both"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              2.412577356950289e-19
+            ],
+            "intercept": -9.673364330021705e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.3803739062681713,
+            "context": 0.38048634571160905
+          },
+          "selection_rmsle": 0.3821912348933333
+        }
+      },
+      "accepted": false,
+      "promotion_decided_before_confirmation": true,
+      "selection_rmsle": 0.3821912471375558
+    },
+    "training_rows": 1186026,
+    "models": {
+      "lexical": {
+        "selection_rmsle": 0.4960251566712108,
+        "fit_seconds": 3.783931562997168,
+        "predict_seconds": 0.04395365200616652,
+        "features": 262144,
+        "training_nonzeros": 33074674,
+        "iterations": 26,
+        "confirmation_rmsle": 0.4958459558131209
+      },
+      "pairs": {
+        "selection_rmsle": 0.47349207735642623,
+        "fit_seconds": 15.560907897997822,
+        "predict_seconds": 0.14429320199997164,
+        "features": 524288,
+        "training_nonzeros": 70236852,
+        "iterations": 30,
+        "confirmation_rmsle": 0.4726105710196826
+      },
+      "quantities": {
+        "selection_rmsle": 0.5112238701301298,
+        "fit_seconds": 6.933106445998419,
+        "predict_seconds": 0.05407115900015924,
+        "features": 524288,
+        "training_nonzeros": 34192340,
+        "iterations": 62,
+        "confirmation_rmsle": 0.5123724870713774
+      },
+      "both": {
+        "selection_rmsle": 0.4962042350249471,
+        "fit_seconds": 17.74095521799609,
+        "predict_seconds": 0.13211088200478116,
+        "features": 786432,
+        "training_nonzeros": 71354518,
+        "iterations": 64,
+        "confirmation_rmsle": 0.49661834466958693
+      }
+    },
+    "feature_seconds": 151.1607907639991,
+    "seconds": 211.59416547900037,
+    "peak_rss_mib": 2609.71484375,
+    "gpu_used": false,
+    "confirmation_previously_inspected": true,
+    "submission_status": "not_submitted",
+    "ablations": {
+      "anchor": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "without_pairs": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "without_quantities": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "full": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      }
+    },
+    "baseline_confirmation_rmsle": 0.38061625456995307,
+    "confirmation_rmsle": 0.38061625456995307,
+    "comparison": {
+      "baseline_rmsle": 0.380616254569956,
+      "candidate_rmsle": 0.380616254569956,
+      "rmsle_delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    }
+  },
+  "raw_feature_effect_vs_new_lexical_control": {
+    "pairs": {
+      "baseline_rmsle": 0.49584595581312013,
+      "candidate_rmsle": 0.4726105710196811,
+      "rmsle_delta": -0.023235384793439007,
+      "ci95": [
+        -0.023861210546867656,
+        -0.02273519318269928
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    },
+    "quantities": {
+      "baseline_rmsle": 0.49584595581312013,
+      "candidate_rmsle": 0.512372487071379,
+      "rmsle_delta": 0.016526531258258814,
+      "ci95": [
+        0.01582473146103377,
+        0.017247694025711878
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    },
+    "both": {
+      "baseline_rmsle": 0.49584595581312013,
+      "candidate_rmsle": 0.49661834466958726,
+      "rmsle_delta": 0.0007723888564671322,
+      "ci95": [
+        -0.00011071515438581118,
+        0.0015308802453758014
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    }
+  },
+  "selection_residual_correlation": {
+    "names": [
+      "anchor",
+      "lexical",
+      "pairs",
+      "quantities",
+      "both"
+    ],
+    "matrix": [
+      [
+        0.9999999999999999,
+        0.7840212653170261,
+        0.8154695357463188,
+        0.7552551916087035,
+        0.7773608762883764
+      ],
+      [
+        0.7840212653170262,
+        1.0,
+        0.9785705152697162,
+        0.9734279222222119,
+        0.965115873861455
+      ],
+      [
+        0.8154695357463188,
+        0.9785705152697162,
+        0.9999999999999999,
+        0.954054557811845,
+        0.9701111634890384
+      ],
+      [
+        0.7552551916087035,
+        0.9734279222222119,
+        0.9540545578118449,
+        1.0,
+        0.9860768013348706
+      ],
+      [
+        0.7773608762883764,
+        0.965115873861455,
+        0.9701111634890384,
+        0.9860768013348707,
+        0.9999999999999999
+      ]
+    ]
+  },
+  "checks": {
+    "source_matches_run": true,
+    "promoted_predictions_bitwise_equal_anchor": true
+  },
+  "hardware": {
+    "cpu": "Intel Xeon Platinum 8573C",
+    "cgroup_cpu_quota": "400000 100000",
+    "gpu_allocated": false,
+    "python": "3.12.14",
+    "packages": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "scipy": "1.17.0",
+      "scikit-learn": "1.8.0"
+    }
+  },
+  "limitations": [
+    "One fitted run per new expert, no seed replication or repeated timing study.",
+    "Selection and confirmation were reused from earlier adaptive research, not fresh blind data.",
+    "Full-base here means 1186026 original fitting-window rows; labels from other windows do not train the new Ridge experts.",
+    "New hash/Ridge adaptations do not reproduce the original sparse MLP numerical feature experiment.",
+    "All timings are incremental and exclude the complete upstream anchor refit.",
+    "The zero promoted delta and degenerate bootstrap are consequences of reusing exact anchor predictions, not new precision evidence.",
+    "No new Kaggle submission, score, rank, or superiority over the original top three is claimed."
+  ],
+  "validation": {
+    "suite": {
+      "covered_lines": 2891,
+      "num_statements": 2891,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "new_module": {
+      "covered_lines": 148,
+      "num_statements": 148,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "log_tail": [
+      "Required test coverage of 100% reached. Total coverage: 100.00%",
+      "161 passed, 492 warnings in 195.02s (0:03:15)"
+    ],
+    "tests_passed": 161,
+    "new_tests_passed": 8,
+    "coverage_scope": "22 Mercari CPU experiment modules; statement coverage, not branch or whole-repository coverage",
+    "test_seconds": 195.02,
+    "warning_count": 492
+  }
+}
