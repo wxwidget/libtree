@@ -1,0 +1,85 @@
+{
+  "captured_utc": "2026-10-18T13:13:15.744585+00:00",
+  "status": "Local release checks passed; hosted full training and actual Kaggle scoring tracked separately",
+  "candidate": {
+    "reference_confirmation_rmsle": 0.3809068531888245,
+    "outer_columns": 26,
+    "outer_weights_above_1e_15": 9,
+    "total_fitted_price_predictors": 32,
+    "calibration_features": 212
+  },
+  "rejected_candidate": {
+    "confirmation_rmsle": 0.3819341874854129,
+    "reason": "Inferior to the original full blend; not promoted or submitted"
+  },
+  "tests": [
+    {
+      "suite": "TensorFlow, feature/model kernels and full refit/ensemble/export",
+      "passed": 123,
+      "statements": 2038,
+      "missed": 0,
+      "statement_coverage": 1.0
+    },
+    {
+      "suite": "Torch real tiny backbone and final refit/vector workers",
+      "passed": 8,
+      "statements": 220,
+      "missed": 0,
+      "statement_coverage": 1.0
+    }
+  ],
+  "distinct_tests": 131,
+  "total_statements": 2258,
+  "total_modules": 18,
+  "coverage_scope": "Mercari modules, statement coverage; not branch or whole-repository coverage",
+  "original_frozen_replay": {
+    "rows": 128,
+    "feature_count": 212,
+    "full_frozen_blend_max_absolute_log_error": 0.0,
+    "calibrator_max_absolute_log_errors": {
+      "cal_meta_ridge10": 5.9108895555937124e-09,
+      "cal_meta_ridge100": 6.713214872888784e-09,
+      "cal_libtree3": 0.0,
+      "cal_libtree5": 0.0,
+      "cal_lightgbm": 0.0,
+      "cal_xgboost": 0.0
+    },
+    "reference_confirmation_rmsle": 0.3809068531888245,
+    "scope": "Replays original fitted calibrators and saved expert predictions, with freshly computed baseline/LSA/attributes. This is not a new accuracy experiment or a complete retrained expert replay."
+  },
+  "kaggle_whole_pipeline_smoke": {
+    "kernel": "wxwidget/libtree-mercari-full-ensemble-smoke",
+    "version": 1,
+    "report": "full-ensemble-smoke.json",
+    "executed": true,
+    "status": "COMPLETE",
+    "training_rows": 100,
+    "test_rows": 7,
+    "scope": "Functional integration only; reduced capacities, not an accuracy/performance benchmark"
+  },
+  "local_whole_pipeline_smoke": {
+    "executed": true,
+    "rows": 7,
+    "hardware": "CPU",
+    "isolated_tensorflow_and_torch": true,
+    "pretrained_model_sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db",
+    "submission_sha256": "7c2faf9568807af0302dbb6531a7e8f5098c57aec695a623f2bdd5d6d7a998a3"
+  },
+  "full_kernel": {
+    "kernel": "wxwidget/libtree-mercari-full-ensemble",
+    "version": 1,
+    "model_data_source": "srg9000/all-minilm-l6-v2/transformers/default/1",
+    "source_sha256": "cbc4295b5df56e0b1c1e184716a7cc3bd7b0d36425a110515d49941388931c88",
+    "no_fitted_competition_weights_uploaded": true,
+    "requires_complete_execution_source_and_report_and_ci_checks_before_submission": true
+  },
+  "source_sha256": {
+    "benchmarks/mercari_final.py": "409d2dc48e975eacc46e5851d91d41aafa59c9abb6209400da507fd4fcfbcad6",
+    "benchmarks/mercari_final_torch.py": "dedf23d92ed2fe1bb9e0b4b20bfbbbe6be358dd7f060819be6cdd60fc4fd2a9c",
+    "benchmarks/mercari_ensemble.py": "68b5366ebae4245263ffd835d8ea9bbe11aba458caac86e4068168f322341017",
+    "benchmarks/mercari_full_kernel.py": "7216e9b0e5a8919bea3b90f9acac5e7219932c0c21920aad57811f52517df7b7",
+    "benchmarks/mercari/full-ensemble-config.json": "bf854c71a1c8587104fc3fa232cf18c53693e5836a067682184e6c0f5f331901"
+  },
+  "native_sources_changed": false,
+  "remote_ci": "Check GitHub Actions for the resulting commit; this file records local evidence, not an advance assertion of remote CI success"
+}

@@ -14,6 +14,8 @@ RMSLE 下降 10.28%；实际 Kaggle private RMSLE 从 0.43776 降到
 
 新增融合在复用的本地审计窗口取得 **0.380907 RMSLE，较 0.394153 下降 3.36%**；
 尚未产生新的 Kaggle 成绩。
+[原完整融合的最终重训与提交](benchmarks/mercari/FULL_ENSEMBLE.zh-CN.md)保留 0.380907 本地方案，
+在同一个 Kaggle Kernel 内重训全部依赖。
 [现代文本与 GPU 实验](benchmarks/mercari/FRONTIER.zh-CN.md)增加 LSA、预训练句向量、
 T4/A100 神经网络和树／回归融合，提供复现命令、失败记录与验证边界。
 

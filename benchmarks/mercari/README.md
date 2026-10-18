@@ -8,6 +8,8 @@ architecture, theory, successful/failed experiments and reproducibility limits.
 
 The new local frozen blend reaches **0.380907 RMSLE**, down **3.36%** from
 0.394153 on the reused audit window; no new Kaggle submission is claimed.
+The [complete frozen ensemble pipeline](FULL_ENSEMBLE.md) refits the original
+0.380907 local candidate inside one Kaggle Kernel, with guarded submission.
 The [modern text/GPU study](FRONTIER.md) extends this work with LSA, pinned
 sentence vectors, T4/A100 neural experts and selection-only tree/regression
 ensembles. It records failed attempts and provides a Colab experiment launcher;

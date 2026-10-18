@@ -9,13 +9,16 @@ entry. The existing best practice submission is **0.39199 private / 0.39110
 public RMSLE**. Local validation is not a new Kaggle score or contest rank.
 
 
+[Complete frozen ensemble refit and submission](FULL_ENSEMBLE.md) documents the deployment workflow.
+
 ## Measured outcome — 18 October 2026
 
 The frozen full candidate reduces **local confirmation RMSLE from 0.394153 to
 0.380907 (3.36%)**. It has not been submitted to Kaggle. It does not establish
 first place: the historical private target remains 0.37758, on different data.
-A complete new full-data refit and serving/submission pipeline are still needed
-before a new leaderboard comparison can be made.
+The [complete final refit/submission pipeline](FULL_ENSEMBLE.md) is now implemented
+and GPU-smoke-tested. Its final hosted refit and scoring must complete before a
+new leaderboard comparison can be made.
 
 | System | Selection RMSLE | Reused confirmation RMSLE |
 | --- | ---: | ---: |
