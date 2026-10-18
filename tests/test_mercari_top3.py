@@ -16,6 +16,49 @@ from benchmarks import mercari_top3 as top3
 from test_mercari_cpu_study import inputs
 
 
+def test_lasso_and_elastic_net_have_builtin_sample_normalized_penalties():
+    from sklearn.linear_model import ElasticNet, Lasso
+
+    models = top3.sparse_penalty_models(1000)
+    assert set(models) == {"lasso", "elasticnet"}
+    assert isinstance(models["lasso"], Lasso)
+    assert isinstance(models["elasticnet"], ElasticNet)
+    assert models["lasso"].alpha == 0.02
+    assert models["elasticnet"].alpha == 0.04
+    assert models["elasticnet"].l1_ratio == 0.5
+    larger = top3.sparse_penalty_models(2000)
+    assert larger["lasso"].alpha == models["lasso"].alpha / 2
+    for rows in (0, -1):
+        with pytest.raises(ValueError, match="positive"):
+            top3.sparse_penalty_models(rows)
+
+
+def test_sparse_penalties_learn_select_features_and_reload_without_densifying(
+    monkeypatch,
+):
+    rng = np.random.default_rng(42)
+    raw = rng.normal(size=(500, 12)).astype(np.float32)
+    x = sparse.csc_matrix(raw)
+    y = 10 + 4 * raw[:, 0] - 2 * raw[:, 1]
+    heldout = rng.normal(size=(30, 12)).astype(np.float32)
+    query = sparse.csr_matrix(heldout)
+    expected = 10 + 4 * heldout[:, 0] - 2 * heldout[:, 1]
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("sparse regularization must not densify the text matrix")
+
+    monkeypatch.setattr(sparse.csc_matrix, "toarray", forbidden)
+    monkeypatch.setattr(sparse.csr_matrix, "toarray", forbidden)
+    for model in top3.sparse_penalty_models(len(y)).values():
+        model.fit(x, y)
+        prediction = model.predict(query)
+        assert np.sqrt(np.mean((prediction - expected) ** 2)) < 0.3
+        assert np.count_nonzero(model.coef_) == 2
+        np.testing.assert_array_equal(
+            prediction, pickle.loads(pickle.dumps(model)).predict(query)
+        )
+
+
 def test_canonical_text_and_bounded_order_invariant_pairs():
     assert top3.tokens("CAFÉ iPhone6+ w/ 2.5oz ❤") == [
         "cafe",
@@ -147,12 +190,28 @@ def test_real_factorial_experiment_freezes_before_reading_confirmation(
     monkeypatch.setattr(top3, "dump", observe)
     report = top3.run(args)
     assert frozen_seen == [True]
-    assert set(report["models"]) == {"lexical", "pairs", "quantities", "both"}
+    assert set(report["models"]) == {
+        "lexical",
+        "pairs",
+        "quantities",
+        "both",
+        "lasso_pairs",
+        "elasticnet_pairs",
+    }
+    assert report["models"]["lasso_pairs"]["family"] == "lasso"
+    assert report["models"]["elasticnet_pairs"]["family"] == "elasticnet"
+    for model in report["models"].values():
+        assert model["predict_seconds"] == np.mean(model["predict_seconds_samples"])
+        assert len(model["predict_seconds_samples"]) == 3
+        assert 0 <= model["active_coefficients"] <= model["features"]
     assert set(report["ablations"]) == {
         "anchor",
         "without_pairs",
         "without_quantities",
         "full",
+        "ridge_only",
+        "without_lasso",
+        "without_elasticnet",
     }
     assert report["training_rows"] == 120 and report["gpu_used"] is False
     assert report["confirmation_previously_inspected"]
@@ -206,7 +265,40 @@ def test_failed_selection_gate_preserves_the_exact_anchor(tmp_path):
             np.testing.assert_array_equal(old[window], new[window])
 
 
+def test_coordinate_descent_nonconvergence_is_retained_in_the_report(
+    tmp_path, monkeypatch
+):
+    original = top3.sparse_penalty_models
+
+    def one_pass(rows):
+        models = original(rows)
+        for model in models.values():
+            model.set_params(alpha=1e-12, max_iter=1, tol=1e-12)
+        return models
+
+    monkeypatch.setattr(top3, "sparse_penalty_models", one_pass)
+    report = top3.run(settings(tmp_path))
+    for name in ("lasso_pairs", "elasticnet_pairs"):
+        assert not report["models"][name]["converged"]
+        assert report["models"][name]["iteration_limit_reached"]
+        assert report["models"][name]["fit_warnings"]
+
+
 def test_cli_validation_and_executable_entry(tmp_path, monkeypatch):
+    for option in ("--lasso-alpha", "--l1-ratio", "--elasticnet-alpha"):
+        with pytest.raises(SystemExit):
+            top3.main(
+                [
+                    "--data-dir",
+                    str(tmp_path),
+                    "--anchor",
+                    "x",
+                    "--output-dir",
+                    "y",
+                    option,
+                    ".1",
+                ]
+            )
     for option in [
         "--alpha",
         "--threads",

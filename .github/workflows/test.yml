@@ -47,6 +47,7 @@ jobs:
           tests/test_mercari_cpu.py tests/test_mercari_cpu_study.py
           tests/test_mercari_multiview.py tests/test_mercari_multiview_study.py
           tests/test_mercari_top3.py
+          tests/test_mercari_penalties.py
           --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel
           --cov=benchmarks.mercari_config --cov=benchmarks.mercari_features
           --cov=benchmarks.mercari_solver --cov=benchmarks.mercari_fm
@@ -59,6 +60,7 @@ jobs:
           --cov=benchmarks.mercari_multiview --cov=benchmarks.mercari_multiview_study
           --cov=benchmarks.mercari_multiscale
           --cov=benchmarks.mercari_top3
+          --cov=benchmarks.mercari_penalties
           --junitxml=benchmarks/runs/ci/mercari-junit.xml
           --cov-report=json:benchmarks/runs/ci/mercari-coverage.json
           --cov-report=term-missing --cov-fail-under=100
@@ -89,8 +91,8 @@ jobs:
         with:
           name: mercari-verification
           path: benchmarks/runs/ci/mercari-*
-      - name: Compiled parallel FM arithmetic and learning
-        run: python -m pytest tests/test_mercari_fm.py -q
+      - name: Compiled sparse optimization and parallel FM arithmetic
+        run: python -m pytest tests/test_mercari_fm.py tests/test_mercari_penalties.py -q
   minimum-python-integration:
     runs-on: ubuntu-latest
     steps:

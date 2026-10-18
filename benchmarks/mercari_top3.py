@@ -22,11 +22,13 @@ import re
 import resource
 import time
 import unicodedata
+import warnings
 
 import numpy as np
 import pandas as pd
 from scipy import sparse
 from sklearn.base import BaseEstimator
+from sklearn.exceptions import ConvergenceWarning
 from sklearn.feature_extraction import FeatureHasher
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import Ridge
@@ -38,6 +40,7 @@ from benchmarks import mercari
 from benchmarks.mercari_cpu_study import WINDOWS, dump, read_data, score
 from benchmarks.mercari_multiview import predict, select_strategy, snapshot
 from benchmarks.mercari_semantics import paired_comparison
+from benchmarks.mercari_penalties import SparseElasticNet, SparseLasso
 
 TOKEN = re.compile(r"\d+(?:\.\d+)?|[^\W\d_]+|[+%❤$]", re.UNICODE)
 NUMBER = re.compile(r"\d+(?:\.\d+)?")
@@ -56,6 +59,28 @@ VIEWS = dict(
     quantities=("lexical", "quantities"),
     both=("lexical", "pairs", "quantities"),
 )
+
+
+def sparse_penalty_models(rows):
+    """Built-in L1/L1+L2 experts on the strongest prior lexical view.
+
+    No user tuning: sum-loss penalties are fixed before selection. sklearn's
+    average-loss alpha is 20/n for Lasso and 40/n with ratio .5 for Elastic Net.
+    Their sum-loss objectives are .5*SSE+20*L1 and .5*SSE+20*L1+10*L2².
+    Ridge's default SSE+20*L2² shares the latter L2 term after rescaling.
+    This aligns objective normalization, not the statistical effect of L1/L2.
+
+    Tibshirani (1996), doi:10.1111/j.2517-6161.1996.tb02080.x.
+    Zou & Hastie (2005), doi:10.1111/j.1467-9868.2005.00503.x.
+    Sparse coordinate descent: Friedman et al. (2010), doi:10.18637/jss.v033.i01.
+    """
+    if rows < 1:
+        raise ValueError("positive training row count required")
+    common = dict(max_iter=200, tol=1e-4, selection="cyclic")
+    return dict(
+        lasso=SparseLasso(alpha=20.0 / rows, **common),
+        elasticnet=SparseElasticNet(alpha=40.0 / rows, l1_ratio=0.5, **common),
+    )
 
 
 def tokens(value, limit=60):
@@ -205,11 +230,18 @@ def run(args):
             k: mercari.sha256(args.data_dir / (k + ".tsv.gz")) for k in frames
         },
         source_sha256=mercari.sha256(Path(__file__)),
+        solver_sha256=mercari.sha256(Path(__file__).with_name("mercari_penalties.py")),
         settings={
             k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
         },
         confirmation_previously_inspected=True,
         external_pretrained_data=args.external_pretrained_data,
+        built_in_penalty_models={
+            name: model.get_params()
+            for name, model in sparse_penalty_models(len(frames["train"])).items()
+        },
+        penalty_view="pairs",
+        inference_repeats=3,
     )
     dump(out / "plan.json", plan)
     stamp = time.perf_counter()
@@ -224,36 +256,72 @@ def run(args):
         pickle.dump(encoder, stream)
     y = {k: np.log1p(frames[k].price.to_numpy()) for k in ("train", "selection")}
     values = {"anchor": {k: anchor[k] for k in WINDOWS}}
-    metrics = {}
+    metrics, matrix_seconds = {}, {}
     for view, keys in VIEWS.items():
         stamp = time.perf_counter()
         x = sparse.hstack([blocks["train"][k] for k in keys], format="csr")
-        model = Ridge(
-            alpha=args.alpha, solver="lsqr", tol=args.tol, max_iter=args.max_iter
-        ).fit(x, y["train"])
-        fit_seconds = time.perf_counter() - stamp
-        stamp = time.perf_counter()
-        values[view] = {
-            k: model.predict(sparse.hstack([blocks[k][v] for v in keys], format="csr"))
+        queries = {
+            k: sparse.hstack([blocks[k][v] for v in keys], format="csr")
             for k in WINDOWS
         }
-        metrics[view] = dict(
-            selection_rmsle=score(y["selection"], values[view]["selection"]),
-            fit_seconds=fit_seconds,
-            predict_seconds=time.perf_counter() - stamp,
-            features=x.shape[1],
-            training_nonzeros=x.nnz,
-            iterations=int(model.n_iter_[0]),
+        coordinate_x = x.tocsc() if view == "pairs" else None
+        matrix_seconds[view] = time.perf_counter() - stamp
+        models = dict(
+            ridge=Ridge(
+                alpha=args.alpha, solver="lsqr", tol=args.tol, max_iter=args.max_iter
+            )
         )
-        with (out / (view + ".pkl")).open("wb") as stream:
-            pickle.dump(model, stream)
-        np.savez_compressed(
-            out / (view + ".npz"),
-            **values[view],
-            **{k + "_ids": frames[k].train_id.to_numpy() for k in WINDOWS},
-        )
-        print("TOP3_MODEL", view, metrics[view], flush=True)
-        del x, model
+        if view == "pairs":
+            models.update(sparse_penalty_models(len(frames["train"])))
+        for family, model in models.items():
+            name = view if family == "ridge" else family + "_" + view
+            stamp = time.perf_counter()
+            with warnings.catch_warnings(record=True) as observed:
+                warnings.simplefilter("always", ConvergenceWarning)
+                model.fit(x if family == "ridge" else coordinate_x, y["train"])
+            fit_seconds = time.perf_counter() - stamp
+            timings = []
+            for _ in range(3):
+                stamp = time.perf_counter()
+                values[name] = {k: model.predict(queries[k]) for k in WINDOWS}
+                timings.append(time.perf_counter() - stamp)
+            metrics[name] = dict(
+                family=family,
+                view=view,
+                parameters=model.get_params(),
+                selection_rmsle=score(y["selection"], values[name]["selection"]),
+                fit_seconds=fit_seconds,
+                predict_seconds=float(np.mean(timings)),
+                predict_seconds_samples=timings,
+                predict_seconds_max=max(timings),
+                predict_seconds_std=float(np.std(timings)),
+                features=x.shape[1],
+                training_nonzeros=x.nnz,
+                iterations=int(np.atleast_1d(model.n_iter_)[0]),
+                active_coefficients=int(np.count_nonzero(model.coef_)),
+                dual_gap=float(model.dual_gap_)
+                if hasattr(model, "dual_gap_")
+                else None,
+                converged=(
+                    not any(
+                        issubclass(w.category, ConvergenceWarning) for w in observed
+                    )
+                )
+                if family != "ridge"
+                else None,
+                iteration_limit_reached=int(np.atleast_1d(model.n_iter_)[0])
+                >= model.max_iter,
+                fit_warnings=[str(w.message) for w in observed],
+            )
+            with (out / (name + ".pkl")).open("wb") as stream:
+                pickle.dump(model, stream)
+            np.savez_compressed(
+                out / (name + ".npz"),
+                **values[name],
+                **{k + "_ids": frames[k].train_id.to_numpy() for k in WINDOWS},
+            )
+            print("TOP3_MODEL", name, metrics[name], flush=True)
+        del x, queries, coordinate_x, models, model
     # A separate grouped half of selection checks the choice of blending method.
     _, check = next(
         GroupShuffleSplit(n_splits=1, test_size=0.5, random_state=193).split(
@@ -262,8 +330,26 @@ def run(args):
     )
     pools = dict(
         anchor=["anchor"],
-        without_pairs=["anchor", "lexical", "quantities"],
-        without_quantities=["anchor", "lexical", "pairs"],
+        without_pairs=[
+            "anchor",
+            *[n for n, m in metrics.items() if m["view"] not in ("pairs", "both")],
+        ],
+        without_quantities=[
+            "anchor",
+            *[n for n, m in metrics.items() if m["view"] not in ("quantities", "both")],
+        ],
+        ridge_only=[
+            "anchor",
+            *[n for n, m in metrics.items() if m["family"] == "ridge"],
+        ],
+        without_lasso=[
+            "anchor",
+            *[n for n, m in metrics.items() if m["family"] != "lasso"],
+        ],
+        without_elasticnet=[
+            "anchor",
+            *[n for n, m in metrics.items() if m["family"] != "elasticnet"],
+        ],
         full=list(values),
     )
     fitted, predictions, frozen_pools = {}, {}, {}
@@ -319,6 +405,7 @@ def run(args):
         training_rows=len(frames["train"]),
         models=metrics,
         feature_seconds=feature_seconds,
+        matrix_seconds=matrix_seconds,
         seconds=time.perf_counter() - start,
         peak_rss_mib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0,
         gpu_used=False,

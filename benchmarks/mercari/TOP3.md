@@ -9,6 +9,11 @@ come from the champions' [historical screenshot][board]. They are not comparable
 to our local audit scores. Chenglong Chen's useful XNN solution was **fourth**,
 not second or third.
 
+**Follow-up:** [Lasso and Elastic Net](SPARSE_PENALTIES.md) now run automatically
+alongside Ridge, without new configuration. The four-Ridge measurements on this
+page are preserved from commit `61a9941`; the current command also runs the two
+new experts. Use that historical commit to reproduce the original four-model run.
+
 The first-place [source][first-code] is pinned to commit
 `374301ad1c32cbc93dcc40313d5d7bb9c5503746`. We retrieved the first-, second- and
 third-place authors' posts and the latter two public kernels on 18 October

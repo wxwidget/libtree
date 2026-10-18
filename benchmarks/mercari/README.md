@@ -10,6 +10,10 @@ The [original top-three source review and experiment](TOP3.md) distinguishes
 author reports from implementation inferences, adds bounded unordered token
 pairs and numeric-word features, and records their full-base ablation. The new
 experts did not improve the current ensemble; the frozen 0.380616 anchor remains.
+The [Lasso/Elastic Net extension](SPARSE_PENALTIES.md) adds both automatically,
+with built-in sample-normalized penalties, convergence and sparsity diagnostics,
+family ablations and arithmetic-mean inference timings. No new model configuration
+is needed.
 
 **Current direction:** the [small-text report](SMALL_TEXT_REPORT.md) records
 **0.380616 local audit RMSLE** and a verified T4 native-AMP fix. It includes

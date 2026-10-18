@@ -39,6 +39,8 @@ for results and the limits of historical leaderboard comparisons.
 The [original top-three source review](benchmarks/mercari/TOP3.md) traces numeric
 word features, unordered token pairs and conditional blending to primary sources,
 with full-base ablations and a selection gate that retains the stronger anchor.
+The [Lasso/Elastic Net follow-up](benchmarks/mercari/SPARSE_PENALTIES.md) adds
+both sparse linear experts with built-in defaults and no new configuration.
 The [Mercari optimization study](benchmarks/mercari/OPTIMIZATION.md) documents
 an actual **10.46% Kaggle private RMSLE reduction** (0.43776 → 0.39199),
 the frozen 10.28% local holdout improvement, sparse text models, loss ablations,

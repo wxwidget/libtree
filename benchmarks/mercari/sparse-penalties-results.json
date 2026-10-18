@@ -1,0 +1,767 @@
+{
+  "generated_utc": "2026-10-18T23:39:36.687477+00:00",
+  "parent_commit": "61a9941f7c0da7426bea35577095a277f50c7d77",
+  "study": {
+    "frozen": {
+      "plan": {
+        "created_utc": "2026-10-18T23:26:08.522235+00:00",
+        "views": {
+          "lexical": [
+            "lexical"
+          ],
+          "pairs": [
+            "lexical",
+            "pairs"
+          ],
+          "quantities": [
+            "lexical",
+            "quantities"
+          ],
+          "both": [
+            "lexical",
+            "pairs",
+            "quantities"
+          ]
+        },
+        "minimum_selection_gain": 1e-05,
+        "anchor_sha256": "9dd8c8fe187556c86da15312c0fb1e16d534ed2e147ec8538753469cea8dabbf",
+        "data_sha256": {
+          "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+          "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+          "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+          "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+        },
+        "source_sha256": "837524c15d0882080b016224f31d330fdcf7073069f88ee69c7c045fe2a220b8",
+        "solver_sha256": "25417c507b2a1f04a61a74fc5393592085bb8a244afc39a0af2519863bc7ab4c",
+        "settings": {
+          "data_dir": "benchmarks/runs/mercari/frontier-001/data",
+          "anchor": "benchmarks/runs/mercari/smalltext-t4-001/primary-blend/ensemble.npz",
+          "output_dir": "benchmarks/runs/mercari/sparse-penalties-001/implicit",
+          "n_features": 262144,
+          "max_tokens": 60,
+          "pair_tokens": 20,
+          "description_prefix": 5,
+          "max_iter": 80,
+          "threads": 4,
+          "rows": 0,
+          "seed": 42,
+          "alpha": 20.0,
+          "tol": 0.002,
+          "minimum_gain": 1e-05,
+          "external_pretrained_data": true
+        },
+        "confirmation_previously_inspected": true,
+        "external_pretrained_data": true,
+        "built_in_penalty_models": {
+          "lasso": {
+            "alpha": 1.68630367293803e-05,
+            "copy_X": true,
+            "fit_intercept": true,
+            "max_iter": 200,
+            "positive": false,
+            "precompute": false,
+            "random_state": null,
+            "selection": "cyclic",
+            "tol": 0.0001,
+            "warm_start": false
+          },
+          "elasticnet": {
+            "alpha": 3.37260734587606e-05,
+            "copy_X": true,
+            "fit_intercept": true,
+            "l1_ratio": 0.5,
+            "max_iter": 200,
+            "positive": false,
+            "precompute": false,
+            "random_state": null,
+            "selection": "cyclic",
+            "tol": 0.0001,
+            "warm_start": false
+          }
+        },
+        "penalty_view": "pairs",
+        "inference_repeats": 3
+      },
+      "pools": {
+        "anchor": {
+          "names": [
+            "anchor"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0
+            ],
+            "intercept": -9.673364330021744e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.38037390443323255,
+            "context": 0.38048634507320717
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "without_pairs": {
+          "names": [
+            "anchor",
+            "lexical",
+            "quantities"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              0.0,
+              1.1112265877015184e-19
+            ],
+            "intercept": -9.673364330021775e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.3803739044498363,
+            "context": 0.38048634586785207
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "without_quantities": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs",
+            "lasso_pairs",
+            "elasticnet_pairs"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              6.167762377164603e-19,
+              1.511153593133897e-18,
+              0.0,
+              0.0
+            ],
+            "intercept": -9.67336433002171e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.3803739050334499,
+            "context": 0.38048634531330894
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "ridge_only": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs",
+            "quantities",
+            "both"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              2.412577356950289e-19
+            ],
+            "intercept": -9.673364330021705e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.3803739062681713,
+            "context": 0.38048634571160905
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "without_lasso": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs",
+            "elasticnet_pairs",
+            "quantities",
+            "both"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              2.9376412005637893e-19,
+              0.0,
+              0.0,
+              4.496025986518414e-19,
+              4.496025986518414e-19
+            ],
+            "intercept": -9.673364330021812e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.38037390626817125,
+            "context": 0.3804863457218867
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "without_elasticnet": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs",
+            "lasso_pairs",
+            "quantities",
+            "both"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              0.0,
+              3.378964594778632e-19,
+              3.9887673371087024e-19,
+              5.47939626280443e-19,
+              3.977067433871768e-20
+            ],
+            "intercept": -9.673364330021786e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.3803739062681713,
+            "context": 0.38048634572135875
+          },
+          "selection_rmsle": 0.3821912348933333
+        },
+        "full": {
+          "names": [
+            "anchor",
+            "lexical",
+            "pairs",
+            "lasso_pairs",
+            "elasticnet_pairs",
+            "quantities",
+            "both"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              1.0,
+              4.757400029523745e-19,
+              2.5214566409801536e-19,
+              0.0,
+              5.841493793666092e-19,
+              0.0,
+              0.0
+            ],
+            "intercept": -9.673364330021657e-05,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          },
+          "chosen": "simplex",
+          "validation": {
+            "simplex": 0.3803234453737986,
+            "affine": 0.38037390626817125,
+            "context": 0.3804863459607754
+          },
+          "selection_rmsle": 0.3821912348933333
+        }
+      },
+      "accepted": false,
+      "promotion_decided_before_confirmation": true,
+      "selection_rmsle": 0.3821912471375558
+    },
+    "training_rows": 1186026,
+    "models": {
+      "lexical": {
+        "family": "ridge",
+        "view": "lexical",
+        "parameters": {
+          "alpha": 20.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": 80,
+          "positive": false,
+          "random_state": null,
+          "solver": "lsqr",
+          "tol": 0.002
+        },
+        "selection_rmsle": 0.4960251566712108,
+        "fit_seconds": 3.2849128490051953,
+        "predict_seconds": 0.015324928996657642,
+        "predict_seconds_samples": [
+          0.021099594996485393,
+          0.012979608996829484,
+          0.01189558299665805
+        ],
+        "predict_seconds_max": 0.021099594996485393,
+        "predict_seconds_std": 0.0041072175211804,
+        "features": 262144,
+        "training_nonzeros": 33074674,
+        "iterations": 26,
+        "active_coefficients": 143844,
+        "dual_gap": null,
+        "converged": null,
+        "iteration_limit_reached": false,
+        "fit_warnings": [],
+        "confirmation_rmsle": 0.4958459558131209
+      },
+      "pairs": {
+        "family": "ridge",
+        "view": "pairs",
+        "parameters": {
+          "alpha": 20.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": 80,
+          "positive": false,
+          "random_state": null,
+          "solver": "lsqr",
+          "tol": 0.002
+        },
+        "selection_rmsle": 0.47349207735642623,
+        "fit_seconds": 16.221710988000268,
+        "predict_seconds": 0.04394726699926347,
+        "predict_seconds_samples": [
+          0.0617213469959097,
+          0.03738326800521463,
+          0.032737185996666085
+        ],
+        "predict_seconds_max": 0.0617213469959097,
+        "predict_seconds_std": 0.012710493284498555,
+        "features": 524288,
+        "training_nonzeros": 70236852,
+        "iterations": 30,
+        "active_coefficients": 405988,
+        "dual_gap": null,
+        "converged": null,
+        "iteration_limit_reached": false,
+        "fit_warnings": [],
+        "confirmation_rmsle": 0.4726105710196826
+      },
+      "lasso_pairs": {
+        "family": "lasso",
+        "view": "pairs",
+        "parameters": {
+          "alpha": 1.68630367293803e-05,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": 200,
+          "positive": false,
+          "precompute": false,
+          "random_state": null,
+          "selection": "cyclic",
+          "tol": 0.0001,
+          "warm_start": false
+        },
+        "selection_rmsle": 0.515470860886127,
+        "fit_seconds": 128.49382077100017,
+        "predict_seconds": 0.16650690399789406,
+        "predict_seconds_samples": [
+          0.2259631159977289,
+          0.11317830999905709,
+          0.16037928599689621
+        ],
+        "predict_seconds_max": 0.2259631159977289,
+        "predict_seconds_std": 0.04624762258980904,
+        "features": 524288,
+        "training_nonzeros": 70236852,
+        "iterations": 200,
+        "active_coefficients": 3474,
+        "dual_gap": 0.00014414459494445898,
+        "converged": false,
+        "iteration_limit_reached": true,
+        "fit_warnings": [
+          "Coordinate descent did not converge after 200 iterations; dual gap 0.000144145"
+        ],
+        "confirmation_rmsle": 0.5151746600501034
+      },
+      "elasticnet_pairs": {
+        "family": "elasticnet",
+        "view": "pairs",
+        "parameters": {
+          "alpha": 3.37260734587606e-05,
+          "copy_X": true,
+          "fit_intercept": true,
+          "l1_ratio": 0.5,
+          "max_iter": 200,
+          "positive": false,
+          "precompute": false,
+          "random_state": null,
+          "selection": "cyclic",
+          "tol": 0.0001,
+          "warm_start": false
+        },
+        "selection_rmsle": 0.5228367143717241,
+        "fit_seconds": 116.95588317899819,
+        "predict_seconds": 0.09555566500057466,
+        "predict_seconds_samples": [
+          0.1586854269989999,
+          0.06736867300060112,
+          0.06061289500212297
+        ],
+        "predict_seconds_max": 0.1586854269989999,
+        "predict_seconds_std": 0.04472460375508871,
+        "features": 524288,
+        "training_nonzeros": 70236852,
+        "iterations": 200,
+        "active_coefficients": 3916,
+        "dual_gap": 0.00011411322709889483,
+        "converged": false,
+        "iteration_limit_reached": true,
+        "fit_warnings": [
+          "Coordinate descent did not converge after 200 iterations; dual gap 0.000114113"
+        ],
+        "confirmation_rmsle": 0.5227739443268355
+      },
+      "quantities": {
+        "family": "ridge",
+        "view": "quantities",
+        "parameters": {
+          "alpha": 20.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": 80,
+          "positive": false,
+          "random_state": null,
+          "solver": "lsqr",
+          "tol": 0.002
+        },
+        "selection_rmsle": 0.5112238701301298,
+        "fit_seconds": 8.534776061998855,
+        "predict_seconds": 0.015422951665338283,
+        "predict_seconds_samples": [
+          0.018632621999131516,
+          0.01550564499484608,
+          0.012130588002037257
+        ],
+        "predict_seconds_max": 0.018632621999131516,
+        "predict_seconds_std": 0.0026550882176054843,
+        "features": 524288,
+        "training_nonzeros": 34192340,
+        "iterations": 62,
+        "active_coefficients": 173692,
+        "dual_gap": null,
+        "converged": null,
+        "iteration_limit_reached": false,
+        "fit_warnings": [],
+        "confirmation_rmsle": 0.5123724870713774
+      },
+      "both": {
+        "family": "ridge",
+        "view": "both",
+        "parameters": {
+          "alpha": 20.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": 80,
+          "positive": false,
+          "random_state": null,
+          "solver": "lsqr",
+          "tol": 0.002
+        },
+        "selection_rmsle": 0.4962042350249471,
+        "fit_seconds": 20.48385889799829,
+        "predict_seconds": 0.03809784800250782,
+        "predict_seconds_samples": [
+          0.04520807100197999,
+          0.03561837400047807,
+          0.03346709900506539
+        ],
+        "predict_seconds_max": 0.04520807100197999,
+        "predict_seconds_std": 0.005103818789438566,
+        "features": 786432,
+        "training_nonzeros": 71354518,
+        "iterations": 64,
+        "active_coefficients": 435836,
+        "dual_gap": null,
+        "converged": null,
+        "iteration_limit_reached": false,
+        "fit_warnings": [],
+        "confirmation_rmsle": 0.49661834466958693
+      }
+    },
+    "feature_seconds": 162.57278647299972,
+    "matrix_seconds": {
+      "lexical": 0.15688239599694498,
+      "pairs": 2.5345317169994814,
+      "quantities": 0.4387046929987264,
+      "both": 0.8224573800034705
+    },
+    "seconds": 481.92772867500025,
+    "peak_rss_mib": 3579.3359375,
+    "gpu_used": false,
+    "confirmation_previously_inspected": true,
+    "submission_status": "not_submitted",
+    "ablations": {
+      "anchor": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "without_pairs": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "without_quantities": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "ridge_only": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "without_lasso": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "without_elasticnet": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      },
+      "full": {
+        "selection_rmsle": 0.3821912348933333,
+        "confirmation_rmsle": 0.38061636863827486
+      }
+    },
+    "baseline_confirmation_rmsle": 0.38061625456995307,
+    "confirmation_rmsle": 0.38061625456995307,
+    "comparison": {
+      "baseline_rmsle": 0.380616254569956,
+      "candidate_rmsle": 0.380616254569956,
+      "rmsle_delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    }
+  },
+  "stopped_sklearn_attempt": {
+    "status": "stopped_before_lasso_completed",
+    "elapsed_seconds": 475,
+    "reason": "sklearn 1.8 sparse intercept centering scans all samples per feature; source _cd_fast.pyx R_plus_wj_Xj and sparse_enet_coordinate_descent initialization",
+    "source_plan": {
+      "created_utc": "2026-10-18T23:15:13.540492+00:00",
+      "views": {
+        "lexical": [
+          "lexical"
+        ],
+        "pairs": [
+          "lexical",
+          "pairs"
+        ],
+        "quantities": [
+          "lexical",
+          "quantities"
+        ],
+        "both": [
+          "lexical",
+          "pairs",
+          "quantities"
+        ]
+      },
+      "minimum_selection_gain": 1e-05,
+      "anchor_sha256": "9dd8c8fe187556c86da15312c0fb1e16d534ed2e147ec8538753469cea8dabbf",
+      "data_sha256": {
+        "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+        "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+        "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+        "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+      },
+      "source_sha256": "df548954713378ff422294d6f102bd4e57336e613f29215c8d2f7f8afec76e8f",
+      "settings": {
+        "data_dir": "benchmarks/runs/mercari/frontier-001/data",
+        "anchor": "benchmarks/runs/mercari/smalltext-t4-001/primary-blend/ensemble.npz",
+        "output_dir": "benchmarks/runs/mercari/sparse-penalties-001/full",
+        "n_features": 262144,
+        "max_tokens": 60,
+        "pair_tokens": 20,
+        "description_prefix": 5,
+        "max_iter": 80,
+        "threads": 4,
+        "rows": 0,
+        "seed": 42,
+        "alpha": 20.0,
+        "tol": 0.002,
+        "minimum_gain": 1e-05,
+        "external_pretrained_data": true
+      },
+      "confirmation_previously_inspected": true,
+      "external_pretrained_data": true,
+      "built_in_penalty_models": {
+        "lasso": {
+          "alpha": 1.68630367293803e-05,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": 200,
+          "positive": false,
+          "precompute": false,
+          "random_state": null,
+          "selection": "cyclic",
+          "tol": 0.0001,
+          "warm_start": false
+        },
+        "elasticnet": {
+          "alpha": 3.37260734587606e-05,
+          "copy_X": true,
+          "fit_intercept": true,
+          "l1_ratio": 0.5,
+          "max_iter": 200,
+          "positive": false,
+          "precompute": false,
+          "random_state": null,
+          "selection": "cyclic",
+          "tol": 0.0001,
+          "warm_start": false
+        }
+      },
+      "penalty_view": "pairs",
+      "inference_repeats": 3
+    },
+    "stopped_utc": "2026-10-18T23:22:53.641315+00:00",
+    "new_expert_scores_available": false
+  },
+  "same_view_comparisons": {
+    "lasso_pairs": {
+      "baseline_rmsle": 0.4726105710196811,
+      "candidate_rmsle": 0.5151746600501073,
+      "rmsle_delta": 0.04256408903042613,
+      "ci95": [
+        0.04185274441927082,
+        0.043414037064585576
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    },
+    "elasticnet_pairs": {
+      "baseline_rmsle": 0.4726105710196811,
+      "candidate_rmsle": 0.5227739443268358,
+      "rmsle_delta": 0.050163373307154646,
+      "ci95": [
+        0.04933908543497013,
+        0.051089076206565116
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    }
+  },
+  "ridge_control_replay_max_absolute_error": {
+    "lexical": 0.0,
+    "pairs": 0.0,
+    "quantities": 0.0,
+    "both": 0.0
+  },
+  "checks": {
+    "source_matches_run": true,
+    "solver_matches_run": true,
+    "identical_anchor_output": true
+  },
+  "packages": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "numba": "0.65.1"
+  },
+  "references": [
+    "https://doi.org/10.1111/j.2517-6161.1996.tb02080.x",
+    "https://doi.org/10.1111/j.1467-9868.2005.00503.x",
+    "https://doi.org/10.18637/jss.v033.i01"
+  ],
+  "limitations": [
+    "Fixed built-in defaults, no hyperparameter search or seed replication.",
+    "Selection and audit were reused from earlier experiments, not fresh blind test sets.",
+    "Three inference repetitions use prepared matrices; one training run per model.",
+    "Old anchor training and raw text extraction are excluded from inference timing.",
+    "Nonzero coefficient count does not imply compressed storage or a count of important semantic words.",
+    "No new Kaggle submission, score or rank."
+  ],
+  "validation": {
+    "suite": {
+      "covered_lines": 2992,
+      "num_statements": 2992,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "module": {
+      "covered_lines": 170,
+      "num_statements": 170,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "solver": {
+      "covered_lines": 79,
+      "num_statements": 79,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "tests_passed": 169,
+    "compiled_reference_tests_passed": 16,
+    "statement_coverage_only": true,
+    "covered_modules": 23,
+    "log_tail": [
+      "Required test coverage of 100% reached. Total coverage: 100.00%",
+      "169 passed, 492 warnings in 244.69s (0:04:04)"
+    ],
+    "compiled_ci_tests_passed": 9,
+    "full_test_seconds": 244.69,
+    "existing_warning_count": 492,
+    "scope": "23 selected Mercari CPU experiment modules; statement coverage, not branch or whole-repository coverage"
+  }
+}

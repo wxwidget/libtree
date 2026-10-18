@@ -34,6 +34,8 @@ BERT-tiny，限制参数和运行预算、保留检查点，并校验和复用�
 
 [原榜前三名源码复盘](benchmarks/mercari/TOP3.zh-CN.md)核对数量词、无序词对和品类融合的
 一手来源，提供完整基础集消融与复现方法；本轮新专家未通过晋级门禁，保留较强的旧方案。
+[Lasso／Elastic Net 扩展](benchmarks/mercari/SPARSE_PENALTIES.zh-CN.md)默认加入两种稀疏
+线性专家，无需增加参数配置，并报告收敛、稀疏度和推理平均耗时。
 
 [现代文本与 GPU 实验](benchmarks/mercari/FRONTIER.zh-CN.md)增加 LSA、预训练句向量、
 T4/A100 神经网络和树／回归融合，提供复现命令、失败记录与验证边界。
