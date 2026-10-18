@@ -12,6 +12,11 @@ RMSLE 下降 10.28%；实际 Kaggle private RMSLE 从 0.43776 降到
 实验、理论引用及证据边界；独立的[初学者实战指南](benchmarks/mercari/BEGINNER_GUIDE.zh-CN.md)
 从无需凭据的小练习开始，逐步解释训练、预测解释、性能测量和 Kaggle 提交的复现方法。
 
+新增融合在复用的本地审计窗口取得 **0.380907 RMSLE，较 0.394153 下降 3.36%**；
+尚未产生新的 Kaggle 成绩。
+[现代文本与 GPU 实验](benchmarks/mercari/FRONTIER.zh-CN.md)增加 LSA、预训练句向量、
+T4/A100 神经网络和树／回归融合，提供复现命令、失败记录与验证边界。
+
 风险建模新增 boosting 开关、类别平衡、Hellinger 二分类准则与 KS 指标：
 [优化方法及引用](docs/c5-risk.zh-CN.md) · [风险评测](benchmarks/RISK_REPORT.zh-CN.md)。
 

@@ -163,7 +163,8 @@ def fit_neural(frame, prepared, x, y, mean, extractor, config):
     else:
         legacy = ListingFeatures(version=1).fit(frame) if config['neural_text_version'] == 1 else None
         local = prepared if legacy is None else legacy.transform(frame)
-        tokens = Tokens(max_words=config['max_words'], version=config['neural_text_version']).fit(local)
+        tokens = Tokens(max_words=config['max_words'], version=config['neural_text_version'],
+                        unknown_tokens=config['neural_architecture'] == 'gru').fit(local)
         encoded = tokens.transform(local)
         loss = tf.keras.losses.Huber(delta=.5) if config['neural_loss'] == 'huber' else 'mse'
         model = build_model(tokens, seed=config['seed'], width=config['neural_width'], loss=loss,

@@ -19,10 +19,12 @@ CATEGORICAL = ('brand_name', 'category_name', 'category_0', 'category_1', 'categ
 class Tokens:
     """Fixed training dictionaries; ID zero means padding or unknown."""
 
-    def __init__(self, max_words=100000, title_length=20, description_length=80, version=2):
+    def __init__(self, max_words=100000, title_length=20, description_length=80, version=2,
+                 unknown_tokens=False):
         self.max_words = max_words
         self.title_length, self.description_length = title_length, description_length
         self.version = version
+        self.unknown_tokens = unknown_tokens
 
     def fit(self, frame):
         self.token_pattern_ = TOKEN_PATTERN if self.version >= 2 else r'(?u)\b\w[\w.]+\b'
@@ -30,6 +32,8 @@ class Tokens:
         vectorizer = CountVectorizer(max_features=self.max_words, min_df=2, token_pattern=self.token_pattern_)
         vectorizer.fit(texts)
         self.words_ = {word: index + 1 for word, index in vectorizer.vocabulary_.items()}
+        if getattr(self, 'unknown_tokens', False):
+            self.words_['<unknown>'] = len(self.words_) + 1
         self.categories_ = {name: {value: i + 1 for i, value in enumerate(sorted(frame[name].unique()))}
                             for name in CATEGORICAL}
         return self
@@ -41,7 +45,9 @@ class Tokens:
                                     ('item_description', 'description', self.description_length)]:
             encoded = np.zeros((len(frame), width), dtype=np.int32)
             for row, text in enumerate(frame[column]):
-                ids = [self.words_.get(word, 0) for word in pattern.findall(text)[:width]]
+                words = pattern.findall(text)[:width]
+                unknown = self.words_.get('<unknown>', 0)
+                ids = [self.words_.get(word, unknown) for word in words] or ([unknown] if unknown else [])
                 encoded[row, :len(ids)] = ids
             result[key] = encoded
         for name in CATEGORICAL:
@@ -102,8 +108,8 @@ class MaskedConvolution(tf.keras.layers.Layer):
 
 
 def build_model(encoder, seed=42, width=64, loss='mse', architecture='bag'):
-    if architecture not in ('bag', 'cnn'):
-        raise ValueError('neural architecture must be bag or cnn')
+    if architecture not in ('bag', 'cnn', 'gru'):
+        raise ValueError('neural architecture must be bag, cnn or gru')
     tf.keras.utils.set_random_seed(seed)
     inputs, vectors = {}, []
     embedding = tf.keras.layers.Embedding(len(encoder.words_) + 1, width, mask_zero=True)
@@ -113,6 +119,10 @@ def build_model(encoder, seed=42, width=64, loss='mse', architecture='bag'):
         vectors.append(MaskedPool()(embedded))
         if name == 'title' and architecture == 'cnn':
             vectors.append(MaskedConvolution()(embedded))
+        if architecture == 'gru':
+            # Cho et al. (2014), https://aclanthology.org/D14-1179/.
+            # Right-padded sequences with nonzero OOV IDs permit cuDNN kernels.
+            vectors.append(tf.keras.layers.GRU(max(8, width // 2))(embedded))
     for name in CATEGORICAL:
         inputs[name] = tf.keras.Input((1,), dtype='int32', name=name)
         value = tf.keras.layers.Embedding(len(encoder.categories_[name]) + 1, 16)(inputs[name])

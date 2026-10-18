@@ -68,6 +68,31 @@ def test_words_keep_alphanumeric_model_and_unit_tokens():
     assert refitted.transform(frame).name.iloc[0] == 'iphone6'
 
 
+def test_joint_text_preserves_field_identity_and_never_reads_labels():
+    frame = rows()
+    encoder = features.JointListingFeatures().fit(frame)
+    p = encoder.transform(frame)
+    assert 'fieldbrand apple' in p.name.iloc[0]
+    assert 'fieldtitle apple iphone 64gb' in p.item_description.iloc[0]
+    assert 'fieldcategory electronics phones smartphones' in p.item_description.iloc[0]
+    pd.testing.assert_frame_equal(p, encoder.transform(frame.assign(price=1e8, train_id=-1)))
+    pd.testing.assert_frame_equal(p.iloc[:1], encoder.transform(frame.iloc[:1]))
+
+
+def test_stemmed_view_shares_inflections_and_keeps_model_numbers_and_symbols():
+    frame = rows()
+    frame['name'] = ['running shoes', 'run shoe', 'iPhone6S 64GB ❤', None]
+    encoder = features.StemmedListingFeatures().fit(frame)
+    p = encoder.transform(frame)
+    assert p.name.iloc[0] == p.name.iloc[1] == 'run shoe'
+    assert 'iphon 6 s 64 gb ❤' == p.name.iloc[2]
+    assert p.raw_name.iloc[2] == 'iphone 6s 64gb'
+    assert 'fieldbrand' in p.item_description.iloc[0]
+    assert '64' in features.re.findall(features.RICH_TOKEN_PATTERN, p.name.iloc[2])
+    pd.testing.assert_frame_equal(p, encoder.transform(frame.assign(price=1e8, train_id=-1)))
+    pd.testing.assert_frame_equal(p.iloc[:1], encoder.transform(frame.iloc[:1]))
+
+
 def test_residual_features_are_frozen_finite_and_supply_word_price_summary():
     frame = pd.concat([rows()] * 3, ignore_index=True)
     encoder = features.ResidualFeatures().fit(frame, np.log1p(frame.price))

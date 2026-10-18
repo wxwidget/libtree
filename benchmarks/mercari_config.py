@@ -25,7 +25,7 @@ def validate(config):
             or not np.isclose(weights.sum(), 1.) or not 0 < config['calibration_fraction'] < 1
             or config['neural_loss'] not in ('mse', 'huber', 'bins') or not config['neural_rates']
             or (config['neural_loss'] == 'bins' and config['neural_architecture'] != 'sparse')
-            or config['neural_architecture'] not in ('bag', 'cnn', 'sparse')
+            or config['neural_architecture'] not in ('bag', 'cnn', 'gru', 'sparse')
             or config['neural_text_version'] not in (1, 2)
             or not all(np.isfinite(v) and v > 0 for v in config['neural_rates'])
             or len(config['neural_batches']) != len(config['neural_rates']) or min(config['neural_batches']) < 1

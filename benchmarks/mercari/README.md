@@ -6,6 +6,13 @@
 small runnable example; [technical retrospective](TECHNICAL_REPORT.md) for
 architecture, theory, successful/failed experiments and reproducibility limits.
 
+The new local frozen blend reaches **0.380907 RMSLE**, down **3.36%** from
+0.394153 on the reused audit window; no new Kaggle submission is claimed.
+The [modern text/GPU study](FRONTIER.md) extends this work with LSA, pinned
+sentence vectors, T4/A100 neural experts and selection-only tree/regression
+ensembles. It records failed attempts and provides a Colab experiment launcher;
+local validation remains distinct from the scored entries below.
+
 The [optimization study](OPTIMIZATION.md) achieved an actual **10.46% Kaggle
 private RMSLE reduction**, from **0.43776 to 0.39199** (public **0.39110**), with
 submission [57318931](kaggle-submission-57318931.json), status **COMPLETE**.

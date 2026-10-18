@@ -1,0 +1,121 @@
+{
+  "captured_utc": "2026-10-18T12:19:01.729621+00:00",
+  "status": "Local checks passed; real GPU stages completed and sessions released",
+  "tests": [
+    {
+      "suite": "TensorFlow/Numba/Mercari/launcher",
+      "passed": 87,
+      "statements": 1675,
+      "missed": 0,
+      "statement_coverage": 1.0
+    },
+    {
+      "suite": "Torch real tiny backbone and module-entry serialization",
+      "passed": 6,
+      "statements": 160,
+      "missed": 0,
+      "statement_coverage": 1.0
+    },
+    {
+      "suite": "FM compiled arithmetic",
+      "passed": 4,
+      "scope": "Additional execution of existing four FM tests"
+    }
+  ],
+  "total_distinct_tests": 93,
+  "total_statements": 1835,
+  "coverage_scope": "14 Mercari benchmark/model/launcher modules; statement coverage only, not branch or whole repository",
+  "cpu_gpu_replay": {
+    "cnn128_mse": {
+      "max_absolute_log_prediction_error": 4.76837158203125e-07,
+      "rows": 128,
+      "cpu_tensorflow": "2.20.0",
+      "gpu_tensorflow": "2.21.0"
+    },
+    "gru96_huber": {
+      "max_absolute_log_prediction_error": 4.76837158203125e-07,
+      "rows": 128,
+      "cpu_tensorflow": "2.20.0",
+      "gpu_tensorflow": "2.21.0"
+    }
+  },
+  "torch_cpu_gpu_replay": {
+    "rows": 128,
+    "max_absolute_log_error": 0.0053806304931640625,
+    "mean_absolute_log_error": 0.0015059327706694603,
+    "cpu_torch": "2.9.0+cpu",
+    "gpu_torch": "2.11.0+cu130",
+    "gpu_precision": "bfloat16",
+    "cpu_precision": "float32",
+    "original_metadata_class_binding_repaired": true,
+    "original_metadata_preserved": true
+  },
+  "real_portable_launcher": {
+    "session": "libtree-mercari-638597c77a57",
+    "created_utc": "2026-10-18T11:57:51.627374+00:00",
+    "gpu": "T4",
+    "high_mem": false,
+    "profile": "transformer",
+    "transformer_epochs": 1,
+    "allocation_confirmed": true,
+    "cleanup_verified": true,
+    "source_sha256": "5d2700f1a33c2b0664d0f8cbd9a52690ff9c24e14ba320eb870638902235246b",
+    "execution_exit_code": 0,
+    "artifact_downloaded": true,
+    "cleanup_exit_code": 0
+  },
+  "launcher_scope": "T4 float16 transformer, synthetic 100 training rows, 20 rows per prediction window, one epoch; integration evidence only",
+  "gpu_jobs": {
+    "colab-job-002.json": {
+      "session": "libtree-mercari-frontier-002",
+      "cleanup_verified": true,
+      "source_sha256": "45bd2e0616ce01252048e358f7367e76dc7866e9ae890260802c52227f036eae",
+      "upload_completed": true,
+      "results_downloaded": true
+    },
+    "colab-job-a100.json": {
+      "session": "libtree-mercari-frontier-a100-001",
+      "cleanup_verified": true,
+      "source_sha256": "5caa24aa0ff8b982e5166477e437fbff525323690af66804102866a5c03a5106",
+      "upload_completed": true,
+      "results_downloaded": true
+    },
+    "colab-job-stemmed.json": {
+      "session": "libtree-mercari-stemmed-001",
+      "cleanup_verified": true,
+      "source_sha256": "8b922b9adb8fd4baacc827a40f8b9e3a9b482f570ee43502054865b95b11c08b",
+      "upload_completed": true,
+      "results_downloaded": true
+    },
+    "colab-job-transformer.json": {
+      "session": "libtree-mercari-transformer-001",
+      "cleanup_verified": true,
+      "source_sha256": "840e1db7aab31db822db517d73af1764e59fd04c2b6584c3e07013901485adf8",
+      "upload_completed": true,
+      "results_downloaded": true
+    },
+    "colab-job-transformer-long-002.json": {
+      "session": "libtree-mercari-transformer-long-002",
+      "cleanup_verified": true,
+      "source_sha256": "5788b393e077160280e5faad5eb5e15eac056af702af6e77a78e2f7a097dae25",
+      "upload_completed": true,
+      "results_downloaded": true
+    }
+  },
+  "resources": {
+    "active_sessions_at_final_check": 0,
+    "usage_rate_at_final_check": 0,
+    "initial_observed_compute_units": 199.27,
+    "final_observed_compute_units": 190.81,
+    "caveat": "Observed account-level balance change; not USD cost or controlled per-model billing"
+  },
+  "source_sha256": {
+    "benchmarks/mercari_semantics.py": "c8f12d1cf834f5d26e7f2a97ec4dc270bc15f42a505e7e45e6abfd2649828f96",
+    "benchmarks/mercari_frontier.py": "3a9b6c3d1eee9e49557bff4fa47fef608172dde78d26dd049d553eaf66fe0efd",
+    "benchmarks/mercari_colab.py": "13297f951438b57e685f4cd8e77fe10d06d6cbf6f70d04c2e890a75a800ca51a",
+    "benchmarks/mercari_transformer.py": "7ce7cf8071d25603b4ca911badef7c09ee40256a5a4952daf7742f0c2e5d198f"
+  },
+  "native_sources_changed": false,
+  "new_kaggle_submission": false,
+  "ci_status": "See GitHub Actions for the resulting source commit; local evidence does not assert remote CI success"
+}

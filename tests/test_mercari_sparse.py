@@ -19,6 +19,16 @@ def test_sparse_conversion_and_predictions_match_dense_reference():
     np.testing.assert_allclose(model(tensor).numpy(), model(x.toarray()).numpy(), atol=1e-7)
 
 
+def test_sparse_training_remains_supported_when_backend_prefers_auto_xla(monkeypatch):
+    import tensorflow as tf
+    monkeypatch.setattr(tf.keras.Model, '_resolve_auto_jit_compile', lambda self: True)
+    model = neural.build_model(3, width=4, seed=42, loss='mse', optimizer='row_adam')
+    assert model.jit_compile is False
+    x = sparse.csr_matrix([[1., 0., 1.], [0., 1., 0.]], dtype=np.float32)
+    loss = model.train_on_batch(neural.tensor(x), np.array([1., 2.], dtype=np.float32))
+    assert np.isfinite(loss)
+
+
 def test_sparse_expert_uses_training_scale_and_replays_without_optimizer():
     rng = np.random.default_rng(42)
     x = sparse.csr_matrix(rng.integers(0, 2, (60, 8)).astype(np.float32))

@@ -3,6 +3,7 @@
 Character n-grams complement word TF-IDF (Salton & Buckley, 1988,
 doi:10.1016/0306-4573(88)90021-0) for misspellings and product model numbers.
 """
+from functools import lru_cache
 import re
 
 import numpy as np
@@ -20,6 +21,22 @@ PUNCTUATION = re.compile(r'[^\w.]+', re.UNICODE)
 SPACE = re.compile(r'\s+')
 ALPHANUMERIC = re.compile(r'([a-z])(\d)')
 TOKEN_PATTERN = r'(?u)\b\w[\w.]*\b'
+RICH_TOKEN_PATTERN = r'(?u)\d+(?:\.\d+)?|[^\W\d_]+|[!%❤✨&]'
+
+
+@lru_cache(maxsize=1)
+def english_stemmer():
+    from snowballstemmer import stemmer
+    return stemmer('english')
+
+
+@lru_cache(maxsize=200000)
+def stem_word(word):
+    return english_stemmer().stemWord(word) if word.isalpha() else word
+
+
+def stem_text(text):
+    return ' '.join(stem_word(word) for word in re.findall(RICH_TOKEN_PATTERN, text.lower()))
 
 
 def normalize(value, split_alphanumeric=True):
@@ -68,6 +85,40 @@ class ListingFeatures:
         p['category_condition'] = p.category_name + '|' + p.item_condition_id
         p['brand_category'] = p.brand_name + '|' + p.category_1
         p['brand_condition'] = p.brand_name + '|' + p.item_condition_id
+        return p
+
+
+class JointListingFeatures(ListingFeatures):
+    """A complementary cross-field text view, with explicit field markers.
+
+    Motivation: Jankiewicz & Lopuhin's first-place Mercari text representations,
+    https://github.com/pjankiewicz/mercari-solution/blob/master/mercari/datasets_tf.py.
+    Independently implemented; dictionaries still fit only the base window.
+    """
+
+    def transform(self, frame):
+        p = super().transform(frame)
+        p['name'] = p.name + ' fieldbrand ' + p.brand_name
+        p['item_description'] = (p.item_description + ' fieldtitle ' + p.name
+                                 + ' fieldcategory ' + p.category_name)
+        return p
+
+
+class StemmedListingFeatures(ListingFeatures):
+    """Morphology-sharing word view with a separate exact character channel.
+
+    Snowball/Porter stemming: https://snowballstem.org/algorithms/english/stemmer.html.
+    A bounded rule-result cache contains no prices or training vocabulary.
+    The published Mercari solution motivates this complementary representation.
+    """
+
+    def transform(self, frame):
+        p = super().transform(frame)
+        p['raw_name'] = p.name
+        p['name'] = frame.name.fillna('<missing>').astype(str).map(stem_text)
+        p['item_description'] = (frame.item_description.fillna('<missing>').astype(str).map(stem_text)
+            + ' fieldtitle ' + p.name + ' fieldbrand ' + p.brand_name.map(stem_text)
+            + ' fieldcategory ' + p.category_name.map(stem_text))
         return p
 
 

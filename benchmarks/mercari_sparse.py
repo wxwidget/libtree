@@ -82,7 +82,9 @@ def build_model(features, width=128, seed=42, loss='huber', optimizer='adam', bi
     if loss == 'bins':
         criterion = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
     algorithm = RowSparseAdam(.004) if optimizer == 'row_adam' else tf.keras.optimizers.Adam(.004)
-    model.compile(optimizer=algorithm, loss=criterion)
+    # Keras may auto-enable XLA on GPUs, but sparse gather/segment and scatter
+    # optimizer operations do not have a complete XLA lowering (TF 2.21).
+    model.compile(optimizer=algorithm, loss=criterion, jit_compile=False)
     return model
 
 

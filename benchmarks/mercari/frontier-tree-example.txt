@@ -1,0 +1,18 @@
+objective=squared_error num_features=212 tree_count=400
+base_score=0.0038181052664522739 learning_rate=0.040000000000000001
+tree 0
+  node 0: "old_field_factorization_log_price" [f30] <= 2.7852518558502197 -> 1; > -> 8; missing -> 1
+    node 1: "old_ridge_log_price" [f29] <= 2.6375348567962646 -> 5; > -> 2; missing -> 5
+      node 2: "expert_stemmed_sparse512_binary_bins_log_price" [f208] <= 2.6821792125701904 -> 3; > -> 4; missing -> 3
+        node 3: leaf_value=-0.051418782878035862 contribution=-0.0020567513151214345
+        node 4: leaf_value=-0.010072172447570393 contribution=-0.00040288689790281572
+      node 5: "expert_finetuned_minilm_huber_log_price" [f211] <= 2.9606654644012451 -> 6; > -> 7; missing -> 6
+        node 6: leaf_value=-0.0024693258984442011 contribution=-9.8773035937768045e-05
+        node 7: leaf_value=0.11113320723208514 contribution=0.0044453282892834055
+    node 8: "old_brand_mean" [f8] <= 3.2119393348693848 -> 12; > -> 9; missing -> 12
+      node 9: "old_brand_frequency" [f9] <= 0.0081886909902095795 -> 10; > -> 11; missing -> 10
+        node 10: leaf_value=0.0069093249442211098 contribution=0.00027637299776884442
+        node 11: leaf_value=-0.038269013585620223 contribution=-0.001530760543424809
+      node 12: "expert_sparse512_binary_huber_log_price" [f206] <= 4.2590665817260742 -> 13; > -> 14; missing -> 13
+        node 13: leaf_value=0.012329423135919582 contribution=0.00049317692543678331
+        node 14: leaf_value=0.079546795339905677 contribution=0.003181871813596227

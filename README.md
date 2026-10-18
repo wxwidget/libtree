@@ -48,6 +48,12 @@ evidence limits. The separate [beginner walkthrough](benchmarks/mercari/BEGINNER
 starts with a credential-free synthetic run and explains how to reproduce training,
 prediction explanations, performance measurements and Kaggle submissions.
 
+The new frozen local blend reaches **0.380907 RMSLE versus 0.394153 (3.36% lower)**
+on the reused audit window; this is not a new Kaggle score.
+The [modern text/GPU extension](benchmarks/mercari/FRONTIER.md) adds train-only
+LSA, pretrained sentence vectors, T4/A100 neural experiments and reproducible
+tree/regression blending, with explicit failure records and validation boundaries.
+
 ## At a glance
 
 - One C++ implementation powers both the C++ and Python APIs; Python does not
