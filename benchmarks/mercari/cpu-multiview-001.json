@@ -1,0 +1,599 @@
+{
+  "report": {
+    "frozen": {
+      "created_utc": "2026-10-18T15:21:08.669698+00:00",
+      "names": [
+        "reference",
+        "uncorrected",
+        "ridge",
+        "ffm",
+        "neural_0",
+        "neural_1",
+        "neural_2",
+        "neural_3",
+        "stemmed_huber",
+        "stemmed_bins",
+        "basic_libtree3_0.5",
+        "basic_libtree3_1.0",
+        "basic_libtree5_0.5",
+        "basic_libtree5_1.0",
+        "attributes_libtree3_0.5",
+        "attributes_libtree3_1.0",
+        "product_libtree3_0.5",
+        "product_libtree3_1.0",
+        "product_libtree5_0.5",
+        "product_libtree5_1.0",
+        "basic_lightgbm_0.5",
+        "basic_lightgbm_1.0",
+        "product_lightgbm_0.5",
+        "product_lightgbm_1.0",
+        "product_lightgbm_huber_0.5",
+        "product_lightgbm_huber_1.0",
+        "product_xgboost_0.5",
+        "product_xgboost_1.0"
+      ],
+      "model": {
+        "kind": "simplex",
+        "weights": [
+          0.09175787350304966,
+          1.7162203312457348e-19,
+          1.3730603182250475e-19,
+          0.02728250184024804,
+          8.280882106906903e-20,
+          0.0,
+          0.014612290640798083,
+          2.144413717969547e-19,
+          0.0365072550109466,
+          0.005793820591903032,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.18209988452482836,
+          0.0,
+          2.2911826262965707e-18,
+          3.152317348633675e-18,
+          0.23853714021719405,
+          0.0,
+          0.40279362281968506,
+          0.0,
+          0.0006156108513470459
+        ],
+        "intercept": 0.0005526666230823919,
+        "penalty": 0.0001,
+        "mass_bounds": [
+          1.0,
+          1.0
+        ]
+      },
+      "strategy": {
+        "chosen": "simplex",
+        "validation": {
+          "simplex": 0.3923149098205521,
+          "affine": 0.3927025873897974,
+          "context": 0.392794178066511
+        },
+        "tie_tolerance": 1e-05,
+        "seed": 193,
+        "fit_ids_count": 37062,
+        "fit_ids_sha256": "4b2ee43b33b9a29b27ccd44f3c34379eaa66407b395ab55d0410ff6b7ac753a8",
+        "validation_ids_count": 37064,
+        "validation_ids_sha256": "d599b42ddf189a06167ffb12c93197df003ce28453febf001b691ff01df48d39"
+      },
+      "selected_before_confirmation": true,
+      "selection_rmsle": 0.39441039223608093,
+      "ablations": {
+        "without_product_statistics": {
+          "names": [
+            "reference",
+            "uncorrected",
+            "ridge",
+            "ffm",
+            "neural_0",
+            "neural_1",
+            "neural_2",
+            "neural_3",
+            "stemmed_huber",
+            "stemmed_bins",
+            "basic_libtree3_0.5",
+            "basic_libtree3_1.0",
+            "basic_libtree5_0.5",
+            "basic_libtree5_1.0",
+            "attributes_libtree3_0.5",
+            "attributes_libtree3_1.0",
+            "basic_lightgbm_0.5",
+            "basic_lightgbm_1.0"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              0.28767534120947574,
+              8.583387810314416e-19,
+              0.0,
+              0.019959748178539995,
+              0.0,
+              0.0,
+              0.01278682017096898,
+              0.0,
+              0.036325449665324416,
+              0.005189830435861601,
+              0.0,
+              6.962514469035204e-19,
+              0.0,
+              0.09525407885753365,
+              0.0,
+              0.3260104887434704,
+              8.492223579423894e-18,
+              0.21679824273882528
+            ],
+            "intercept": -0.0007097384504324346,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "without_all_new_features": {
+          "names": [
+            "reference",
+            "uncorrected",
+            "ridge",
+            "ffm",
+            "neural_0",
+            "neural_1",
+            "neural_2",
+            "neural_3",
+            "stemmed_huber",
+            "stemmed_bins",
+            "basic_libtree3_0.5",
+            "basic_libtree3_1.0",
+            "basic_libtree5_0.5",
+            "basic_libtree5_1.0",
+            "basic_lightgbm_0.5",
+            "basic_lightgbm_1.0"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              0.3802045036470283,
+              0.0,
+              0.0,
+              0.021209437049546583,
+              7.947055017041958e-20,
+              3.2458567236580806e-21,
+              0.013133172620846465,
+              1.29994576549036e-18,
+              0.036804105384974216,
+              0.005150971366963585,
+              0.0,
+              0.1360760405234939,
+              2.1467487565343706e-19,
+              0.16044607639016223,
+              0.0,
+              0.24697569301698483
+            ],
+            "intercept": -0.0006831042148008632,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "without_small_experts": {
+          "names": [
+            "reference",
+            "uncorrected",
+            "ridge",
+            "ffm",
+            "neural_0",
+            "neural_1",
+            "neural_2",
+            "neural_3",
+            "basic_libtree3_0.5",
+            "basic_libtree3_1.0",
+            "basic_libtree5_0.5",
+            "basic_libtree5_1.0",
+            "attributes_libtree3_0.5",
+            "attributes_libtree3_1.0",
+            "product_libtree3_0.5",
+            "product_libtree3_1.0",
+            "product_libtree5_0.5",
+            "product_libtree5_1.0",
+            "basic_lightgbm_0.5",
+            "basic_lightgbm_1.0",
+            "product_lightgbm_0.5",
+            "product_lightgbm_1.0",
+            "product_lightgbm_huber_0.5",
+            "product_lightgbm_huber_1.0",
+            "product_xgboost_0.5",
+            "product_xgboost_1.0"
+          ],
+          "model": {
+            "kind": "simplex",
+            "weights": [
+              0.134073987443576,
+              0.0,
+              0.0,
+              0.02982132790975098,
+              5.386157594293093e-18,
+              3.0046259113741813e-19,
+              0.018021082996654558,
+              2.9258114326500693e-18,
+              1.3703010019782283e-19,
+              0.0,
+              1.1958529619935108e-19,
+              1.5143958646849657e-19,
+              2.129906056812197e-20,
+              0.0,
+              3.589343342775665e-19,
+              0.0,
+              0.0,
+              0.17550221267112412,
+              6.759986830257191e-20,
+              2.200062418042421e-19,
+              0.0,
+              0.22903885323093517,
+              3.8573302992356065e-21,
+              0.40637095213461893,
+              2.350160610722226e-19,
+              0.007171583613340107
+            ],
+            "intercept": 0.0005221099321735216,
+            "penalty": 0.0001,
+            "mass_bounds": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "source_sha256": {
+        "mercari_multiview.py": "b230465ef875cc0beed27ccbdfbfc14d631707dcb23c19c395f92453a7f220f8",
+        "mercari_multiview_study.py": "0f07a7eeb9b80908b368a2bc6ab324e2925a87e50a004048bca08d4b6864c69a",
+        "mercari_cpu.py": "ef8b9ea0526a354476206f2ada0352f0ba09ccce12f36a09b04f51ed3ec32c8e"
+      },
+      "baseline_sha256": "d9bf603142910b35010fc698ef30e0eec44b75aaeae200cf256d792e489515ff",
+      "data_sha256": {
+        "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+        "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+        "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+        "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+      },
+      "small_expert_sha256": {
+        "stemmed_huber": "56fc2390e94d0a2bd7a648896b0445644842bcfa129d6070940e41531b17a8af",
+        "stemmed_bins": "7ea6c987b0d0a3d786fa66e7a5a0e5945a9d273d382c9952b91d3d6b7f25b3f4"
+      },
+      "config": {
+        "tree_rounds": 300,
+        "threads": 4,
+        "seed": 42,
+        "product_smoothing": 20.0,
+        "affine_penalty": 0.001,
+        "local_penalty": 0.01,
+        "local_min_rows": 2000,
+        "mass_bounds": [
+          0.8,
+          1.2
+        ],
+        "bias_bound": 0.25
+      }
+    },
+    "models": {
+      "basic_libtree3": {
+        "view": "basic",
+        "fit_seconds": 1.2938726210013556,
+        "prediction_seconds": 0.2401313750015106,
+        "features": 40,
+        "selection_rmsle": 0.3954545242310769
+      },
+      "basic_libtree5": {
+        "view": "basic",
+        "fit_seconds": 1.7027918019994104,
+        "prediction_seconds": 0.38949394000155735,
+        "features": 40,
+        "selection_rmsle": 0.3956952201605426
+      },
+      "attributes_libtree3": {
+        "view": "attributes",
+        "fit_seconds": 3.258523863998562,
+        "prediction_seconds": 0.22942177200093283,
+        "features": 58,
+        "selection_rmsle": 0.3953083833477769
+      },
+      "product_libtree3": {
+        "view": "product",
+        "fit_seconds": 3.793265521999274,
+        "prediction_seconds": 0.2210326989988971,
+        "features": 73,
+        "selection_rmsle": 0.39499653386154165
+      },
+      "product_libtree5": {
+        "view": "product",
+        "fit_seconds": 2.5740002630009258,
+        "prediction_seconds": 0.33635607700125547,
+        "features": 73,
+        "selection_rmsle": 0.3948843057432012
+      },
+      "basic_lightgbm": {
+        "view": "basic",
+        "fit_seconds": 1.9241960660001496,
+        "prediction_seconds": 2.8512800130010874,
+        "features": 40,
+        "selection_rmsle": 0.39577544320192903
+      },
+      "product_lightgbm": {
+        "view": "product",
+        "fit_seconds": 4.8422287159992266,
+        "prediction_seconds": 1.4264632409976912,
+        "features": 73,
+        "selection_rmsle": 0.39486304342587286
+      },
+      "product_lightgbm_huber": {
+        "view": "product",
+        "fit_seconds": 2.200403800998174,
+        "prediction_seconds": 1.9098773240002629,
+        "features": 73,
+        "selection_rmsle": 0.39470186563310916
+      },
+      "product_xgboost": {
+        "view": "product",
+        "fit_seconds": 2.5136502200002724,
+        "prediction_seconds": 0.624713907000114,
+        "features": 73,
+        "selection_rmsle": 0.3948885123332483
+      }
+    },
+    "individual": {
+      "reference": {
+        "selection": 0.39566150327308786,
+        "confirmation": 0.3941534524548097
+      },
+      "uncorrected": {
+        "selection": 0.39671898379609805,
+        "confirmation": 0.39506382750183
+      },
+      "ridge": {
+        "selection": 0.43483512184762063,
+        "confirmation": 0.4335429382215873
+      },
+      "ffm": {
+        "selection": 0.41939936824976437,
+        "confirmation": 0.41860047122162203
+      },
+      "neural_0": {
+        "selection": 0.41696352345132,
+        "confirmation": 0.41494722109736787
+      },
+      "neural_1": {
+        "selection": 0.41690014464068914,
+        "confirmation": 0.41502249097436983
+      },
+      "neural_2": {
+        "selection": 0.4315706763650156,
+        "confirmation": 0.4300254120801381
+      },
+      "neural_3": {
+        "selection": 0.4176467044101519,
+        "confirmation": 0.4145695591074252
+      },
+      "stemmed_huber": {
+        "selection": 0.4536620471232264,
+        "confirmation": 0.4523093489410144
+      },
+      "stemmed_bins": {
+        "selection": 0.4562505883882309,
+        "confirmation": 0.4543500877392909
+      },
+      "basic_libtree3_0.5": {
+        "selection": 0.39572025937468475,
+        "confirmation": 0.394083524890228
+      },
+      "basic_libtree3_1.0": {
+        "selection": 0.3954545242310769,
+        "confirmation": 0.3938389831773284
+      },
+      "basic_libtree5_0.5": {
+        "selection": 0.39558209060117844,
+        "confirmation": 0.39385577887472767
+      },
+      "basic_libtree5_1.0": {
+        "selection": 0.3956952201605426,
+        "confirmation": 0.39389684809185443
+      },
+      "attributes_libtree3_0.5": {
+        "selection": 0.39564199650696563,
+        "confirmation": 0.39405695223843734
+      },
+      "attributes_libtree3_1.0": {
+        "selection": 0.3953083833477769,
+        "confirmation": 0.3937968165742061
+      },
+      "product_libtree3_0.5": {
+        "selection": 0.3954589274202197,
+        "confirmation": 0.39390267849728583
+      },
+      "product_libtree3_1.0": {
+        "selection": 0.39499653386154165,
+        "confirmation": 0.39353886526094733
+      },
+      "product_libtree5_0.5": {
+        "selection": 0.39515595409909887,
+        "confirmation": 0.3935474853344367
+      },
+      "product_libtree5_1.0": {
+        "selection": 0.3948843057432012,
+        "confirmation": 0.39332370065314287
+      },
+      "basic_lightgbm_0.5": {
+        "selection": 0.39557223539493835,
+        "confirmation": 0.39387732271045284
+      },
+      "basic_lightgbm_1.0": {
+        "selection": 0.39577544320192903,
+        "confirmation": 0.39403878421382016
+      },
+      "product_lightgbm_0.5": {
+        "selection": 0.3950613925961722,
+        "confirmation": 0.3934812198703703
+      },
+      "product_lightgbm_1.0": {
+        "selection": 0.39486304342587286,
+        "confirmation": 0.39335733751820395
+      },
+      "product_lightgbm_huber_0.5": {
+        "selection": 0.39504086993254534,
+        "confirmation": 0.3935488084588437
+      },
+      "product_lightgbm_huber_1.0": {
+        "selection": 0.39470186563310916,
+        "confirmation": 0.3933719557331473
+      },
+      "product_xgboost_0.5": {
+        "selection": 0.3952942098404944,
+        "confirmation": 0.3937456607150104
+      },
+      "product_xgboost_1.0": {
+        "selection": 0.3948885123332483,
+        "confirmation": 0.3934408626900019
+      }
+    },
+    "feature_ablations": {
+      "without_product_statistics": {
+        "selection": 0.3951220903301607,
+        "confirmation": 0.3935688239122617
+      },
+      "without_all_new_features": {
+        "selection": 0.3951887708535841,
+        "confirmation": 0.3935978809603544
+      },
+      "without_small_experts": {
+        "selection": 0.3945319615644897,
+        "confirmation": 0.3931161945147254
+      }
+    },
+    "confirmation_rmsle": 0.3930061011185271,
+    "paired_comparison": {
+      "baseline_rmsle": 0.3941534524548123,
+      "candidate_rmsle": 0.39300610111852297,
+      "rmsle_delta": -0.0011473513362893484,
+      "ci95": [
+        -0.0013102294402465894,
+        -0.0009820695145671882
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    },
+    "feature_names": [
+      "title_mean",
+      "title_support",
+      "title_std",
+      "identity_mean",
+      "identity_support",
+      "identity_std",
+      "prefix_mean",
+      "prefix_support",
+      "prefix_std",
+      "brand_condition_mean",
+      "brand_condition_support",
+      "brand_condition_std",
+      "model_mean",
+      "model_support",
+      "model_std"
+    ],
+    "training_rows": 1186026,
+    "calibration_rows": 74129,
+    "component_seconds": {
+      "calibration": 20.22366925499955,
+      "selection": 24.19607847399675,
+      "confirmation": 48.66475715500201
+    },
+    "product_feature_seconds": 30.904931421002402,
+    "component_replay_max_error": 1.7763568394002505e-15,
+    "seconds": 211.78533688800235,
+    "gpu_used": false,
+    "confirmation_previously_inspected": true,
+    "submission_status": "not_submitted",
+    "timing_scope": "Incremental inference, new feature statistics, calibration and blending; original fitted expert training excluded"
+  },
+  "resource": {
+    "command": [
+      "/workspace/libtree-venv/bin/python",
+      "-m",
+      "benchmarks.mercari_multiview_study",
+      "--data-dir",
+      "benchmarks/runs/mercari/frontier-001/data",
+      "--baseline",
+      "benchmarks/runs/mercari/optimized-audit-001/model.pkl",
+      "--small-experts",
+      "benchmarks/runs/mercari/cpu-budget-001/study",
+      "--output-dir",
+      "benchmarks/runs/mercari/cpu-multiview-001/study",
+      "--threads",
+      "4",
+      "--tree-rounds",
+      "300",
+      "--max-seconds",
+      "900"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 218.0890943609993,
+    "user_cpu_seconds": 330.57746,
+    "system_cpu_seconds": 17.516288,
+    "max_child_rss_mib": 5029.6015625,
+    "memory_scope": "Maximum individual child RSS, not concurrent process sum"
+  },
+  "pre_audit_protocol": {
+    "created_utc": "2026-10-18T15:17:37.755525+00:00",
+    "cpu_threads": 4,
+    "wall_time_cap_seconds": 900,
+    "training_rows": "all 1186026 original base rows",
+    "product_smoothing": 20,
+    "tree_rounds": 300,
+    "features": [
+      "basic metadata + decomposed experts + disagreement",
+      "plus lexical attributes",
+      "plus five smoothed product identity statistics"
+    ],
+    "learners": [
+      "LibTree depth 3/5",
+      "LightGBM leaves31 L2/Huber",
+      "XGBoost depth4"
+    ],
+    "meta_strategies": [
+      "simplex",
+      "nonnegative bounded affine",
+      "category weights shrunk to global"
+    ],
+    "meta_split": {
+      "grouped": true,
+      "selection_fraction": 0.5,
+      "seed": 193,
+      "tie_tolerance": 1e-05
+    },
+    "ablations": [
+      "without product statistics",
+      "without all new features",
+      "without small 200k experts"
+    ],
+    "baseline": "previously fitted full-base CPU pipeline",
+    "confirmation_labels_accessed": false,
+    "confirmation_previously_inspected": true,
+    "automatic_submission": false,
+    "gpu_allocated": false
+  },
+  "launch_source_sha256": {
+    "mercari_multiview.py": "b230465ef875cc0beed27ccbdfbfc14d631707dcb23c19c395f92453a7f220f8",
+    "mercari_multiview_study.py": "0f07a7eeb9b80908b368a2bc6ab324e2925a87e50a004048bca08d4b6864c69a",
+    "mercari_cpu.py": "ef8b9ea0526a354476206f2ada0352f0ba09ccce12f36a09b04f51ed3ec32c8e"
+  },
+  "source_note": "Source hashes record the initial launch before the floating-point prior-bound guard and later hierarchical reparameterization helper. The preserved launch-source copy matches every reported hash."
+}

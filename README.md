@@ -55,6 +55,12 @@ deployment was stopped. A 200k-row screening run took 806 seconds and improved
 the cached CPU reference's local audit from 0.394153 to 0.394065 (0.022%). The
 gain is too small to promote; no new Kaggle score or rank is claimed.
 
+The subsequent [CPU multiple-view study](benchmarks/mercari/CPU_MULTIVIEW.md)
+reuses full-base experts and adds product-identity statistics, hierarchical
+shrinkage and parameter-diverse calibration. Local audit improves to **0.392846**
+in **370 seconds of incremental CPU work**; previous expert training is excluded.
+Simple nonnegative fusion wins its diagnostic over more flexible alternatives.
+
 The earlier frozen local blend reaches **0.380907 RMSLE versus 0.394153 (3.36% lower)**
 on the reused audit window; this is not a new Kaggle score.
 The [complete frozen ensemble pipeline](benchmarks/mercari/FULL_ENSEMBLE.md) preserves

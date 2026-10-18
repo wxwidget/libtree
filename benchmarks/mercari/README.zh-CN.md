@@ -2,6 +2,8 @@
 
 **当前方向：[CPU 预算实验](CPU_STUDY.zh-CN.md)**，新增商品交叉、多视图／目标互补与
 指标解析梯度；按照不用 GPU 的约束，原排队部署及自动监控已停止。
+后续[多视角实验](CPU_MULTIVIEW.zh-CN.md)复用完整基础集专家并增加层次商品统计，
+本地复核达到 **0.392846**，增量工作共 370 秒，不能当作完整新模型的训练时间。
 
 [English](README.md) · [比赛链接](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle 运行页面](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 

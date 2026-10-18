@@ -9,6 +9,88 @@ calibration. It is not a first-place claim or a new Kaggle score. The historical
 GPU-assisted local result **0.380907** remains preserved. Actual scored practice
 best remains **0.39199 private / 0.39110 public** until a new receipt exists.
 
+## Measured outcome — 18 October 2026
+
+[Results and environment](cpu-multiview-results.json) link the full
+[first-stage evidence](cpu-multiview-001.json) and
+[multiscale continuation](cpu-multiscale-001.json), including configurations,
+weights, learning roles, input/source hashes and raw stage times.
+
+| CPU system | Selection RMSLE | Reused confirmation RMSLE |
+| --- | ---: | ---: |
+| Earlier full-data reference | 0.395662 | 0.394153 |
+| Previous 200k-row extension | 0.395560 | 0.394065 |
+| Decomposition + product views | 0.394410 | 0.393006 |
+| **Multiscale global/parent views** | **0.394212** | **0.392846** |
+
+Final confirmation improves **0.332%** relative to the CPU reference. The
+absolute delta is −0.00130773; a 300-replicate conditional paired row bootstrap
+gives [−0.00148431, −0.00112823]. This is incremental local progress, with the
+validation limitations below. It remains worse than the historical GPU-assisted
+0.380907 result and has not been submitted to Kaggle.
+
+The two CPU workers took **218.09 + 151.76 = 369.85 seconds**. Maximum individual
+child RSS was **5,029.60 MiB**, not summed concurrent memory. Original expert
+training is excluded, so this is not a 370-second fresh complete model training
+claim. Some local tests overlapped stage timers; they are observations, not
+controlled speed rankings. Training has one execution per configuration. No
+median, whole-system speedup, scaling ratio or serving latency is claimed.
+
+### Which experiments helped or failed?
+
+The internal fusion diagnostic selects **simplex**, not the more flexible
+methods: RMSLE 0.392315 simplex, 0.392703 affine, 0.392794 category-context.
+The continuation improves the same simplex diagnostic from 0.392315 to
+0.392190, exceeding the predeclared 1e-5 threshold. Its promotion was fixed
+before confirmation labels were loaded.
+
+The initial pool has 28 outer columns; the final pool has 42, with 12 weights
+above 1e-8. These are prediction branches, not independent fitted models.
+Largest branches are product-view Huber LightGBM 20.34%, hierarchical LightGBM
+63 leaves 19.97%, hierarchical LibTree depth 5 17.96%, global-multiscale
+LightGBM 11.61%, hierarchical Huber 9.76%, reference pipeline 4.90%,
+hierarchical XGBoost 4.09%, and the cached stemmed Huber 3.71%. JSON preserves
+every weight and the shared upstream dependencies.
+
+LightGBM 63 leaves is **weaker alone** than 31 leaves (0.393598 versus 0.393206
+confirmation), yet receives substantial ensemble weight. Complementarity is
+useful; the strongest individual score is not the only selection criterion.
+By contrast, extra affine/group flexibility did not improve the diagnostic.
+
+| Feature/family ablation | Selection RMSLE | Confirmation RMSLE |
+| --- | ---: | ---: |
+| First stage, all views | 0.394410 | 0.393006 |
+| Remove all product-statistic correctors | 0.395122 | 0.393569 |
+| Remove added lexical/product correctors | 0.395189 | 0.393598 |
+| Remove the two cached small networks | 0.394532 | 0.393116 |
+| Final pool, remove hierarchical correctors | 0.394333 | 0.392976 |
+| Final pool, all views | **0.394212** | **0.392846** |
+
+Each removal refits blend weights on selection before audit. The lexical/product
+removal retains decomposition/disagreement features in the basic correctors;
+the raw JSON key `without_all_new_features` refers to the added rich views,
+not removal of every new meta feature. Overlapping group gains are not additive.
+
+A matched depth-3 LibTree control improves confirmation from **0.393839 basic →
+0.393797 with attributes → 0.393539 with product statistics**, holding the
+calibration rows/target and tree parameters fixed. With all 148 features, the
+standalone correction pipelines give 0.393282 (LibTree depth 5), 0.393206
+(LightGBM 31), 0.393342 (LightGBM Huber), and 0.393307 (XGBoost depth 4).
+Capacities differ and margins are small; this does not establish general
+superiority of one tree library. No native C++ learner changed in this round.
+
+The original complete CPU branch reconstructs with maximum absolute log error
+**1.78e-15** on all 296,509 calibration/selection/confirmation rows. That verifies
+reuse of existing fitted artifacts, not a fresh neural training replay.
+The first phase launched before a later floating-point-bound guard and the
+hierarchical helper were added; its exact launch-source hashes are preserved.
+The continuation's reported source hashes match the implementation files.
+
+Local verification passes **9 tests / 433 statements / 3 modules, zero missed**.
+All four [implementation CI jobs](https://github.com/wxwidget/libtree/actions/runs/39140908087)
+passed, adding these modules to the existing 100% statement gate. Partial files, an unavailable CI result or a local
+accuracy improvement never substitute for a complete Kaggle scoring receipt.
+
 ## Features and parameters
 
 Base-only target statistics describe five product views: exact normalized title,
@@ -105,8 +187,8 @@ python -m venv .venv
   --output-dir benchmarks/runs/mercari/multiview \
   --threads 4 --tree-rounds 300 --max-seconds 900
 
-# Optional continuation. Its actual experiment uses the remaining budget;
-# total allowed time for the two workers stays below 900 seconds.
+# Optional continuation: subtract actual elapsed time from your total budget.
+# Our first run took 218 s, leaving >600 s of its 900 s budget.
 .venv/bin/python -m benchmarks.mercari_multiview_study \
   --data-dir benchmarks/runs/mercari/cpu-data \
   --baseline benchmarks/runs/mercari/optimized-audit-001/model.pkl \

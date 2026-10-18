@@ -1,0 +1,493 @@
+{
+  "report": {
+    "frozen": {
+      "names": [
+        "reference",
+        "uncorrected",
+        "ridge",
+        "ffm",
+        "neural_0",
+        "neural_1",
+        "neural_2",
+        "neural_3",
+        "stemmed_huber",
+        "stemmed_bins",
+        "basic_libtree3_0.5",
+        "basic_libtree3_1.0",
+        "basic_libtree5_0.5",
+        "basic_libtree5_1.0",
+        "attributes_libtree3_0.5",
+        "attributes_libtree3_1.0",
+        "product_libtree3_0.5",
+        "product_libtree3_1.0",
+        "product_libtree5_0.5",
+        "product_libtree5_1.0",
+        "basic_lightgbm_0.5",
+        "basic_lightgbm_1.0",
+        "product_lightgbm_0.5",
+        "product_lightgbm_1.0",
+        "product_lightgbm_huber_0.5",
+        "product_lightgbm_huber_1.0",
+        "product_xgboost_0.5",
+        "product_xgboost_1.0",
+        "hier_libtree3_0.5",
+        "hier_libtree3_1.0",
+        "hier_libtree5_0.5",
+        "hier_libtree5_1.0",
+        "hier_lgb31_0.5",
+        "hier_lgb31_1.0",
+        "hier_lgb63_0.5",
+        "hier_lgb63_1.0",
+        "hier_huber_0.5",
+        "hier_huber_1.0",
+        "hier_xgb4_0.5",
+        "hier_xgb4_1.0",
+        "global_lgb31_0.5",
+        "global_lgb31_1.0"
+      ],
+      "model": {
+        "kind": "simplex",
+        "weights": [
+          0.04901786030517411,
+          4.901551821710199e-19,
+          0.0,
+          0.02710109690499169,
+          0.0,
+          4.1101988673132654e-20,
+          0.014254570225725953,
+          2.796793477890575e-19,
+          0.037148226219905656,
+          0.005738094956839855,
+          0.0,
+          0.0,
+          0.0,
+          6.365638511736281e-21,
+          6.744214750130094e-21,
+          1.5895868234968806e-19,
+          0.0,
+          2.5322280307716146e-19,
+          3.4423604889534983e-20,
+          1.2463731024788225e-18,
+          2.2849693758693017e-20,
+          1.0079406979943903e-20,
+          2.05415873675146e-20,
+          0.0,
+          1.0885800700857628e-19,
+          0.20339303121232744,
+          4.105428467976006e-20,
+          0.0,
+          0.0,
+          0.0,
+          6.123504292714662e-20,
+          0.17960104642866198,
+          0.0,
+          0.029470357152758045,
+          0.0,
+          0.19969522924245472,
+          0.0,
+          0.09757926804216675,
+          6.409760970210684e-20,
+          0.04086446735103016,
+          0.0,
+          0.11613675195796369
+        ],
+        "intercept": 0.0001010169937351919,
+        "penalty": 0.0001,
+        "mass_bounds": [
+          1.0,
+          1.0
+        ]
+      },
+      "proposal": {
+        "kind": "simplex",
+        "weights": [
+          0.04901786030517411,
+          4.901551821710199e-19,
+          0.0,
+          0.02710109690499169,
+          0.0,
+          4.1101988673132654e-20,
+          0.014254570225725953,
+          2.796793477890575e-19,
+          0.037148226219905656,
+          0.005738094956839855,
+          0.0,
+          0.0,
+          0.0,
+          6.365638511736281e-21,
+          6.744214750130094e-21,
+          1.5895868234968806e-19,
+          0.0,
+          2.5322280307716146e-19,
+          3.4423604889534983e-20,
+          1.2463731024788225e-18,
+          2.2849693758693017e-20,
+          1.0079406979943903e-20,
+          2.05415873675146e-20,
+          0.0,
+          1.0885800700857628e-19,
+          0.20339303121232744,
+          4.105428467976006e-20,
+          0.0,
+          0.0,
+          0.0,
+          6.123504292714662e-20,
+          0.17960104642866198,
+          0.0,
+          0.029470357152758045,
+          0.0,
+          0.19969522924245472,
+          0.0,
+          0.09757926804216675,
+          6.409760970210684e-20,
+          0.04086446735103016,
+          0.0,
+          0.11613675195796369
+        ],
+        "intercept": 0.0001010169937351919,
+        "penalty": 0.0001,
+        "mass_bounds": [
+          1.0,
+          1.0
+        ]
+      },
+      "proposed_names": [
+        "reference",
+        "uncorrected",
+        "ridge",
+        "ffm",
+        "neural_0",
+        "neural_1",
+        "neural_2",
+        "neural_3",
+        "stemmed_huber",
+        "stemmed_bins",
+        "basic_libtree3_0.5",
+        "basic_libtree3_1.0",
+        "basic_libtree5_0.5",
+        "basic_libtree5_1.0",
+        "attributes_libtree3_0.5",
+        "attributes_libtree3_1.0",
+        "product_libtree3_0.5",
+        "product_libtree3_1.0",
+        "product_libtree5_0.5",
+        "product_libtree5_1.0",
+        "basic_lightgbm_0.5",
+        "basic_lightgbm_1.0",
+        "product_lightgbm_0.5",
+        "product_lightgbm_1.0",
+        "product_lightgbm_huber_0.5",
+        "product_lightgbm_huber_1.0",
+        "product_xgboost_0.5",
+        "product_xgboost_1.0",
+        "hier_libtree3_0.5",
+        "hier_libtree3_1.0",
+        "hier_libtree5_0.5",
+        "hier_libtree5_1.0",
+        "hier_lgb31_0.5",
+        "hier_lgb31_1.0",
+        "hier_lgb63_0.5",
+        "hier_lgb63_1.0",
+        "hier_huber_0.5",
+        "hier_huber_1.0",
+        "hier_xgb4_0.5",
+        "hier_xgb4_1.0",
+        "global_lgb31_0.5",
+        "global_lgb31_1.0"
+      ],
+      "kind": "simplex",
+      "accepted": true,
+      "validation": {
+        "previous": 0.3923149098205521,
+        "proposal": 0.3921895293917197,
+        "threshold": 1e-05
+      },
+      "promotion_decided_before_confirmation": true,
+      "proposal_selection_rmsle": 0.39421236557818307,
+      "source_sha256": {
+        "mercari_multiscale.py": "bcb9f0681040364643fb02d686a5fcfd1d4157b317f5b17c3f1a25712ea75a2f",
+        "mercari_multiview.py": "a6c275907b6fba5f40b5261ebb2ed0094e09048fc21ad58bd610d2260f9e4b48"
+      },
+      "prior_frozen_sha256": "4fd2d610566abed376a104e1390514e5774b19b3f8b0a3eea076fb5452fcaacc",
+      "prior_pool_sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "variants": [
+        "global5",
+        "global100",
+        "parent5",
+        "parent20",
+        "parent100"
+      ],
+      "parent_smoothing": 20,
+      "tree_rounds": 300,
+      "ablation": {
+        "names": [
+          "reference",
+          "uncorrected",
+          "ridge",
+          "ffm",
+          "neural_0",
+          "neural_1",
+          "neural_2",
+          "neural_3",
+          "stemmed_huber",
+          "stemmed_bins",
+          "basic_libtree3_0.5",
+          "basic_libtree3_1.0",
+          "basic_libtree5_0.5",
+          "basic_libtree5_1.0",
+          "attributes_libtree3_0.5",
+          "attributes_libtree3_1.0",
+          "product_libtree3_0.5",
+          "product_libtree3_1.0",
+          "product_libtree5_0.5",
+          "product_libtree5_1.0",
+          "basic_lightgbm_0.5",
+          "basic_lightgbm_1.0",
+          "product_lightgbm_0.5",
+          "product_lightgbm_1.0",
+          "product_lightgbm_huber_0.5",
+          "product_lightgbm_huber_1.0",
+          "product_xgboost_0.5",
+          "product_xgboost_1.0",
+          "global_lgb31_0.5",
+          "global_lgb31_1.0"
+        ],
+        "model": {
+          "kind": "simplex",
+          "weights": [
+            0.0742302945660014,
+            2.8093354972681484e-19,
+            6.16844979039699e-19,
+            0.02622074606099074,
+            0.0,
+            0.0,
+            0.01434115497673931,
+            0.0,
+            0.03668371669523675,
+            0.005990796177265155,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            4.231449766446001e-21,
+            0.0,
+            2.4649834900735386e-20,
+            0.1015259512030906,
+            2.3685974291316528e-20,
+            0.0,
+            6.436205986669674e-21,
+            0.0874713920307393,
+            0.0,
+            0.31771850713030475,
+            0.0,
+            0.0,
+            0.0,
+            0.3358174411596321
+          ],
+          "intercept": 0.0001696739153588656,
+          "penalty": 0.0001,
+          "mass_bounds": [
+            1.0,
+            1.0
+          ]
+        }
+      }
+    },
+    "models": {
+      "hier_libtree3": {
+        "view": "hierarchical",
+        "features": 148,
+        "fit_seconds": 3.1324538590015436,
+        "predict_seconds": 0.23634771800061571,
+        "selection_rmsle": 0.39487527694736496
+      },
+      "hier_libtree5": {
+        "view": "hierarchical",
+        "features": 148,
+        "fit_seconds": 3.896840664001502,
+        "predict_seconds": 0.357242189002136,
+        "selection_rmsle": 0.3946819699882987
+      },
+      "hier_lgb31": {
+        "view": "hierarchical",
+        "features": 148,
+        "fit_seconds": 4.070140446998266,
+        "predict_seconds": 1.3575999759996193,
+        "selection_rmsle": 0.3947501768931539
+      },
+      "hier_lgb63": {
+        "view": "hierarchical",
+        "features": 148,
+        "fit_seconds": 5.949674620998849,
+        "predict_seconds": 1.8910519300006854,
+        "selection_rmsle": 0.3950936765554909
+      },
+      "hier_huber": {
+        "view": "hierarchical",
+        "features": 148,
+        "fit_seconds": 4.102722849998827,
+        "predict_seconds": 1.6899942010022642,
+        "selection_rmsle": 0.39470981235145897
+      },
+      "hier_xgb4": {
+        "view": "hierarchical",
+        "features": 148,
+        "fit_seconds": 3.307158782001352,
+        "predict_seconds": 0.3927062629991269,
+        "selection_rmsle": 0.3946785323194267
+      },
+      "global_lgb31": {
+        "view": "global",
+        "features": 103,
+        "fit_seconds": 2.791305940998427,
+        "predict_seconds": 1.3536435140013054,
+        "selection_rmsle": 0.3947185930780981
+      }
+    },
+    "preparation_seconds": 103.29869731700092,
+    "seconds": 145.4429046260011,
+    "confirmation_rmsle": 0.39284572358989084,
+    "proposal_confirmation_rmsle": 0.39284572358989084,
+    "ablations": {
+      "without_hierarchical_views": {
+        "selection": 0.39433281445688234,
+        "confirmation": 0.3929757008430615
+      }
+    },
+    "paired_comparison": {
+      "baseline_rmsle": 0.3941534524548123,
+      "candidate_rmsle": 0.39284572358989134,
+      "rmsle_delta": -0.0013077288649209762,
+      "ci95": [
+        -0.0014843073148505304,
+        -0.0011282330657007358
+      ],
+      "bootstrap_repeats": 300,
+      "seed": 42,
+      "unit": "row",
+      "training_repeats": 1
+    },
+    "individual": {
+      "hier_libtree3_0.5": {
+        "selection": 0.3953858477308644,
+        "confirmation": 0.39386208159452674
+      },
+      "hier_libtree3_1.0": {
+        "selection": 0.39487527694736496,
+        "confirmation": 0.3934753999530193
+      },
+      "hier_libtree5_0.5": {
+        "selection": 0.3950206602330503,
+        "confirmation": 0.3935034726954409
+      },
+      "hier_libtree5_1.0": {
+        "selection": 0.3946819699882987,
+        "confirmation": 0.3932818880879587
+      },
+      "hier_lgb31_0.5": {
+        "selection": 0.39497902822383646,
+        "confirmation": 0.39337787064411855
+      },
+      "hier_lgb31_1.0": {
+        "selection": 0.3947501768931539,
+        "confirmation": 0.39320633470834304
+      },
+      "hier_lgb63_0.5": {
+        "selection": 0.3948275979439759,
+        "confirmation": 0.39326064406415795
+      },
+      "hier_lgb63_1.0": {
+        "selection": 0.3950936765554909,
+        "confirmation": 0.3935979568650113
+      },
+      "hier_huber_0.5": {
+        "selection": 0.39500583002500633,
+        "confirmation": 0.39350092522272884
+      },
+      "hier_huber_1.0": {
+        "selection": 0.39470981235145897,
+        "confirmation": 0.3933417197322642
+      },
+      "hier_xgb4_0.5": {
+        "selection": 0.3951778159976951,
+        "confirmation": 0.39367162241245124
+      },
+      "hier_xgb4_1.0": {
+        "selection": 0.3946785323194267,
+        "confirmation": 0.3933065616161108
+      },
+      "global_lgb31_0.5": {
+        "selection": 0.3949719969646009,
+        "confirmation": 0.39347980287335976
+      },
+      "global_lgb31_1.0": {
+        "selection": 0.3947185930780981,
+        "confirmation": 0.39337994419945777
+      }
+    },
+    "parent_statistics_reused": true,
+    "gpu_used": false,
+    "confirmation_previously_inspected": true,
+    "submission_status": "not_submitted"
+  },
+  "resource": {
+    "command": [
+      "/workspace/libtree-venv/bin/python",
+      "-m",
+      "benchmarks.mercari_multiview_study",
+      "--data-dir",
+      "benchmarks/runs/mercari/frontier-001/data",
+      "--baseline",
+      "benchmarks/runs/mercari/optimized-audit-001/model.pkl",
+      "--refine-from",
+      "benchmarks/runs/mercari/cpu-multiview-001/study",
+      "--output-dir",
+      "benchmarks/runs/mercari/cpu-multiscale-001/study",
+      "--threads",
+      "4",
+      "--tree-rounds",
+      "300",
+      "--max-seconds",
+      "600"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 151.7583015929995,
+    "user_cpu_seconds": 252.135601,
+    "system_cpu_seconds": 9.23899,
+    "max_child_rss_mib": 3990.8515625,
+    "memory_scope": "Maximum individual child RSS, not concurrent process sum"
+  },
+  "pre_audit_protocol": {
+    "created_utc": "2026-10-18T15:29:27.455507+00:00",
+    "cpu_threads": 4,
+    "wall_cap_seconds": 600,
+    "prior_phase_wall_seconds": 218.0890943609993,
+    "combined_cap_below_900": true,
+    "variants": [
+      "global5",
+      "global100",
+      "parent5",
+      "parent20",
+      "parent100"
+    ],
+    "parent_smoothing": 20,
+    "models": [
+      "LibTree depth3",
+      "LibTree depth5",
+      "LightGBM31",
+      "LightGBM63",
+      "LightGBM31 Huber",
+      "XGBoost4",
+      "global-only LightGBM31 control"
+    ],
+    "strategy": "retain prior selection-chosen family; promote only if same grouped internal validation improves by >1e-5",
+    "seed": 193,
+    "confirmation_previously_inspected": true,
+    "confirmation_not_used_for_promotion": true,
+    "price_expert_retraining": false,
+    "gpu": false,
+    "automatic_submission": false
+  }
+}

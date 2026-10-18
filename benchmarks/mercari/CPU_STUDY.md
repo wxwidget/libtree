@@ -21,7 +21,7 @@ this is not summed concurrent process memory. Cached-reference costs are exclude
 | --- | ---: | ---: |
 | Existing full-data CPU reference | 0.395662 | 0.394153 |
 | New 200k-row base experts only | 0.439363 | 0.437725 |
-| Reference + new experts/calibrators, bounded intercept | **0.395561** | **0.394065** |
+| Reference + new experts/calibrators, bounded intercept | **0.395560** | **0.394065** |
 | Same pool, no intercept | 0.395562 | 0.394065 |
 
 The absolute confirmation gain is **0.0000881 (0.022%)**. A conditional paired

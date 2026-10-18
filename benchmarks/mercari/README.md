@@ -9,6 +9,9 @@ architecture, theory, successful/failed experiments and reproducibility limits.
 **Current direction:** the [CPU-budget study](CPU_STUDY.md) adds explicit product
 crosses, sparse objective/view diversity and direct metric gradients. The queued
 GPU deployment and automatic watcher were stopped under the CPU-only constraint.
+The subsequent [multiple-view experiment](CPU_MULTIVIEW.md) reaches **0.392846
+local audit RMSLE**, using full-base expert reuse and hierarchical product
+statistics; 370 seconds is incremental work, not a fresh complete refit.
 
 The earlier local frozen blend reaches **0.380907 RMSLE**, down **3.36%** from
 0.394153 on the reused audit window; no new Kaggle submission is claimed.

@@ -1,0 +1,85 @@
+{
+  "captured_utc": "2026-10-18T15:35:32.089433+00:00",
+  "code_commit": "00ae1cf",
+  "competition": "mercari-price-suggestion-challenge",
+  "gpu_used": false,
+  "reference_cpu_confirmation_rmsle": 0.3941534524548097,
+  "previous_cpu_confirmation_rmsle": 0.39406533010296796,
+  "first_stage_confirmation_rmsle": 0.3930061011185271,
+  "final_confirmation_rmsle": 0.39284572358989084,
+  "relative_reduction_vs_cpu_reference": 0.003317816593446654,
+  "historical_gpu_assisted_confirmation_rmsle": 0.3809068531888245,
+  "existing_actual_kaggle": {
+    "private_rmsle": 0.39199,
+    "public_rmsle": 0.3911,
+    "submission_ref": 57318931
+  },
+  "new_kaggle_submission": false,
+  "first_place_achieved": false,
+  "combined_wall_seconds": 369.8473959539988,
+  "maximum_individual_child_rss_mib": 5029.6015625,
+  "timing_scope": "Incremental reuse/inference, full-base product statistics, 16 new calibration models, blending and I/O. Earlier neural/linear/FM model training excluded; no full refit or serving latency comparison.",
+  "candidate_outer_columns": 42,
+  "material_outer_weights_above_1e_8": 12,
+  "confidence": {
+    "baseline_rmsle": 0.3941534524548123,
+    "candidate_rmsle": 0.39284572358989134,
+    "rmsle_delta": -0.0013077288649209762,
+    "ci95": [
+      -0.0014843073148505304,
+      -0.0011282330657007358
+    ],
+    "bootstrap_repeats": 300,
+    "seed": 42,
+    "unit": "row",
+    "training_repeats": 1
+  },
+  "tests": {
+    "passed": 9,
+    "statements": 433,
+    "missed": 0,
+    "modules": 3,
+    "coverage": "statement, not branch or whole repository"
+  },
+  "ci": {
+    "commit": "00ae1cf",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39140908087",
+    "jobs": {
+      "mercari-transformer": [
+        "completed successfully: "
+      ],
+      "mercari-optimization": [
+        "completed successfully: "
+      ],
+      "minimum-python-integration": [
+        "completed successfully: "
+      ],
+      "linux": [
+        "completed successfully: "
+      ]
+    },
+    "status": "all_four_jobs_passed",
+    "verified_utc": "2026-10-18T15:39:28.598395+00:00"
+  },
+  "runtime": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.8.0",
+    "tensorflow-cpu": "2.20.0",
+    "keras": "3.15.1",
+    "numba": "0.65.1",
+    "lightgbm": "4.7.0",
+    "xgboost": "3.4.1"
+  },
+  "hardware": {
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "cpu_quota": "400000 100000",
+    "memory_limit_bytes": 34359738368,
+    "threads": 4
+  },
+  "evidence": [
+    "cpu-multiview-001.json",
+    "cpu-multiscale-001.json"
+  ]
+}
