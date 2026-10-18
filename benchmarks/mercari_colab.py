@@ -20,13 +20,17 @@ from benchmarks.mercari import ROOT, sha256
 def remote_script(include_models, profile='all', transformer_epochs=2):
     suffixes = ['.json', '.npz', '.log'] + (['.pkl', '.keras', '.pt'] if include_models else [])
     packages = {'transformer': ['transformers==4.57.1'], 'all': ['sentence-transformers==5.2.0', 'lightgbm==4.7.0'],
-                'stemmed': ['snowballstemmer==3.0.1'], 'sparse': []}[profile]
+                'stemmed': ['snowballstemmer==3.0.1'], 'sparse': [], 'smalltext': ['transformers==4.57.1']}[profile]
     jobs = {
         'all': [('gpu', ['--neural-only', 'sequence']), ('vectors', [])],
         'sparse': [
             ('separate', ['--neural-only', 'sparse', '--sparse-view', 'separate', '--sparse-width', '256']),
             ('joint', ['--neural-only', 'sparse', '--sparse-view', 'joint', '--sparse-width', '512'])],
         'transformer': [('finetuned', [])],
+        'smalltext': [
+            ('bag_mse', ['--architecture', 'bag', '--loss', 'mse', '--epochs', '4', '--batch-size', '2048']),
+            ('bag_huber', ['--architecture', 'bag', '--loss', 'huber', '--epochs', '4', '--batch-size', '2048']),
+            ('bert_tiny', ['--architecture', 'bert', '--loss', 'mse', '--epochs', '3', '--batch-size', '512'])],
         'stemmed': [('stemmed', ['--neural-only', 'sparse', '--sparse-view', 'stemmed', '--sparse-width', '512'])],
     }[profile]
     return '''import hashlib,json,os,pathlib,subprocess,sys,tarfile,time,zipfile
@@ -48,6 +52,7 @@ if PACKAGES:subprocess.run([sys.executable,'-m','pip','install','--quiet',*PACKA
 os.environ.update(TF_CPP_MIN_LOG_LEVEL='3',TF_NUM_INTRAOP_THREADS='4',TF_NUM_INTEROP_THREADS='1',HF_HUB_DISABLE_XET='1',USE_TF='0',TOKENIZERS_PARALLELISM='TOKENIZER_MODE',RAYON_NUM_THREADS='4')
 results=root/'results';results.mkdir(exist_ok=True)
 status={}
+study_start=time.monotonic()
 try:
     for mode,extra in JOBS:
         start=time.perf_counter()
@@ -56,8 +61,12 @@ try:
                 task=([sys.executable,'-u','-m','benchmarks.mercari_transformer'] if mode=='finetuned' else
                       [sys.executable,'-u','-m','benchmarks.mercari_frontier','vectors' if mode=='vectors' else 'gpu'])
                 options=(['--epochs',TRANSFORMER_EPOCHS,'--batch-size','512'] if mode=='finetuned' else ['--max-features','150000'])
+                if SMALLTEXT:
+                    task=[sys.executable,'-u','-m','benchmarks.mercari_smalltext']
+                    options=['--max-parameters','8000000','--length','96','--width','128']
+                remaining=max(1,3600-(time.monotonic()-study_start)) if SMALLTEXT else 5400
                 run=subprocess.run([*task,'--data-dir',str(data),'--output-dir',str(results/mode),'--threads','4',*options,*extra],
-                    stdout=log,stderr=subprocess.STDOUT,timeout=5400)
+                    stdout=log,stderr=subprocess.STDOUT,timeout=remaining)
                 code=run.returncode
             except subprocess.TimeoutExpired:code=124
         status[mode]={'exit_code':code,'seconds':time.perf_counter()-start}
@@ -70,7 +79,7 @@ finally:
                 archive.write(path,path.relative_to(results))
     print('RESULTS_READY',json.dumps(status),flush=True)
 if any(value['exit_code'] for value in status.values()):raise SystemExit(1)
-'''.replace('SUFFIXES', repr(suffixes)).replace('JOBS', repr(jobs)).replace('PACKAGES', repr(packages)).replace('TRANSFORMER_EPOCHS', repr(str(transformer_epochs))).replace('TOKENIZER_MODE', 'true' if profile == 'transformer' else 'false')
+'''.replace('SMALLTEXT', repr(profile == 'smalltext')).replace('SUFFIXES', repr(suffixes)).replace('JOBS', repr(jobs)).replace('PACKAGES', repr(packages)).replace('TRANSFORMER_EPOCHS', repr(str(transformer_epochs))).replace('TOKENIZER_MODE', 'true' if profile == 'transformer' else 'false')
 
 
 def run(args):
@@ -157,7 +166,7 @@ def main(argv=None):
     parser.add_argument('--cli', default='colab', help='Official CLI executable or writable-state launcher')
     parser.add_argument('--gpu', choices=['T4', 'A100'], default='T4')
     parser.add_argument('--high-mem', action='store_true', help='Requires account entitlement')
-    parser.add_argument('--profile', choices=['all', 'sparse', 'transformer', 'stemmed'], default='all')
+    parser.add_argument('--profile', choices=['all', 'sparse', 'transformer', 'stemmed', 'smalltext'], default='all')
     parser.add_argument('--transformer-epochs', type=int, default=2)
     parser.add_argument('--include-models', action='store_true', help='Download large model artifacts too')
     print(json.dumps(run(parser.parse_args(argv))), flush=True)

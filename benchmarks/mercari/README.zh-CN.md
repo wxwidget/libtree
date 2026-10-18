@@ -1,5 +1,7 @@
 # Mercari：LibTree Kaggle 打榜记录
 
+[新增：Colab 小尺寸文本模型实验](SMALL_TEXT.zh-CN.md)，控制参数和运行预算。
+
 **当前方向：[CPU 预算实验](CPU_STUDY.zh-CN.md)**，新增商品交叉、多视图／目标互补与
 指标解析梯度；按照不用 GPU 的约束，原排队部署及自动监控已停止。
 后续[多视角实验](CPU_MULTIVIEW.zh-CN.md)复用完整基础集专家并增加层次商品统计，

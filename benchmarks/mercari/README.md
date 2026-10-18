@@ -6,7 +6,9 @@
 small runnable example; [technical retrospective](TECHNICAL_REPORT.md) for
 architecture, theory, successful/failed experiments and reproducibility limits.
 
-**Current direction:** the [CPU-budget study](CPU_STUDY.md) adds explicit product
+**Current direction:** [bounded small-text Colab experiments](SMALL_TEXT.md)
+re-enable one T4 for subword-bag regression and BERT-tiny, with explicit parameter
+and runtime limits. Earlier work in the [CPU-budget study](CPU_STUDY.md) adds explicit product
 crosses, sparse objective/view diversity and direct metric gradients. The queued
 GPU deployment and automatic watcher were stopped under the CPU-only constraint.
 The subsequent [multiple-view experiment](CPU_MULTIVIEW.md) reaches **0.392846

@@ -136,3 +136,12 @@ def test_main_and_module_help(prepared, monkeypatch, capsys):
     with pytest.raises(SystemExit) as error:
         runpy.run_module('benchmarks.mercari_colab', run_name='__main__')
     assert error.value.code == 0
+
+
+def test_smalltext_profile_is_bounded_and_preserves_gpu_artifacts():
+    source = remote.remote_script(True, 'smalltext')
+    compile(source, 'smalltext-remote.py', 'exec')
+    assert 'benchmarks.mercari_smalltext' in source
+    assert '3600' in source and '8000000' in source
+    assert 'bag_mse' in source and 'bag_huber' in source and 'bert_tiny' in source
+    assert "'.pt'" in source and 'evaluation.npz' not in source
