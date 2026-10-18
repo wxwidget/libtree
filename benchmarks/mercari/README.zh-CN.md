@@ -1,5 +1,8 @@
 # Mercari：LibTree Kaggle 打榜记录
 
+**当前方向：[CPU 预算实验](CPU_STUDY.zh-CN.md)**，新增商品交叉、多视图／目标互补与
+指标解析梯度；按照不用 GPU 的约束，原排队部署及自动监控已停止。
+
 [English](README.md) · [比赛链接](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle 运行页面](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
 **阅读入口：**[初学者实战指南](BEGINNER_GUIDE.zh-CN.md)从概念和小练习开始；

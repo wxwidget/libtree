@@ -1,12 +1,12 @@
 {
-  "captured_utc": "2026-10-18T14:07:13.931851+00:00",
+  "captured_utc": "2026-10-18T14:47:33.146369+00:00",
   "competition": "mercari-price-suggestion-challenge",
   "candidate": "Original complete frozen ensemble; inferior compact candidate rejected",
   "reference_local_confirmation_rmsle": 0.3809068531888245,
   "kernel": "wxwidget/libtree-mercari-full-ensemble",
   "kernel_version": 1,
   "kernel_url": "https://www.kaggle.com/code/wxwidget/libtree-mercari-full-ensemble",
-  "kernel_status": "QUEUED",
+  "kernel_status": "DELETED_WHILE_QUEUED",
   "submission_attempted": false,
   "new_kaggle_score": null,
   "expected_submission_rows": 3460725,
@@ -34,8 +34,8 @@
     },
     "note": "Deterministic exact-zero and tiny-positive ablation boundary regression cases passed; frozen model code and weights unchanged."
   },
-  "guarded_one_time_watcher_running_at_capture": true,
-  "next_action": "After successful full training, verify exact version/source/report/weights/IDs/row count and submit this version once, then wait for actual COMPLETE public/private scores",
+  "guarded_one_time_watcher_running_at_capture": false,
+  "next_action": "GPU workflow stopped under CPU-only instruction. Run bounded CPU study; no automatic submission.",
   "status_scope": "Timestamped status snapshot, not a claim of completed training or a new Kaggle score",
   "original_best_scored_submission": {
     "ref": 57318931,
@@ -46,5 +46,14 @@
     "kernel": "wxwidget/libtree-mercari-model-probe",
     "deleted_after_source_backup": true,
     "reason": "Successful complete GPU smoke supersedes this unused queued probe; official full ensemble job preserved"
+  },
+  "cpu_transition": {
+    "captured_utc": "2026-10-18T14:31:45.396996+00:00",
+    "kernel": "wxwidget/libtree-mercari-full-ensemble",
+    "last_observed_status": "QUEUED",
+    "deleted": true,
+    "reason": "User requires CPU-only and limited budget; queued GPU run removed after exact source/metadata backup and verification of zero outputs",
+    "source_sha256": "cbc4295b5df56e0b1c1e184716a7cc3bd7b0d36425a110515d49941388931c88",
+    "submission_attempted": false
   }
 }

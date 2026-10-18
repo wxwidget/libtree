@@ -48,10 +48,15 @@ evidence limits. The separate [beginner walkthrough](benchmarks/mercari/BEGINNER
 starts with a credential-free synthetic run and explains how to reproduce training,
 prediction explanations, performance measurements and Kaggle submissions.
 
-The new frozen local blend reaches **0.380907 RMSLE versus 0.394153 (3.36% lower)**
+The current [CPU-budget study](benchmarks/mercari/CPU_STUDY.md) follows the
+champions' sparse text/view/objective diversity and directly optimizes squared
+RMSLE with analytic derivatives. It enforces a hard time cap; the queued GPU
+deployment was stopped. This direction does not yet establish a new score or rank.
+
+The earlier frozen local blend reaches **0.380907 RMSLE versus 0.394153 (3.36% lower)**
 on the reused audit window; this is not a new Kaggle score.
 The [complete frozen ensemble pipeline](benchmarks/mercari/FULL_ENSEMBLE.md) preserves
-the 0.380907 local candidate and refits all dependencies inside one Kaggle Kernel.
+the 0.380907 local candidate and its now-stopped GPU deployment workflow.
 The [modern text/GPU extension](benchmarks/mercari/FRONTIER.md) adds train-only
 LSA, pretrained sentence vectors, T4/A100 neural experiments and reproducible
 tree/regression blending, with explicit failure records and validation boundaries.

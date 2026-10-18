@@ -12,10 +12,14 @@ RMSLE 下降 10.28%；实际 Kaggle private RMSLE 从 0.43776 降到
 实验、理论引用及证据边界；独立的[初学者实战指南](benchmarks/mercari/BEGINNER_GUIDE.zh-CN.md)
 从无需凭据的小练习开始，逐步解释训练、预测解释、性能测量和 Kaggle 提交的复现方法。
 
-新增融合在复用的本地审计窗口取得 **0.380907 RMSLE，较 0.394153 下降 3.36%**；
+[当前 CPU 预算实验](benchmarks/mercari/CPU_STUDY.zh-CN.md)借鉴冠军的稀疏文本、
+多视图与目标互补，使用解析梯度直接优化 RMSLE 平方，并执行硬时间限制。
+排队中的 GPU 部署已停止；该方向尚不代表新榜单分数或排名。
+
+此前融合在复用的本地审计窗口取得 **0.380907 RMSLE，较 0.394153 下降 3.36%**；
 尚未产生新的 Kaggle 成绩。
 [原完整融合的最终重训与提交](benchmarks/mercari/FULL_ENSEMBLE.zh-CN.md)保留 0.380907 本地方案，
-在同一个 Kaggle Kernel 内重训全部依赖。
+记录现已停止的 GPU 部署工作流。
 [现代文本与 GPU 实验](benchmarks/mercari/FRONTIER.zh-CN.md)增加 LSA、预训练句向量、
 T4/A100 神经网络和树／回归融合，提供复现命令、失败记录与验证边界。
 

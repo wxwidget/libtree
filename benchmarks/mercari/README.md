@@ -6,10 +6,14 @@
 small runnable example; [technical retrospective](TECHNICAL_REPORT.md) for
 architecture, theory, successful/failed experiments and reproducibility limits.
 
-The new local frozen blend reaches **0.380907 RMSLE**, down **3.36%** from
+**Current direction:** the [CPU-budget study](CPU_STUDY.md) adds explicit product
+crosses, sparse objective/view diversity and direct metric gradients. The queued
+GPU deployment and automatic watcher were stopped under the CPU-only constraint.
+
+The earlier local frozen blend reaches **0.380907 RMSLE**, down **3.36%** from
 0.394153 on the reused audit window; no new Kaggle submission is claimed.
-The [complete frozen ensemble pipeline](FULL_ENSEMBLE.md) refits the original
-0.380907 local candidate inside one Kaggle Kernel, with guarded submission.
+The [complete frozen ensemble pipeline](FULL_ENSEMBLE.md) preserves that original
+candidate and the historical GPU workflow; it is not currently running.
 The [modern text/GPU study](FRONTIER.md) extends this work with LSA, pinned
 sentence vectors, T4/A100 neural experts and selection-only tree/regression
 ensembles. It records failed attempts and provides a Colab experiment launcher;

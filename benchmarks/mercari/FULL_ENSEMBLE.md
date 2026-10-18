@@ -2,17 +2,21 @@
 
 [中文](FULL_ENSEMBLE.zh-CN.md) · [Text/GPU experiments](FRONTIER.md) · [Beginner guide](BEGINNER_GUIDE.md)
 
-The submission target is the **original full blend with local confirmation
+**Current direction: [budgeted CPU-only study](CPU_STUDY.md).** On 18 October,
+the user stopped the GPU deployment direction. Its queued Kernel was removed
+after exact source/metadata backup and verification of zero outputs; its watcher
+and automatic submission were disabled. The frozen configuration and measured
+local results remain historical evidence, with no new Kaggle submission.
+
+The previous GPU submission target is the **original full blend with local confirmation
 RMSLE 0.3809068532**. The smaller candidate at 0.3819341875 is inferior and is
 not promoted. This document describes its complete single-Kernel refit and
 submission checks. See the submission evidence for actual Kaggle scores;
 local confirmation scores are not leaderboard scores.
 
-The [timestamped hosted status](full-ensemble-status.json) records the actual
-Kernel state separately from the validation result. At that capture, the
-formal full refit was **QUEUED**, no new submission had been made, and all four
-CI jobs had passed. A guarded watcher submits this exact version once only
-after complete training and output verification.
+The [timestamped hosted status](full-ensemble-status.json) records the stopped
+deployment separately from the validation result. Reproduction instructions
+below describe the preserved GPU workflow, not a currently authorized run.
 
 ## How many models are combined?
 
