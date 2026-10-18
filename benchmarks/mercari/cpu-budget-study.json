@@ -1,0 +1,786 @@
+{
+  "captured_utc": "2026-10-18T14:56:05.385463+00:00",
+  "study_id": "cpu-budget-001",
+  "code_commit": "940c2f3",
+  "competition": "mercari-price-suggestion-challenge",
+  "decision": "Screening only. Do not replace the original 0.380907 GPU-assisted historical candidate or submit this tiny incremental gain.",
+  "result": {
+    "frozen": {
+      "created_utc": "2026-10-18T14:52:22.642736+00:00",
+      "names": [
+        "cached_cpu_baseline",
+        "plain_ridge3",
+        "plain_ridge10",
+        "exact_ridge3",
+        "exact_ridge10",
+        "exact_mse",
+        "exact_huber",
+        "exact_bins",
+        "stemmed_ridge3",
+        "stemmed_ridge10",
+        "stemmed_mse",
+        "stemmed_huber",
+        "stemmed_bins",
+        "libtree3_0.5",
+        "libtree3_1.0",
+        "libtree5_0.5",
+        "libtree5_1.0",
+        "lightgbm_regression_l2_0.5",
+        "lightgbm_regression_l2_1.0",
+        "lightgbm_huber_0.5",
+        "lightgbm_huber_1.0",
+        "xgboost4_0.5",
+        "xgboost4_1.0"
+      ],
+      "weights": [
+        0.9603037986249552,
+        0.0,
+        0.0,
+        1.5948216071209851e-19,
+        3.497500561295147e-19,
+        0.0,
+        3.3788717173041503e-18,
+        1.5982501506027517e-18,
+        0.0,
+        3.488890812691123e-20,
+        0.0,
+        0.03488045981299737,
+        0.004815741562047474,
+        1.1289796114877963e-19,
+        2.551730265079004e-19,
+        0.0,
+        0.0,
+        3.1322125317442166e-19,
+        0.0,
+        0.0,
+        7.202999936689182e-19,
+        3.6788134805192573e-19,
+        0.0
+      ],
+      "intercept": -0.001044368641679854,
+      "penalty": 0.0001,
+      "bias_bound": 0.25,
+      "seed": 42,
+      "threads": 4,
+      "selection_rmsle": 0.39556016322866316,
+      "selection_chosen_before_confirmation": true,
+      "optimizer_seconds": 0.6695595799974399,
+      "objective": "mean((max(Pw+b,0)-log1p(price))**2) + penalty*(||w-anchor||**2+b**2)",
+      "ablations": {
+        "without_mse": {
+          "names": [
+            "plain_ridge3",
+            "plain_ridge10",
+            "exact_ridge3",
+            "exact_ridge10",
+            "exact_huber",
+            "exact_bins",
+            "stemmed_ridge3",
+            "stemmed_ridge10",
+            "stemmed_huber",
+            "stemmed_bins"
+          ],
+          "weights": [
+            4.408377940514117e-18,
+            0.14622567936097824,
+            2.0446445432731935e-18,
+            1.3749558106278119e-18,
+            0.20197156590469398,
+            0.13859797553577005,
+            0.052156442653791164,
+            0.023863584927323073,
+            0.2524717648181582,
+            0.18471298679928524
+          ],
+          "intercept": -0.0023238520029484015
+        },
+        "without_huber": {
+          "names": [
+            "plain_ridge3",
+            "plain_ridge10",
+            "exact_ridge3",
+            "exact_ridge10",
+            "exact_mse",
+            "exact_bins",
+            "stemmed_ridge3",
+            "stemmed_ridge10",
+            "stemmed_mse",
+            "stemmed_bins"
+          ],
+          "weights": [
+            0.08067957159574217,
+            0.05825958430630901,
+            0.0,
+            2.633690073761664e-19,
+            0.07154662454003989,
+            0.23382413191829654,
+            0.0818587038229197,
+            9.743851443968927e-18,
+            0.18486716674327033,
+            0.2889642170734223
+          ],
+          "intercept": -0.008610800587826574
+        },
+        "without_bins": {
+          "names": [
+            "plain_ridge3",
+            "plain_ridge10",
+            "exact_ridge3",
+            "exact_ridge10",
+            "exact_mse",
+            "exact_huber",
+            "stemmed_ridge3",
+            "stemmed_ridge10",
+            "stemmed_mse",
+            "stemmed_huber"
+          ],
+          "weights": [
+            4.7149685780477925e-18,
+            0.18211675823202195,
+            0.0,
+            0.0,
+            0.023995674861070446,
+            0.27872143382693343,
+            0.020954128009162833,
+            1.312192939822433e-17,
+            0.16493347377535675,
+            0.3292785312954546
+          ],
+          "intercept": -0.0017718639651400974
+        },
+        "without_engineered": {
+          "names": [
+            "plain_ridge3",
+            "plain_ridge10"
+          ],
+          "weights": [
+            0.0,
+            1.0
+          ],
+          "intercept": 0.00018043871641000814
+        }
+      },
+      "input_sha256": {
+        "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+        "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+        "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+        "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+      },
+      "config": {
+        "threads": 4,
+        "rows": 200000,
+        "max_features": 50000,
+        "char_features": 30000,
+        "cross_features": 30000,
+        "width": 128,
+        "epochs": 3,
+        "tree_rounds": 200,
+        "seed": 42,
+        "max_seconds": 900.0,
+        "reference": true,
+        "worker": true
+      }
+    },
+    "models": {
+      "plain_ridge3": {
+        "view": "plain",
+        "kind": "ridge",
+        "objective": "log_mse",
+        "fit_seconds": 8.33389461799743,
+        "prediction_seconds": 0.15592493399890373,
+        "history": [],
+        "selection_rmsle": 0.48184927605972006,
+        "features": 155017,
+        "feature_seconds": 52.25290481900083
+      },
+      "plain_ridge10": {
+        "view": "plain",
+        "kind": "ridge",
+        "objective": "log_mse",
+        "fit_seconds": 7.536418992000108,
+        "prediction_seconds": 0.15659481500188122,
+        "history": [],
+        "selection_rmsle": 0.47192061832962756,
+        "features": 155017,
+        "feature_seconds": 52.25290481900083
+      },
+      "exact_ridge3": {
+        "view": "exact",
+        "kind": "ridge",
+        "objective": "log_mse",
+        "fit_seconds": 12.751625272001547,
+        "prediction_seconds": 0.2169325770009891,
+        "history": [],
+        "selection_rmsle": 0.4798957818628126,
+        "features": 190693,
+        "feature_seconds": 91.39072250699974
+      },
+      "exact_ridge10": {
+        "view": "exact",
+        "kind": "ridge",
+        "objective": "log_mse",
+        "fit_seconds": 13.865816210996854,
+        "prediction_seconds": 0.19181609299994307,
+        "history": [],
+        "selection_rmsle": 0.46587919433815983,
+        "features": 190693,
+        "feature_seconds": 91.39072250699974
+      },
+      "exact_mse": {
+        "view": "exact",
+        "kind": "mlp",
+        "objective": "mse",
+        "fit_seconds": 65.29593131100046,
+        "prediction_seconds": 9.078508031998354,
+        "history": [
+          {
+            "epoch": 1,
+            "rate": 0.003,
+            "batch_size": 1024,
+            "train_loss": 0.3839232921600342,
+            "seconds": 19.769069074998697,
+            "rmsle": 0.470612962606314
+          },
+          {
+            "epoch": 2,
+            "rate": 0.003,
+            "batch_size": 2048,
+            "train_loss": 0.29090431332588196,
+            "seconds": 17.486978894001368,
+            "rmsle": 0.46172101723259246
+          },
+          {
+            "epoch": 3,
+            "rate": 0.002,
+            "batch_size": 4096,
+            "train_loss": 0.16212694346904755,
+            "seconds": 15.790009090997046,
+            "rmsle": 0.4637325209956695
+          }
+        ],
+        "selection_rmsle": 0.46172101723259246,
+        "features": 190693,
+        "feature_seconds": 91.39072250699974
+      },
+      "exact_huber": {
+        "view": "exact",
+        "kind": "mlp",
+        "objective": "huber",
+        "fit_seconds": 57.617183258000296,
+        "prediction_seconds": 9.14023047700175,
+        "history": [
+          {
+            "epoch": 1,
+            "rate": 0.003,
+            "batch_size": 1024,
+            "train_loss": 0.19729772210121155,
+            "seconds": 19.634072732002096,
+            "rmsle": 0.46604971368510073
+          },
+          {
+            "epoch": 2,
+            "rate": 0.003,
+            "batch_size": 2048,
+            "train_loss": 0.11089108884334564,
+            "seconds": 17.156433317999472,
+            "rmsle": 0.45613864775354446
+          },
+          {
+            "epoch": 3,
+            "rate": 0.002,
+            "batch_size": 4096,
+            "train_loss": 0.06756944209337234,
+            "seconds": 14.22374721000233,
+            "rmsle": 0.4551335949543918
+          }
+        ],
+        "selection_rmsle": 0.4551335949543918,
+        "features": 190693,
+        "feature_seconds": 91.39072250699974
+      },
+      "exact_bins": {
+        "view": "exact",
+        "kind": "mlp",
+        "objective": "bins",
+        "fit_seconds": 59.14510722299747,
+        "prediction_seconds": 10.494337377000193,
+        "history": [
+          {
+            "epoch": 1,
+            "rate": 0.003,
+            "batch_size": 1024,
+            "train_loss": 3.5865726470947266,
+            "seconds": 19.74167629799922,
+            "rmsle": 0.46598131661361974
+          },
+          {
+            "epoch": 2,
+            "rate": 0.003,
+            "batch_size": 2048,
+            "train_loss": 3.3158555030822754,
+            "seconds": 15.497336407999683,
+            "rmsle": 0.45787965435107764
+          },
+          {
+            "epoch": 3,
+            "rate": 0.002,
+            "batch_size": 4096,
+            "train_loss": 2.9633777141571045,
+            "seconds": 16.106090314999165,
+            "rmsle": 0.46320026855857505
+          }
+        ],
+        "selection_rmsle": 0.45787965435107764,
+        "features": 190693,
+        "feature_seconds": 91.39072250699974
+      },
+      "stemmed_ridge3": {
+        "view": "stemmed",
+        "kind": "ridge",
+        "objective": "log_mse",
+        "fit_seconds": 13.559548396999162,
+        "prediction_seconds": 0.18674931499845115,
+        "history": [],
+        "selection_rmsle": 0.4797633482372513,
+        "features": 190693,
+        "feature_seconds": 98.32390787400072
+      },
+      "stemmed_ridge10": {
+        "view": "stemmed",
+        "kind": "ridge",
+        "objective": "log_mse",
+        "fit_seconds": 16.41308268600187,
+        "prediction_seconds": 0.2034952939975483,
+        "history": [],
+        "selection_rmsle": 0.4652773731581077,
+        "features": 190693,
+        "feature_seconds": 98.32390787400072
+      },
+      "stemmed_mse": {
+        "view": "stemmed",
+        "kind": "mlp",
+        "objective": "mse",
+        "fit_seconds": 59.55281256300077,
+        "prediction_seconds": 8.25133386699963,
+        "history": [
+          {
+            "epoch": 1,
+            "rate": 0.003,
+            "batch_size": 1024,
+            "train_loss": 0.3821465075016022,
+            "seconds": 21.100230727999588,
+            "rmsle": 0.46963618600564844
+          },
+          {
+            "epoch": 2,
+            "rate": 0.003,
+            "batch_size": 2048,
+            "train_loss": 0.28692635893821716,
+            "seconds": 15.048752121998405,
+            "rmsle": 0.46060029879220254
+          },
+          {
+            "epoch": 3,
+            "rate": 0.002,
+            "batch_size": 4096,
+            "train_loss": 0.1658812165260315,
+            "seconds": 16.864483403998747,
+            "rmsle": 0.46206210073492515
+          }
+        ],
+        "selection_rmsle": 0.46060029879220254,
+        "features": 190693,
+        "feature_seconds": 98.32390787400072
+      },
+      "stemmed_huber": {
+        "view": "stemmed",
+        "kind": "mlp",
+        "objective": "huber",
+        "fit_seconds": 56.575746095000795,
+        "prediction_seconds": 8.508550816000934,
+        "history": [
+          {
+            "epoch": 1,
+            "rate": 0.003,
+            "batch_size": 1024,
+            "train_loss": 0.1895405352115631,
+            "seconds": 18.270589840001776,
+            "rmsle": 0.46496396337337986
+          },
+          {
+            "epoch": 2,
+            "rate": 0.003,
+            "batch_size": 2048,
+            "train_loss": 0.11009512841701508,
+            "seconds": 16.573093398998026,
+            "rmsle": 0.45498872351499225
+          },
+          {
+            "epoch": 3,
+            "rate": 0.002,
+            "batch_size": 4096,
+            "train_loss": 0.06640367954969406,
+            "seconds": 14.655315893000079,
+            "rmsle": 0.4536620471232264
+          }
+        ],
+        "selection_rmsle": 0.4536620471232264,
+        "features": 190693,
+        "feature_seconds": 98.32390787400072
+      },
+      "stemmed_bins": {
+        "view": "stemmed",
+        "kind": "mlp",
+        "objective": "bins",
+        "fit_seconds": 61.22879454800204,
+        "prediction_seconds": 9.797040906996699,
+        "history": [
+          {
+            "epoch": 1,
+            "rate": 0.003,
+            "batch_size": 1024,
+            "train_loss": 3.5630440711975098,
+            "seconds": 19.829005607,
+            "rmsle": 0.4655569049165435
+          },
+          {
+            "epoch": 2,
+            "rate": 0.003,
+            "batch_size": 2048,
+            "train_loss": 3.3349010944366455,
+            "seconds": 18.312371447998885,
+            "rmsle": 0.4562505883882309
+          },
+          {
+            "epoch": 3,
+            "rate": 0.002,
+            "batch_size": 4096,
+            "train_loss": 2.9646575450897217,
+            "seconds": 14.986598141000286,
+            "rmsle": 0.4610148001837699
+          }
+        ],
+        "selection_rmsle": 0.4562505883882309,
+        "features": 190693,
+        "feature_seconds": 98.32390787400072
+      },
+      "libtree3": {
+        "kind": "residual",
+        "objective": "log_mse",
+        "fit_seconds": 1.1252097500000673,
+        "prediction_seconds": 0.137249111001438,
+        "calibration_features": 59
+      },
+      "libtree5": {
+        "kind": "residual",
+        "objective": "log_mse",
+        "fit_seconds": 1.4374828370018804,
+        "prediction_seconds": 0.21394982400306617,
+        "calibration_features": 59
+      },
+      "lightgbm_regression_l2": {
+        "kind": "residual",
+        "objective": "log_mse",
+        "fit_seconds": 1.03275753699927,
+        "prediction_seconds": 0.8604435390006984,
+        "calibration_features": 59
+      },
+      "lightgbm_huber": {
+        "kind": "residual",
+        "objective": "huber",
+        "fit_seconds": 1.1165045950001513,
+        "prediction_seconds": 0.8989695150012267,
+        "calibration_features": 59
+      },
+      "xgboost4": {
+        "kind": "residual",
+        "objective": "log_mse",
+        "fit_seconds": 0.9702524579988676,
+        "prediction_seconds": 0.24788740499934647,
+        "calibration_features": 59
+      }
+    },
+    "individual": {
+      "cached_cpu_baseline": {
+        "selection": 0.39566150327308786,
+        "confirmation": 0.3941534524548097
+      },
+      "plain_ridge3": {
+        "selection": 0.48184927605972006,
+        "confirmation": 0.47955432436923456
+      },
+      "plain_ridge10": {
+        "selection": 0.47192061832962756,
+        "confirmation": 0.4696657062446409
+      },
+      "exact_ridge3": {
+        "selection": 0.4798957818628126,
+        "confirmation": 0.4793197965963326
+      },
+      "exact_ridge10": {
+        "selection": 0.46587919433815983,
+        "confirmation": 0.46451963301659366
+      },
+      "exact_mse": {
+        "selection": 0.46172101723259246,
+        "confirmation": 0.45955457288730733
+      },
+      "exact_huber": {
+        "selection": 0.4551335949543918,
+        "confirmation": 0.45397601319317404
+      },
+      "exact_bins": {
+        "selection": 0.45787965435107764,
+        "confirmation": 0.45523753160781144
+      },
+      "stemmed_ridge3": {
+        "selection": 0.4797633482372513,
+        "confirmation": 0.4786803983100882
+      },
+      "stemmed_ridge10": {
+        "selection": 0.4652773731581077,
+        "confirmation": 0.46392091032777183
+      },
+      "stemmed_mse": {
+        "selection": 0.46060029879220254,
+        "confirmation": 0.45861273905359634
+      },
+      "stemmed_huber": {
+        "selection": 0.4536620471232264,
+        "confirmation": 0.4523093489410144
+      },
+      "stemmed_bins": {
+        "selection": 0.4562505883882309,
+        "confirmation": 0.4543500877392909
+      },
+      "libtree3_0.5": {
+        "selection": 0.4416789006673352,
+        "confirmation": 0.4401372845182182
+      },
+      "libtree3_1.0": {
+        "selection": 0.4395495415247102,
+        "confirmation": 0.4380104586520772
+      },
+      "libtree5_0.5": {
+        "selection": 0.4405857715404796,
+        "confirmation": 0.4390598591660776
+      },
+      "libtree5_1.0": {
+        "selection": 0.4383790648485922,
+        "confirmation": 0.4368449689807226
+      },
+      "lightgbm_regression_l2_0.5": {
+        "selection": 0.44084188027786064,
+        "confirmation": 0.43923572283137835
+      },
+      "lightgbm_regression_l2_1.0": {
+        "selection": 0.43860981525363557,
+        "confirmation": 0.43692798838535435
+      },
+      "lightgbm_huber_0.5": {
+        "selection": 0.44084533628439476,
+        "confirmation": 0.4392685414540168
+      },
+      "lightgbm_huber_1.0": {
+        "selection": 0.4387622295517804,
+        "confirmation": 0.43714490756125507
+      },
+      "xgboost4_0.5": {
+        "selection": 0.44108427486227264,
+        "confirmation": 0.43949528243176833
+      },
+      "xgboost4_1.0": {
+        "selection": 0.43886419236794727,
+        "confirmation": 0.4372154904929044
+      }
+    },
+    "base_family_ablations": {
+      "without_mse": {
+        "selection": 0.43968165617819693,
+        "confirmation": 0.43808876255622187
+      },
+      "without_huber": {
+        "selection": 0.442955002610768,
+        "confirmation": 0.441111982943323
+      },
+      "without_bins": {
+        "selection": 0.44159956698885416,
+        "confirmation": 0.4401275299210409
+      },
+      "without_engineered": {
+        "selection": 0.4719205838273809,
+        "confirmation": 0.46966503413604926
+      }
+    },
+    "confirmation_rmsle": 0.39406533010296796,
+    "no_bias": {
+      "selection": 0.39556153400402727,
+      "confirmation": 0.39406515370664125
+    },
+    "new_base_only": {
+      "selection": 0.43936293233797263,
+      "confirmation": 0.4377247050239425
+    },
+    "training_rows": 200000,
+    "seconds": 801.5568255530015,
+    "gpu_used": false,
+    "external_pretrained_data": false,
+    "reference_cached_cost_excluded": true,
+    "confirmation_previously_inspected": true,
+    "submission_status": "not_submitted",
+    "timing_scope": "Single incremental CPU run; cached reference fit/inference excluded. Epochs are successive training steps, not independent repetitions."
+  },
+  "resource": {
+    "command": [
+      "/workspace/libtree-venv/bin/python",
+      "-m",
+      "benchmarks.mercari_cpu_study",
+      "--data-dir",
+      "benchmarks/runs/mercari/frontier-001/data",
+      "--output-dir",
+      "benchmarks/runs/mercari/cpu-budget-001/study",
+      "--rows",
+      "200000",
+      "--threads",
+      "4",
+      "--max-features",
+      "50000",
+      "--char-features",
+      "30000",
+      "--cross-features",
+      "30000",
+      "--width",
+      "128",
+      "--epochs",
+      "3",
+      "--tree-rounds",
+      "200",
+      "--max-seconds",
+      "900"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 805.9987270979982,
+    "user_cpu_seconds": 1450.056989,
+    "system_cpu_seconds": 31.814499,
+    "max_child_rss_mib": 4843.22265625,
+    "memory_scope": "maximum individual child RSS, not sum of concurrent process memory"
+  },
+  "paired_comparison": {
+    "baseline_rmsle": 0.3941534524548123,
+    "candidate_rmsle": 0.3940653301029698,
+    "rmsle_delta": -8.812235184252337e-05,
+    "ci95": [
+      -0.00013829954823110362,
+      -2.9860546285147342e-05
+    ],
+    "bootstrap_repeats": 300,
+    "seed": 42,
+    "unit": "row",
+    "training_repeats": 1
+  },
+  "gradient_benchmark": {
+    "threads": 4,
+    "repetitions": 3,
+    "warmup_per_method": 1,
+    "rows": 74126,
+    "experts": 13,
+    "timing_scope": "Complete existing numerical blend_weights versus new analytic no-bias RmsleBlend; same data/penalty/simplex. Baseline vertex was the best new initial point. Alternating order after warmups; one process, no training running.",
+    "measurements": {
+      "numeric": {
+        "samples": [
+          0.1710144290009339,
+          0.13511475199993583,
+          0.13310546999855433
+        ],
+        "mean": 0.14641155033314135,
+        "minimum": 0.13310546999855433,
+        "maximum": 0.1710144290009339,
+        "std": 0.01741619041001523
+      },
+      "analytic": {
+        "samples": [
+          0.054994133999571204,
+          0.06945034300224506,
+          0.0825305180005671
+        ],
+        "mean": 0.06899166500079446,
+        "minimum": 0.054994133999571204,
+        "maximum": 0.0825305180005671,
+        "std": 0.011246359413734346
+      }
+    },
+    "max_prediction_difference": 2.6385339246814965e-08,
+    "selection_rmsle": {
+      "numeric": 0.3955615340039009,
+      "analytic": 0.39556153400402727
+    },
+    "baseline_intercept_control": {
+      "frozen": {
+        "weights": [
+          1.0
+        ],
+        "intercept": -0.0011858815905639083
+      },
+      "selection_rmsle": 0.395659725744117,
+      "confirmation_rmsle": 0.39415340940398813,
+      "original_confirmation_rmsle": 0.3941534524548097
+    },
+    "inputs_sha256": {
+      "benchmarks/runs/mercari/frontier-001/data/baseline.npz": "68dc9cfe106b2f9645f8f624de0d5a7754529336deaa0a292270f649e1ec3f64",
+      "benchmarks/runs/mercari/cpu-budget-001/study/exact_bins.npz": "946d03c16196febb25a8c888e7889555899adcf17f4778e7446878598d5fa169",
+      "benchmarks/runs/mercari/cpu-budget-001/study/exact_huber.npz": "c2da2bf3853c54db8e284d4d70cd5ff609ad5a319567ec8dfb6e55d1b0d90baf",
+      "benchmarks/runs/mercari/cpu-budget-001/study/exact_mse.npz": "efe0ea1d78737aee958df5e5325e291d864fdf7c92dd0912d6c9f70bbb5a4f45",
+      "benchmarks/runs/mercari/cpu-budget-001/study/exact_ridge10.npz": "54487b50638e882effb610bdf210f3cecfb0a4a77aaa631e81a0689ef8b5aea0",
+      "benchmarks/runs/mercari/cpu-budget-001/study/exact_ridge3.npz": "ddf76d596619055bbe173d0575e13d3d3444f158f239aa4d7918176448e2c20c",
+      "benchmarks/runs/mercari/cpu-budget-001/study/plain_ridge10.npz": "a4ee4853e6b1684e270340f26bf9505b10c0c00c64b15d2e6ae80f18c4fd6177",
+      "benchmarks/runs/mercari/cpu-budget-001/study/plain_ridge3.npz": "b6e1aa773f152aed3c5e7859143c1101f8f84b3e689850811a28dca2014adf58",
+      "benchmarks/runs/mercari/cpu-budget-001/study/stemmed_bins.npz": "7ea6c987b0d0a3d786fa66e7a5a0e5945a9d273d382c9952b91d3d6b7f25b3f4",
+      "benchmarks/runs/mercari/cpu-budget-001/study/stemmed_huber.npz": "56fc2390e94d0a2bd7a648896b0445644842bcfa129d6070940e41531b17a8af",
+      "benchmarks/runs/mercari/cpu-budget-001/study/stemmed_mse.npz": "7563154de760fb54c66c78929c817aed2756b9271de7c3ca09a34965ab4a5078",
+      "benchmarks/runs/mercari/cpu-budget-001/study/stemmed_ridge10.npz": "0d3026d023e37cf7cf18c223a61235be70ab5c4ed2d130384cdf2f771c77144a",
+      "benchmarks/runs/mercari/cpu-budget-001/study/stemmed_ridge3.npz": "5460f6dfc6724c52e7d6d6e956d3b59966997ace7ec62ff0249e7fba847da44c"
+    },
+    "mean_speed_ratio_numeric_over_analytic": 2.122162877667257
+  },
+  "source_at_launch": {
+    "source_sha256": {
+      "mercari_cpu.py": "d110054e8d3956d8a32a1f4c3921a192d1df1d45a8468369ee9c37f09222f84a",
+      "mercari_cpu_study.py": "f5022dab7b23564a74a4bc420f29e5c79519fe74e578c6e34733dc54f5e89ca5"
+    },
+    "note": "CPU fit launched before the later boundary fix that chooses an informative initial simplex point. Frozen baseline anchor in this run is used. Saved model predictions allow optimizer-only follow-up without retraining."
+  },
+  "runtime_versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.8.0",
+    "tensorflow-cpu": "2.20.0",
+    "keras": "3.15.1",
+    "lightgbm": "4.7.0",
+    "xgboost": "3.4.1",
+    "snowballstemmer": "3.0.1",
+    "libtree-gbdt": "0.2.0"
+  },
+  "cohort_note": "Cached earlier CPU baseline trained on 1186026 base rows; new experts use 200000 sampled base rows. New controls share sampled rows. Reference training/inference excluded from timings. No GPU expert used.",
+  "optimizer_note": "Price training launched before the regression fix choosing a useful initial simplex point. Main run uses the baseline vertex; the later recorded no-bias analytic replay returns the same selection RMSLE to 1.3e-13. This does not establish bitwise equality of a fresh full training run.",
+  "ci": {
+    "commit": "940c2f3",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39137644958",
+    "all_four_jobs_passed": true,
+    "new_cpu_tests": 17,
+    "new_cpu_statement_coverage_gate": 1.0,
+    "new_cpu_modules": [
+      "benchmarks.mercari_cpu",
+      "benchmarks.mercari_cpu_study"
+    ],
+    "scope": "Statement gate, not branch/whole-repository coverage. Existing native/sanitizer/coverage jobs also passed."
+  },
+  "hardware": {
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "cgroup_cpu_max": "400000 100000",
+    "cgroup_memory_max_bytes": 34359738368,
+    "logical_cpu_count": 5,
+    "threads_requested": 4,
+    "gpu_allocated": false
+  }
+}

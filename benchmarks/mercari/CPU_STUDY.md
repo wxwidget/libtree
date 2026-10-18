@@ -9,6 +9,75 @@ ensemble remains preserved, but is not a CPU result or a new Kaggle score.
 Actual best scored practice entry remains **0.39199 private / 0.39110 public**.
 No first-place claim follows from adopting a winning architecture.
 
+## Measured screening outcome — 18 October 2026
+
+[Complete evidence JSON](cpu-budget-study.json) records every expert, weight,
+learning curve, ablation, source/input hash, raw timing and CI link. Four CPU
+threads completed the bounded run in **806.00 seconds** (801.56 inside the study),
+under the 900-second cap. Maximum individual child RSS was **4,843.22 MiB**;
+this is not summed concurrent process memory. Cached-reference costs are excluded.
+
+| System | Selection RMSLE | Reused confirmation RMSLE |
+| --- | ---: | ---: |
+| Existing full-data CPU reference | 0.395662 | 0.394153 |
+| New 200k-row base experts only | 0.439363 | 0.437725 |
+| Reference + new experts/calibrators, bounded intercept | **0.395561** | **0.394065** |
+| Same pool, no intercept | 0.395562 | 0.394065 |
+
+The absolute confirmation gain is **0.0000881 (0.022%)**. A conditional paired
+300-replicate row bootstrap gives delta interval [−0.0001383, −0.0000299]. This
+small conditional gain does not remove reused-window bias or show training-seed
+stability. The intercept itself does not help confirmation: 0.394065330 with it
+versus 0.394065154 without. No new Kaggle submission or first place is claimed.
+The historical GPU-assisted **0.380907 remains better** and is preserved.
+
+Three branches have substantive outer weights: cached reference **96.03038%**,
+stemmed Huber **3.48805%**, stemmed bins **0.48157%**. The intercept is −0.00104437;
+other numerical weights are retained in JSON. The new residual tree branches
+have effectively zero outer weight. This screening does not justify training
+and serving every proposed candidate. A complete fresh refit remains unmeasured.
+
+Matched-size feature controls improve alpha-10 Ridge selection RMSLE from
+0.471921 plain → 0.465879 exact → 0.465277 stemmed. The strongest new standalone
+MLP is stemmed Huber, 0.453662 selection / 0.452309 confirmation. Six MLPs,
+different seeds/views/losses and five trees do not substitute for sufficient
+training data. Base-only ablations below exclude the cached reference and all
+correctors, and fit their blend weights on selection only:
+
+| New base-family variant | Selection RMSLE | Confirmation RMSLE |
+| --- | ---: | ---: |
+| All 12 | 0.439363 | 0.437725 |
+| Without MSE MLPs | 0.439682 | 0.438089 |
+| Without Huber MLPs | 0.442955 | 0.441112 |
+| Without bin MLPs | 0.441600 | 0.440128 |
+| Only plain Ridge controls | 0.471921 | 0.469665 |
+
+At full correction strength, new calibration pipelines give confirmation
+RMSLE 0.438010 (LibTree depth 3), **0.436845** (LibTree depth 5), 0.436928
+(LightGBM L2), 0.437145 (LightGBM Huber) and 0.437215 (XGBoost depth 4).
+These correct weaker 200k-row experts; they do not beat the existing full-data
+CPU reference. Small point differences are not evidence of general superiority.
+
+**Optimizer performance:** on 74,126 selection rows and 13 cached base experts,
+three alternating-order repetitions after one warmup per method give arithmetic
+means **0.146412 s numerical / 0.068992 s analytic**, a **2.12× ratio**. Raw
+samples, min/max/std are in JSON. No-intercept selection RMSLE differs by only
+1.3e-13, with maximum log-prediction difference 2.64e-8. This comparison covers
+the complete weight optimizers, including their derivative/constraint handling,
+not only a derivative kernel. It saves about 0.077 seconds, **not half of the
+806-second training run**. It does not show inference acceleration.
+
+The price study launched with the baseline-vertex optimizer before the later
+clipped-anchor initialization regression fix. The saved launch-source hashes
+and subsequent analytic replay are recorded separately; fresh retraining is
+not claimed bitwise identical. The implementation commit's [four CI jobs][ci]
+passed, including 17 CPU tests and the 100% statement gate for both new modules.
+
+The next worthwhile experiment is to spend an explicitly larger **CPU** budget
+on the useful stemmed Huber/bin configurations and compare full-data learning
+curves, rather than adding more weak parameter variants. That run and a
+one-model-per-core scheduler were **not executed** in this budget.
+
 ## What the champions actually reported
 
 Jankiewicz and Lopuhin's [first-place solution][winner] reports a 12-model
@@ -164,8 +233,44 @@ metric derivative, train-only features, leakage guards, audit-order mismatch,
 CLI CPU limits and hard-timeout behavior. Coverage refers to these modules'
 statements, not branches, GPU paths or the whole repository.
 
+To repeat the optimizer comparison after this study (no additional price fits):
+
+```python
+from pathlib import Path
+from time import perf_counter
+import numpy as np
+from threadpoolctl import threadpool_limits
+from benchmarks.mercari_cpu import RmsleBlend
+from benchmarks.mercari_semantics import blend_weights
+data = Path('benchmarks/runs/mercari/cpu-data')
+run = Path('benchmarks/runs/mercari/cpu-budget-study')
+evaluation = np.load(data / 'evaluation.npz')
+paths = [data / 'baseline.npz', *sorted(p for p in run.glob('*.npz') if p.stem != 'ensemble')]
+columns = []
+for path in paths:
+    archive = np.load(path)
+    np.testing.assert_array_equal(archive['selection_ids'], evaluation['selection_ids'])
+    columns.append(archive['selection'])
+p, y = np.column_stack(columns), evaluation['selection']
+samples = {'numeric': [], 'analytic': []}
+with threadpool_limits(limits=4):
+    for repeat in range(4):
+        order = ['numeric', 'analytic'] if repeat % 2 == 0 else ['analytic', 'numeric']
+        for method in order:
+            start = perf_counter()
+            weights = (blend_weights(p, y) if method == 'numeric' else
+                       RmsleBlend(bias_bound=0.).fit(p, y).weights_)
+            seconds = perf_counter() - start
+            if repeat:  # first pair is warmup
+                samples[method].append(seconds)
+for method, values in samples.items():
+    print(method, values, 'mean', np.mean(values), 'min', min(values),
+          'max', max(values), 'std', np.std(values))
+```
+
 [winner]: https://github.com/pjankiewicz/mercari-solution
 [modeling]: https://github.com/pjankiewicz/mercari-solution/blob/master/presentation/5_modeling.tex
 [snowball]: https://snowballstem.org/algorithms/english/stemmer.html
 [stacking]: https://doi.org/10.1016/S0893-6080(05)80023-1
 [earlier]: OPTIMIZATION.md
+[ci]: https://github.com/wxwidget/libtree/actions/runs/39137644958

@@ -51,7 +51,9 @@ prediction explanations, performance measurements and Kaggle submissions.
 The current [CPU-budget study](benchmarks/mercari/CPU_STUDY.md) follows the
 champions' sparse text/view/objective diversity and directly optimizes squared
 RMSLE with analytic derivatives. It enforces a hard time cap; the queued GPU
-deployment was stopped. This direction does not yet establish a new score or rank.
+deployment was stopped. A 200k-row screening run took 806 seconds and improved
+the cached CPU reference's local audit from 0.394153 to 0.394065 (0.022%). The
+gain is too small to promote; no new Kaggle score or rank is claimed.
 
 The earlier frozen local blend reaches **0.380907 RMSLE versus 0.394153 (3.36% lower)**
 on the reused audit window; this is not a new Kaggle score.
