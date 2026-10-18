@@ -48,6 +48,7 @@ jobs:
           tests/test_mercari_multiview.py tests/test_mercari_multiview_study.py
           tests/test_mercari_top3.py
           tests/test_mercari_penalties.py
+          tests/test_mercari_residual.py
           --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel
           --cov=benchmarks.mercari_config --cov=benchmarks.mercari_features
           --cov=benchmarks.mercari_solver --cov=benchmarks.mercari_fm
@@ -61,6 +62,7 @@ jobs:
           --cov=benchmarks.mercari_multiscale
           --cov=benchmarks.mercari_top3
           --cov=benchmarks.mercari_penalties
+          --cov=benchmarks.mercari_residual
           --junitxml=benchmarks/runs/ci/mercari-junit.xml
           --cov-report=json:benchmarks/runs/ci/mercari-coverage.json
           --cov-report=term-missing --cov-fail-under=100

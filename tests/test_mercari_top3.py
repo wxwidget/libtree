@@ -212,9 +212,24 @@ def test_real_factorial_experiment_freezes_before_reading_confirmation(
         "ridge_only",
         "without_lasso",
         "without_elasticnet",
+        "raw_only",
     }
     assert report["training_rows"] == 120 and report["gpu_used"] is False
     assert report["confirmation_previously_inspected"]
+    residual = report["residual"]
+    assert set(residual["retained_raw_experts"]) == set(report["models"])
+    assert not residual["standalone_quality_gate"]
+    assert not residual["anchor_used_as_calibration_feature"]
+    assert residual["correction_fit_window"] == "calibration"
+    assert len(residual["models"]) == 8
+    for pool, excluded in (
+        ("without_lasso", "lasso_pairs"),
+        ("without_elasticnet", "elasticnet_pairs"),
+    ):
+        for kind in ("linear", "boosting"):
+            assert (
+                excluded not in residual["models"][f"residual_{pool}_{kind}"]["experts"]
+            )
     assert report["frozen"]["promotion_decided_before_confirmation"]
     assert report["submission_status"] == "not_submitted"
     assert json.loads((args.output_dir / "report.json").read_text()) == report

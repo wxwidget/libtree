@@ -14,6 +14,7 @@ No original competition code or fitted parameters are included.
 """
 
 import argparse
+import copy
 from datetime import datetime, timezone
 from itertools import combinations
 from pathlib import Path
@@ -231,6 +232,7 @@ def run(args):
         },
         source_sha256=mercari.sha256(Path(__file__)),
         solver_sha256=mercari.sha256(Path(__file__).with_name("mercari_penalties.py")),
+        residual_sha256=mercari.sha256(Path(__file__).with_name("mercari_residual.py")),
         settings={
             k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
         },
@@ -322,6 +324,17 @@ def run(args):
             )
             print("TOP3_MODEL", name, metrics[name], flush=True)
         del x, queries, coordinate_x, models, model
+    return finish(
+        args, frames, values, metrics, plan, start, feature_seconds, matrix_seconds
+    )
+
+
+def finish(args, frames, values, metrics, plan, start, feature_seconds, matrix_seconds):
+    """Shared fresh/cached fusion with a hard final gate and retained weak experts."""
+    from benchmarks.mercari_residual import expand_candidates
+
+    out = args.output_dir
+    y = {"selection": np.log1p(frames["selection"].price.to_numpy())}
     # A separate grouped half of selection checks the choice of blending method.
     _, check = next(
         GroupShuffleSplit(n_splits=1, test_size=0.5, random_state=193).split(
@@ -352,6 +365,7 @@ def run(args):
         ],
         full=list(values),
     )
+    residual = expand_candidates(frames, values, pools, out, args.threads)
     fitted, predictions, frozen_pools = {}, {}, {}
     for name, names in pools.items():
         p = {k: np.column_stack([values[n][k] for n in names]) for k in WINDOWS}
@@ -378,6 +392,7 @@ def run(args):
         plan=plan,
         pools=frozen_pools,
         accepted=bool(accepted),
+        residual_protocol=copy.deepcopy(residual),
         promotion_decided_before_confirmation=True,
         selection_rmsle=score(y["selection"], chosen["selection"]),
     )
@@ -396,6 +411,10 @@ def run(args):
     ):
         raise ValueError("audit IDs must match the frozen feature rows")
     audit_y = evaluation["confirmation"]
+    for name in residual["models"]:
+        residual["models"][name]["confirmation_rmsle"] = score(
+            audit_y, values[name]["confirmation"]
+        )
     for name in metrics:
         metrics[name]["confirmation_rmsle"] = score(
             audit_y, values[name]["confirmation"]
@@ -404,6 +423,7 @@ def run(args):
         frozen=frozen,
         training_rows=len(frames["train"]),
         models=metrics,
+        residual=residual,
         feature_seconds=feature_seconds,
         matrix_seconds=matrix_seconds,
         seconds=time.perf_counter() - start,

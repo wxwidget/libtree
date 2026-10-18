@@ -6,6 +6,10 @@
 [Lasso／Elastic Net 扩展](SPARSE_PENALTIES.zh-CN.md)默认训练两者，无需新增参数配置；
 包含内置正则强度、收敛与稀疏度诊断、模型家族消融和推理时间算术平均值。
 
+[弱候选残差融合实验](RESIDUAL_FUSION.zh-CN.md)保留全部原始模型，新增正负系数
+stacking 与 LibTree 残差 boosting。弱模型改善了稀疏模型分支，但没有改善本次
+最强的 0.380616 融合方案。
+
 [最新实测：小文本、产品校准与 T4 修复](SMALL_TEXT_REPORT.zh-CN.md)：本地 RMSLE
 **0.380616**，另验证固定批量训练步 3.31 倍、推理批次 2.70 倍；含失败经验、
 竞品比较、资源成本与复现方法，不是新的 Kaggle 评分。

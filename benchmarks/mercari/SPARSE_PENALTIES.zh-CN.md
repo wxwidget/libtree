@@ -2,6 +2,9 @@
 
 [English](SPARSE_PENALTIES.md) · [完整证据](sparse-penalties-results.json) · [原榜前三名复盘](TOP3.zh-CN.md)
 
+本页记录已完成的直接融合实验。后续默认接入的[残差融合阶段](RESIDUAL_FUSION.zh-CN.md)
+继续保留同一批原始模型，并通过正负系数 stacking 和残差 boosting 检查间接贡献。
+
 Mercari 实验现在会在 Ridge 之外**自动加入 Lasso 和 Elastic Net**，不增加命令行
 开关或配置文件，不需要你手动选择 alpha，也不执行参数搜索。新增两者都使用与
 Ridge 相同的**无序词对视角**；这是上一轮四种新词法视角中表现最好的一组。

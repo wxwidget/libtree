@@ -1,5 +1,8 @@
 # LibTree
 
+[Mercari 弱候选残差融合](benchmarks/mercari/RESIDUAL_FUSION.zh-CN.md)说明当前线性与
+残差融合层次，保留弱模型参与后续校正。实测改善稀疏分支，最佳融合仍为 0.380616。
+
 [Mercari Kaggle 打榜记录](benchmarks/mercari/README.zh-CN.md)
 提供 LibTree 价格预测、文本／结构化模型消融、重复商品不跨集合的验证和真实提交记录；
 [英文运行指南](benchmarks/mercari/README.md)提供复现命令与历史榜单比较的限制。

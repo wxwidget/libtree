@@ -2,6 +2,10 @@
 
 [中文](SPARSE_PENALTIES.zh-CN.md) · [Evidence](sparse-penalties-results.json) · [Original top-three review](TOP3.md)
 
+This records the completed direct-fusion study. The subsequent automatic
+[residual-fusion stage](RESIDUAL_FUSION.md) keeps the same raw experts and tests
+their indirect contribution through signed stacking and residual boosting.
+
 The Mercari experiment now automatically adds **Lasso and Elastic Net** to the
 existing Ridge experts. No new CLI switches, configuration files, manual alpha
 selection or hyperparameter search are required. The new experts use the

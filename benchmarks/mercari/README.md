@@ -14,6 +14,9 @@ The [Lasso/Elastic Net extension](SPARSE_PENALTIES.md) adds both automatically,
 with built-in sample-normalized penalties, convergence and sparsity diagnostics,
 family ablations and arithmetic-mean inference timings. No new model configuration
 is needed.
+The [residual-fusion study](RESIDUAL_FUSION.md) retains weak experts for signed
+stacking and LibTree residual boosting. They improve the sparse-only branch,
+but do not improve the frozen 0.380616 ensemble in this experiment.
 
 **Current direction:** the [small-text report](SMALL_TEXT_REPORT.md) records
 **0.380616 local audit RMSLE** and a verified T4 native-AMP fix. It includes

@@ -1,5 +1,9 @@
 # LibTree
 
+[Mercari residual fusion](benchmarks/mercari/RESIDUAL_FUSION.md) explains the
+linear/residual ensemble layers and retains weak experts for later correction.
+The measured sparse branch improves; the best frozen ensemble remains 0.380616.
+
 **A compact, deterministic C++17 histogram GBDT library** with native C++, C ABI,
 Python/NumPy, and command-line interfaces. It supports squared-error regression,
 binary logistic classification, dense row-major features, and learned routing for
