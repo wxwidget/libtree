@@ -8,6 +8,12 @@ not promoted. This document describes its complete single-Kernel refit and
 submission checks. See the submission evidence for actual Kaggle scores;
 local confirmation scores are not leaderboard scores.
 
+The [timestamped hosted status](full-ensemble-status.json) records the actual
+Kernel state separately from the validation result. At that capture, the
+formal full refit was **QUEUED**, no new submission had been made, and all four
+CI jobs had passed. A guarded watcher submits this exact version once only
+after complete training and output verification.
+
 ## How many models are combined?
 
 The frozen outer matrix has **26 columns**. Nine have weights above 1e-15;

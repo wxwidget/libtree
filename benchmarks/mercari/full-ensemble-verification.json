@@ -102,6 +102,30 @@
     ],
     "failed_job": "mercari-optimization",
     "failure_step": "Full statement coverage with executable reference kernels",
-    "root_cause": "Unknown: authenticated step log required; clean local reproduction passes. Submission CI gate remains closed."
-  }
+    "root_cause": "Unknown: authenticated step log required; clean local reproduction passes. Submission CI gate remains closed.",
+    "note": "Subsequent run with unchanged model code passed all four jobs; initial failure remains unreproduced, not claimed root-cause-fixed."
+  },
+  "latest_verified_remote_ci": {
+    "run_id": "39131856949",
+    "url": "https://github.com/wxwidget/libtree/actions/runs/39131856949",
+    "commit": "4ce3daf",
+    "previous_failed_run": "39130627842",
+    "jobs": {
+      "mercari-transformer": [
+        "completed successfully: "
+      ],
+      "mercari-optimization": [
+        "completed successfully: "
+      ],
+      "minimum-python-integration": [
+        "completed successfully: "
+      ],
+      "linux": [
+        "completed successfully: "
+      ]
+    },
+    "all_jobs_passed": true,
+    "checked_utc": "2026-10-18T13:36:13.332020+00:00"
+  },
+  "hosted_status_snapshot": "full-ensemble-status.json"
 }
