@@ -1,5 +1,11 @@
 # LibTree
 
+[Direct final-loss fusion](benchmarks/mercari/FINAL_OBJECTIVE.md) tests exact
+RMSLE gradients and jointly trained three-member MLP averages. Reused local
+audit RMSLE improves from 0.379682 to 0.379333; the same-optimizer log-MSE
+control reaches 0.379348. Root-specific and joint-training advantages remain
+uncertain; the frozen check selects the independent log-MSE average.
+
 [Mercari fusion comparison](benchmarks/mercari/FUSION_STRATEGIES.md) validates
 global linear, multilayer MLP and conditional linear fusion using identical
 candidate predictions, grouped meta roles, seed repeats and family ablations.

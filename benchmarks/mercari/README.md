@@ -1,5 +1,13 @@
 # Mercari: LibTree Kaggle competition journal
 
+The [final-objective study](FINAL_OBJECTIVE.md) compares log MSE, squared RMSLE
+and exact global RMSLE using shared warm starts and the same optimizer. The old
+three-member mean scores 0.379682 on the reused audit; independent RMSLE gives
+0.379336 and joint RMSLE 0.379333. The log-MSE control already reaches 0.379348;
+root-specific and joint-versus-independent intervals cross zero. The pre-audit
+check selects the independent log-MSE mean. Includes gradient tests, all 21
+outputs, CPU costs and reproduction commands; no new Kaggle submission.
+
 The [same-input fusion comparison](FUSION_STRATEGIES.md) tests global linear,
 two-hidden-layer MLP and category-dependent linear fusion on 72 prediction
 columns. The reused audit gives 0.380609 / 0.379886 / 0.380704 respectively;
@@ -24,7 +32,7 @@ The [residual-fusion study](RESIDUAL_FUSION.md) retains weak experts for signed
 stacking and LibTree residual boosting. They improve the sparse-only branch,
 but do not improve the frozen 0.380616 ensemble in this experiment.
 
-**Current direction:** the [small-text report](SMALL_TEXT_REPORT.md) records
+The earlier [small-text report](SMALL_TEXT_REPORT.md) records
 **0.380616 local audit RMSLE** and a verified T4 native-AMP fix. It includes
 small-model failures, product calibration, competitor tables, resource costs
 and reproduction commands. No new Kaggle score is claimed. Earlier work in the [CPU-budget study](CPU_STUDY.md) adds explicit product

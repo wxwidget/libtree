@@ -5,6 +5,12 @@ records real listing-price experiments, grouped validation, sparse text Ridge
 and native LibTree residual models, reproducible Kernels, and actual submission
 status. Local holdout results and Kaggle scores are recorded separately.
 
+The [Mercari final-loss fusion experiment](mercari/FINAL_OBJECTIVE.md)
+([中文](mercari/FINAL_OBJECTIVE.zh-CN.md)) implements global RMSLE gradients
+through a three-MLP mean. The reused audit improves from 0.379682 to 0.379333;
+the same-optimizer log-MSE control reaches 0.379348. Root-specific and joint
+advantages are uncertain; see the controls, intervals and reproduction command.
+
 The latest [C5 performance/tree-inspection study](C5_PERFORMANCE_REPORT.md)
 ([中文](C5_PERFORMANCE_REPORT.zh-CN.md), [raw runs](c5-performance-results.json))
 compares commit `60f003d` with the optimized implementation, XGBoost and LightGBM.

@@ -1,5 +1,10 @@
 # LibTree
 
+[最终损失融合实验](benchmarks/mercari/FINAL_OBJECTIVE.zh-CN.md)实现精确 RMSLE 梯度及
+三个 MLP 最终平均输出的联合训练。复用审计 RMSLE 从 0.379682 降至 0.379333，
+同优化器的对数 MSE 对照为 0.379348。根号本身及联合训练的优势仍不确定；
+冻结前的检查选择独立对数 MSE 平均方案。
+
 [Mercari 融合对照](benchmarks/mercari/FUSION_STRATEGIES.zh-CN.md)用相同候选预测，
 验证单层线性、多层 MLP、分条件线性，包含分组元模型验证、种子波动与家族消融。
 

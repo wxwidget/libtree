@@ -1,0 +1,1273 @@
+{
+  "study": "Mercari exact final-objective fusion: independent and joint gradients",
+  "protocol": {
+    "created_utc": "2026-10-19T00:39:20.447951+00:00",
+    "source_sha256": {
+      "mercari_objective.py": "69c63e44d21138e657aa694f3cd4c72b844db0d45333c737441d3e3ad61ceb5d",
+      "mercari_fusion.py": "7e61d8b7ff615c3280eb3b855a1348e983d3fe11ac8ec03569473b6f422e3ae8",
+      "mercari_cpu.py": "ef8b9ea0526a354476206f2ada0352f0ba09ccce12f36a09b04f51ed3ec32c8e",
+      "mercari_multiview.py": "a6c275907b6fba5f40b5261ebb2ed0094e09048fc21ad58bd610d2260f9e4b48"
+    },
+    "anchor_sha256": "3762d5b2d7ff4cf054e3d0078a822eaa69deb73be2809721db9fcd5cb753013e",
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "names": [
+      "smalltext_product_cal_lightgbm",
+      "frontier_sparse512_binary_bins",
+      "frontier_sparse512_binary_huber",
+      "frontier_sparse512_tfidf_mse",
+      "frontier_sparse256_binary_bins",
+      "frontier_sparse256_binary_huber",
+      "frontier_sparse256_tfidf_mse",
+      "frontier_cal_libtree3",
+      "frontier_cal_libtree5",
+      "frontier_cal_lightgbm",
+      "frontier_cal_meta_ridge10",
+      "frontier_cal_meta_ridge100",
+      "frontier_cal_xgboost",
+      "frontier_stemmed_sparse512_binary_bins",
+      "frontier_stemmed_sparse512_binary_huber",
+      "frontier_stemmed_sparse512_tfidf_mse",
+      "frontier_cnn128_mse",
+      "frontier_gru96_huber",
+      "frontier_minilm_lgbm63",
+      "frontier_minilm_ridge_10",
+      "frontier_minilm_ridge_100",
+      "frontier_finetuned_minilm_huber",
+      "frontier_lsa_lgbm_31",
+      "frontier_lsa_lgbm_63",
+      "frontier_lsa_ridge_10",
+      "frontier_lsa_ridge_100",
+      "smalltext_cal_libtree3",
+      "smalltext_cal_libtree5",
+      "smalltext_cal_lightgbm",
+      "smalltext_cal_meta_ridge10",
+      "smalltext_cal_meta_ridge100",
+      "smalltext_cal_xgboost",
+      "smalltext_product_cal_libtree3",
+      "smalltext_product_cal_libtree5",
+      "smalltext_product_cal_xgboost",
+      "smalltext_bag_huber",
+      "smalltext_bag_mse",
+      "smalltext_bert_mse",
+      "cpu_ridge",
+      "cpu_ffm",
+      "cpu_neural_0",
+      "cpu_neural_1",
+      "cpu_neural_2",
+      "cpu_neural_3",
+      "cpu_stemmed_huber",
+      "cpu_stemmed_bins",
+      "cpu_basic_libtree3_0.5",
+      "cpu_basic_libtree3_1.0",
+      "cpu_basic_libtree5_0.5",
+      "cpu_basic_libtree5_1.0",
+      "cpu_attributes_libtree3_0.5",
+      "cpu_attributes_libtree3_1.0",
+      "cpu_product_libtree3_0.5",
+      "cpu_product_libtree3_1.0",
+      "cpu_product_libtree5_0.5",
+      "cpu_product_libtree5_1.0",
+      "cpu_basic_lightgbm_0.5",
+      "cpu_basic_lightgbm_1.0",
+      "cpu_product_lightgbm_0.5",
+      "cpu_product_lightgbm_1.0",
+      "cpu_product_lightgbm_huber_0.5",
+      "cpu_product_lightgbm_huber_1.0",
+      "cpu_product_xgboost_0.5",
+      "cpu_product_xgboost_1.0",
+      "sparse_lexical",
+      "sparse_pairs",
+      "sparse_lasso_pairs",
+      "sparse_elasticnet_pairs",
+      "sparse_quantities",
+      "sparse_both",
+      "sparse_residual_linear",
+      "sparse_residual_boosting"
+    ],
+    "max_iterations": 20,
+    "tune_patience": 6,
+    "fine_tune_L2": 0.0,
+    "full_window_objective": true,
+    "losses": [
+      "log_mse",
+      "squared_rmsle",
+      "rmsle"
+    ],
+    "clip_after_member_mean": true,
+    "primary_single_seed": 42,
+    "cached_base_cost_excluded": true,
+    "historical_selection_reused": true,
+    "confirmation_previously_inspected": true,
+    "joint_ensemble_initializations": 1,
+    "anchor_used_as_training_feature": false,
+    "split_proof": {
+      "fit": {
+        "rows": 44477,
+        "sha256_int64": "28bc1434bc23d2941c2975d0c34b5c61cce5806bda71d34769ab2cfde3c71d22"
+      },
+      "tune": {
+        "rows": 14825,
+        "sha256_int64": "848773aff079df4950b82cec3d3cd46a61b4841151a16d739ac46b760f07cb2e"
+      },
+      "check": {
+        "rows": 14824,
+        "sha256_int64": "6a82a821840298d95ca1265c115991ecdc48eb2a4462d8fb6b3bf4a4978eeb47"
+      }
+    },
+    "manifest_path": "benchmarks/mercari/fusion-candidates.json",
+    "manifest_sha256": "470a8f7673def1c6b8a58411b459df7fadfdb90c0ca414bec45900385b492398"
+  },
+  "row_counts": {
+    "train": 1186026,
+    "calibration": 74129,
+    "selection": 74126,
+    "confirmation": 148254
+  },
+  "meta_rows": {
+    "fit": 44477,
+    "tune": 14825,
+    "check": 14824
+  },
+  "models": {
+    "linear": {
+      "check_rmsle": 0.3877019900658688,
+      "selection_rmsle": 0.38209094953740436,
+      "meta_fit_seconds": 0.37556643199786777,
+      "refit_seconds": 0.4588276369977393,
+      "predict_seconds": 0.014913839668831011,
+      "predict_seconds_samples": [
+        0.016391440003644675,
+        0.014614232000894845,
+        0.013735847001953516
+      ],
+      "predict_seconds_max": 0.016391440003644675,
+      "predict_seconds_std": 0.001104646885863646,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "squared_rmsle_plus_existing_shrinkage",
+      "confirmation_rmsle": 0.3806086990959505
+    },
+    "conditional": {
+      "check_rmsle": 0.38806656067372614,
+      "selection_rmsle": 0.3819962267513032,
+      "meta_fit_seconds": 0.7504384109997773,
+      "refit_seconds": 1.0811891330013168,
+      "predict_seconds": 0.11703128199830341,
+      "predict_seconds_samples": [
+        0.11988889599888353,
+        0.1133230449995608,
+        0.11788190499646589
+      ],
+      "predict_seconds_max": 0.11988889599888353,
+      "predict_seconds_std": 0.002747152398403237,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "squared_rmsle_plus_existing_shrinkage",
+      "confirmation_rmsle": 0.3807039193356189
+    },
+    "warm_seed42": {
+      "check_rmsle": 0.38792582947916465,
+      "selection_rmsle": 0.37956295298680787,
+      "meta_fit_seconds": 3.131185906997416,
+      "refit_seconds": 3.5840137000050163,
+      "predict_seconds": 0.33591979467018973,
+      "predict_seconds_samples": [
+        0.3439890400040895,
+        0.32845429200096987,
+        0.33531605200550985
+      ],
+      "predict_seconds_max": 0.3439890400040895,
+      "predict_seconds_std": 0.006356386698115694,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "standardized_log_mse_plus_existing_L2",
+      "selected_epochs": 36,
+      "confirmation_rmsle": 0.37988571675973337
+    },
+    "warm_seed43": {
+      "check_rmsle": 0.38782438357542415,
+      "selection_rmsle": 0.3805009031183397,
+      "meta_fit_seconds": 3.248293199001637,
+      "refit_seconds": 4.265022947998659,
+      "predict_seconds": 0.39271515800161677,
+      "predict_seconds_samples": [
+        0.39602058099990245,
+        0.385542437004915,
+        0.39658245600003283
+      ],
+      "predict_seconds_max": 0.39658245600003283,
+      "predict_seconds_std": 0.005077064161589044,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "standardized_log_mse_plus_existing_L2",
+      "selected_epochs": 39,
+      "confirmation_rmsle": 0.3811493713807728
+    },
+    "warm_seed44": {
+      "check_rmsle": 0.3900974987162298,
+      "selection_rmsle": 0.37952923806175326,
+      "meta_fit_seconds": 3.530861001003359,
+      "refit_seconds": 3.2889204590028385,
+      "predict_seconds": 0.3181668519998008,
+      "predict_seconds_samples": [
+        0.3204202409979189,
+        0.3151884079998126,
+        0.3188919070016709
+      ],
+      "predict_seconds_max": 0.3204202409979189,
+      "predict_seconds_std": 0.002196557563828914,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "standardized_log_mse_plus_existing_L2",
+      "selected_epochs": 34,
+      "confirmation_rmsle": 0.3801590751022948
+    },
+    "warm_mean3": {
+      "check_rmsle": 0.38765570027584323,
+      "selection_rmsle": 0.3791498735262334,
+      "meta_fit_seconds": 0.0,
+      "refit_seconds": 0.0,
+      "predict_seconds": 0.9620939409966619,
+      "predict_seconds_samples": [
+        0.9730273239983944,
+        0.9474560719972942,
+        0.9657984269942972
+      ],
+      "predict_seconds_max": 0.9730273239983944,
+      "predict_seconds_std": 0.010763043082881648,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "dependencies": [
+        "warm_seed42",
+        "warm_seed43",
+        "warm_seed44"
+      ],
+      "warm_training_cost_shared": true,
+      "confirmation_rmsle": 0.3796823512269177
+    },
+    "single_log_mse_42": {
+      "check_rmsle": 0.3874218099986499,
+      "selection_rmsle": 0.37940494416397386,
+      "meta_fit_seconds": 0.6952237120058271,
+      "refit_seconds": 0.6464032040021266,
+      "predict_seconds": 0.3070400016658823,
+      "predict_seconds_samples": [
+        0.30815002400049707,
+        0.30768990599608514,
+        0.3052800750010647
+      ],
+      "predict_seconds_max": 0.30815002400049707,
+      "predict_seconds_std": 0.0012585530166684905,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 42,
+      "warm_training_cost_shared": true,
+      "loss": "log_mse",
+      "selected_iterations": 7,
+      "meta_optimizer": {
+        "iterations": 13,
+        "evaluations": 16,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 7,
+        "evaluations": 9,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 7,
+      "refit_actual_iterations": 7,
+      "initial_train_objective": 0.14387643910459777,
+      "final_train_objective": 0.1435368544582082,
+      "confirmation_rmsle": 0.3797933597665868,
+      "history_summary": {
+        "iterations_recorded": 13,
+        "initial_tune_rmsle": 0.3780614603244118,
+        "best_tune_rmsle": 0.37766828846085526,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_log_mse_43": {
+      "check_rmsle": 0.3873707696109966,
+      "selection_rmsle": 0.37868942246735354,
+      "meta_fit_seconds": 0.6634667210018961,
+      "refit_seconds": 0.6687187810020987,
+      "predict_seconds": 0.30157478799810633,
+      "predict_seconds_samples": [
+        0.3120910899961018,
+        0.2965348069992615,
+        0.2960984669989557
+      ],
+      "predict_seconds_max": 0.3120910899961018,
+      "predict_seconds_std": 0.007438281787874999,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 43,
+      "warm_training_cost_shared": true,
+      "loss": "log_mse",
+      "selected_iterations": 7,
+      "meta_optimizer": {
+        "iterations": 13,
+        "evaluations": 15,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 7,
+        "evaluations": 10,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 7,
+      "refit_actual_iterations": 7,
+      "initial_train_objective": 0.14290203192392353,
+      "final_train_objective": 0.14262146786882307,
+      "confirmation_rmsle": 0.37980797343718575,
+      "history_summary": {
+        "iterations_recorded": 13,
+        "initial_tune_rmsle": 0.3777854395736618,
+        "best_tune_rmsle": 0.3775535270556814,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_log_mse_44": {
+      "check_rmsle": 0.38772013628995194,
+      "selection_rmsle": 0.37885870497847735,
+      "meta_fit_seconds": 0.5912624789998517,
+      "refit_seconds": 0.5977486490010051,
+      "predict_seconds": 0.30110307733169367,
+      "predict_seconds_samples": [
+        0.30701980099547654,
+        0.3000158780050697,
+        0.29627355299453484
+      ],
+      "predict_seconds_max": 0.30701980099547654,
+      "predict_seconds_std": 0.00445398423184566,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 44,
+      "warm_training_cost_shared": true,
+      "loss": "log_mse",
+      "selected_iterations": 6,
+      "meta_optimizer": {
+        "iterations": 12,
+        "evaluations": 14,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 6,
+        "evaluations": 9,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 6,
+      "refit_actual_iterations": 6,
+      "initial_train_objective": 0.14412418701059404,
+      "final_train_objective": 0.14269154457344005,
+      "confirmation_rmsle": 0.3796125302986368,
+      "history_summary": {
+        "iterations_recorded": 12,
+        "initial_tune_rmsle": 0.37959435069002756,
+        "best_tune_rmsle": 0.37777001289911766,
+        "full_history_in_local_report": true
+      }
+    },
+    "independent_log_mse_mean3": {
+      "check_rmsle": 0.38684548779409017,
+      "selection_rmsle": 0.37860063468902905,
+      "meta_fit_seconds": 0.0,
+      "refit_seconds": 0.0,
+      "predict_seconds": 0.8972830013323497,
+      "predict_seconds_samples": [
+        0.9154892110018409,
+        0.8944899729976896,
+        0.8818698199975188
+      ],
+      "predict_seconds_max": 0.9154892110018409,
+      "predict_seconds_std": 0.013866425118105343,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "log_mse",
+      "dependencies": [
+        "single_log_mse_42",
+        "single_log_mse_43",
+        "single_log_mse_44"
+      ],
+      "training_cost_shared": true,
+      "confirmation_rmsle": 0.3793481953912647
+    },
+    "joint_log_mse_mean3": {
+      "check_rmsle": 0.38698428269509394,
+      "selection_rmsle": 0.37870495208399035,
+      "meta_fit_seconds": 1.9258485469981679,
+      "refit_seconds": 1.7254161689998,
+      "predict_seconds": 0.9327881999973519,
+      "predict_seconds_samples": [
+        0.9372713269985979,
+        0.9307939849968534,
+        0.9302992879966041
+      ],
+      "predict_seconds_max": 0.9372713269985979,
+      "predict_seconds_std": 0.003176476251287526,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 3,
+      "warm_training_cost_shared": true,
+      "loss": "log_mse",
+      "selected_iterations": 5,
+      "meta_optimizer": {
+        "iterations": 11,
+        "evaluations": 14,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 5,
+        "evaluations": 7,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 5,
+      "refit_actual_iterations": 5,
+      "initial_train_objective": 0.14290870998672006,
+      "final_train_objective": 0.14249594147130967,
+      "confirmation_rmsle": 0.3793536378941175,
+      "history_summary": {
+        "iterations_recorded": 11,
+        "initial_tune_rmsle": 0.3774976006791509,
+        "best_tune_rmsle": 0.37703735304835534,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_squared_rmsle_42": {
+      "check_rmsle": 0.3874218073622672,
+      "selection_rmsle": 0.37940494416397386,
+      "meta_fit_seconds": 0.649562213999161,
+      "refit_seconds": 0.5870875969994813,
+      "predict_seconds": 0.2933313119986754,
+      "predict_seconds_samples": [
+        0.29301453499647323,
+        0.2914852760004578,
+        0.2954941249990952
+      ],
+      "predict_seconds_max": 0.2954941249990952,
+      "predict_seconds_std": 0.0016518632561065066,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 42,
+      "warm_training_cost_shared": true,
+      "loss": "squared_rmsle",
+      "selected_iterations": 7,
+      "meta_optimizer": {
+        "iterations": 13,
+        "evaluations": 16,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 7,
+        "evaluations": 9,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 7,
+      "refit_actual_iterations": 7,
+      "initial_train_objective": 0.14387643910459777,
+      "final_train_objective": 0.14353685318986587,
+      "confirmation_rmsle": 0.3797933597665868,
+      "history_summary": {
+        "iterations_recorded": 13,
+        "initial_tune_rmsle": 0.3780614603244118,
+        "best_tune_rmsle": 0.3776682889172083,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_squared_rmsle_43": {
+      "check_rmsle": 0.3873679737011396,
+      "selection_rmsle": 0.3787327207089494,
+      "meta_fit_seconds": 0.5973100949995569,
+      "refit_seconds": 0.5973967419995461,
+      "predict_seconds": 0.3019781480009745,
+      "predict_seconds_samples": [
+        0.3079467450006632,
+        0.30017040600068867,
+        0.29781729300157167
+      ],
+      "predict_seconds_max": 0.3079467450006632,
+      "predict_seconds_std": 0.004328386751448552,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 43,
+      "warm_training_cost_shared": true,
+      "loss": "squared_rmsle",
+      "selected_iterations": 6,
+      "meta_optimizer": {
+        "iterations": 12,
+        "evaluations": 14,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 6,
+        "evaluations": 9,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 6,
+      "refit_actual_iterations": 6,
+      "initial_train_objective": 0.14290203192392353,
+      "final_train_objective": 0.14265037070447267,
+      "confirmation_rmsle": 0.37977674563032143,
+      "history_summary": {
+        "iterations_recorded": 12,
+        "initial_tune_rmsle": 0.3777854395736618,
+        "best_tune_rmsle": 0.3775576617923113,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_squared_rmsle_44": {
+      "check_rmsle": 0.38774362183170236,
+      "selection_rmsle": 0.37888845506100827,
+      "meta_fit_seconds": 0.5545852180002839,
+      "refit_seconds": 0.549699712995789,
+      "predict_seconds": 0.3090246096665699,
+      "predict_seconds_samples": [
+        0.3202131840007496,
+        0.3024883600010071,
+        0.3043722849979531
+      ],
+      "predict_seconds_max": 0.3202131840007496,
+      "predict_seconds_std": 0.007948812912300283,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 44,
+      "warm_training_cost_shared": true,
+      "loss": "squared_rmsle",
+      "selected_iterations": 5,
+      "meta_optimizer": {
+        "iterations": 11,
+        "evaluations": 13,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 5,
+        "evaluations": 8,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 5,
+      "refit_actual_iterations": 5,
+      "initial_train_objective": 0.14412418701059404,
+      "final_train_objective": 0.1427031275831717,
+      "confirmation_rmsle": 0.37960543570863703,
+      "history_summary": {
+        "iterations_recorded": 11,
+        "initial_tune_rmsle": 0.37959435069002756,
+        "best_tune_rmsle": 0.37777120806098835,
+        "full_history_in_local_report": true
+      }
+    },
+    "independent_squared_rmsle_mean3": {
+      "check_rmsle": 0.3868526756697618,
+      "selection_rmsle": 0.37863463259392044,
+      "meta_fit_seconds": 0.0,
+      "refit_seconds": 0.0,
+      "predict_seconds": 0.9495691823321977,
+      "predict_seconds_samples": [
+        0.9460203609996825,
+        0.9442668399933609,
+        0.9584203460035496
+      ],
+      "predict_seconds_max": 0.9584203460035496,
+      "predict_seconds_std": 0.006299525523545318,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "squared_rmsle",
+      "dependencies": [
+        "single_squared_rmsle_42",
+        "single_squared_rmsle_43",
+        "single_squared_rmsle_44"
+      ],
+      "training_cost_shared": true,
+      "confirmation_rmsle": 0.3793453613002091
+    },
+    "joint_squared_rmsle_mean3": {
+      "check_rmsle": 0.3869061384615915,
+      "selection_rmsle": 0.37870495208399035,
+      "meta_fit_seconds": 2.3484149310024804,
+      "refit_seconds": 1.8049854840064654,
+      "predict_seconds": 0.9682265473359924,
+      "predict_seconds_samples": [
+        0.9882337020026171,
+        0.9977546570007689,
+        0.9186912830045912
+      ],
+      "predict_seconds_max": 0.9977546570007689,
+      "predict_seconds_std": 0.03524172673886782,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 3,
+      "warm_training_cost_shared": true,
+      "loss": "squared_rmsle",
+      "selected_iterations": 5,
+      "meta_optimizer": {
+        "iterations": 11,
+        "evaluations": 13,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 5,
+        "evaluations": 7,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 5,
+      "refit_actual_iterations": 5,
+      "initial_train_objective": 0.14290870998672006,
+      "final_train_objective": 0.14248770937348038,
+      "confirmation_rmsle": 0.3793536378941175,
+      "history_summary": {
+        "iterations_recorded": 11,
+        "initial_tune_rmsle": 0.3774976006791509,
+        "best_tune_rmsle": 0.3770485178309779,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_rmsle_42": {
+      "check_rmsle": 0.3874227533081551,
+      "selection_rmsle": 0.3793968623774512,
+      "meta_fit_seconds": 0.685536728000443,
+      "refit_seconds": 0.6789714929982438,
+      "predict_seconds": 0.3032724223351882,
+      "predict_seconds_samples": [
+        0.29747976200451376,
+        0.3014766790001886,
+        0.3108608260008623
+      ],
+      "predict_seconds_max": 0.3108608260008623,
+      "predict_seconds_std": 0.005608430500148289,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 42,
+      "warm_training_cost_shared": true,
+      "loss": "rmsle",
+      "selected_iterations": 7,
+      "meta_optimizer": {
+        "iterations": 13,
+        "evaluations": 18,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 7,
+        "evaluations": 11,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 7,
+      "refit_actual_iterations": 7,
+      "initial_train_objective": 0.37931047850619387,
+      "final_train_objective": 0.3788625917590899,
+      "confirmation_rmsle": 0.3797797260995959,
+      "history_summary": {
+        "iterations_recorded": 13,
+        "initial_tune_rmsle": 0.3780614603244118,
+        "best_tune_rmsle": 0.37766933585744167,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_rmsle_43": {
+      "check_rmsle": 0.38735006561823027,
+      "selection_rmsle": 0.3787957077188347,
+      "meta_fit_seconds": 0.622203350001655,
+      "refit_seconds": 0.5608745369972894,
+      "predict_seconds": 0.3216584236700631,
+      "predict_seconds_samples": [
+        0.3028951440064702,
+        0.3185683970004902,
+        0.3435117300032289
+      ],
+      "predict_seconds_max": 0.3435117300032289,
+      "predict_seconds_std": 0.0167249905455285,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 43,
+      "warm_training_cost_shared": true,
+      "loss": "rmsle",
+      "selected_iterations": 6,
+      "meta_optimizer": {
+        "iterations": 12,
+        "evaluations": 15,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 6,
+        "evaluations": 8,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 6,
+      "refit_actual_iterations": 6,
+      "initial_train_objective": 0.37802385099874786,
+      "final_train_objective": 0.377668475642411,
+      "confirmation_rmsle": 0.37975761039717004,
+      "history_summary": {
+        "iterations_recorded": 12,
+        "initial_tune_rmsle": 0.3777854395736618,
+        "best_tune_rmsle": 0.37756011520838434,
+        "full_history_in_local_report": true
+      }
+    },
+    "single_rmsle_44": {
+      "check_rmsle": 0.3877447067154918,
+      "selection_rmsle": 0.3788882012803321,
+      "meta_fit_seconds": 0.5902990069953375,
+      "refit_seconds": 0.5494524230016395,
+      "predict_seconds": 0.3348393680013639,
+      "predict_seconds_samples": [
+        0.316434031999961,
+        0.331800760999613,
+        0.3562833110045176
+      ],
+      "predict_seconds_max": 0.3562833110045176,
+      "predict_seconds_std": 0.016409674152342082,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 1,
+      "seed": 44,
+      "warm_training_cost_shared": true,
+      "loss": "rmsle",
+      "selected_iterations": 5,
+      "meta_optimizer": {
+        "iterations": 11,
+        "evaluations": 14,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 5,
+        "evaluations": 8,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 5,
+      "refit_actual_iterations": 5,
+      "initial_train_objective": 0.3796369147100872,
+      "final_train_objective": 0.37776025823418774,
+      "confirmation_rmsle": 0.3796050119238038,
+      "history_summary": {
+        "iterations_recorded": 11,
+        "initial_tune_rmsle": 0.37959435069002756,
+        "best_tune_rmsle": 0.3777711841805004,
+        "full_history_in_local_report": true
+      }
+    },
+    "independent_rmsle_mean3": {
+      "check_rmsle": 0.38684635745716206,
+      "selection_rmsle": 0.37865357635233793,
+      "meta_fit_seconds": 0.0,
+      "refit_seconds": 0.0,
+      "predict_seconds": 0.9439893546659732,
+      "predict_seconds_samples": [
+        0.9511198649997823,
+        0.954374723994988,
+        0.9264734750031494
+      ],
+      "predict_seconds_max": 0.954374723994988,
+      "predict_seconds_std": 0.012456673098960864,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "loss": "rmsle",
+      "dependencies": [
+        "single_rmsle_42",
+        "single_rmsle_43",
+        "single_rmsle_44"
+      ],
+      "training_cost_shared": true,
+      "confirmation_rmsle": 0.3793358558531487
+    },
+    "joint_rmsle_mean3": {
+      "check_rmsle": 0.38693637804764214,
+      "selection_rmsle": 0.37871562215590865,
+      "meta_fit_seconds": 1.9631330159973004,
+      "refit_seconds": 1.633701334001671,
+      "predict_seconds": 0.9306428459991972,
+      "predict_seconds_samples": [
+        0.9291807229965343,
+        0.9161361000005854,
+        0.946611715000472
+      ],
+      "predict_seconds_max": 0.946611715000472,
+      "predict_seconds_std": 0.012484500528295486,
+      "negative_predictions": {
+        "selection": 0,
+        "confirmation": 0
+      },
+      "members": 3,
+      "warm_training_cost_shared": true,
+      "loss": "rmsle",
+      "selected_iterations": 4,
+      "meta_optimizer": {
+        "iterations": 10,
+        "evaluations": 14,
+        "success": false,
+        "status": 99,
+        "message": "`callback` raised `StopIteration`."
+      },
+      "refit_optimizer": {
+        "iterations": 4,
+        "evaluations": 6,
+        "success": false,
+        "status": 1,
+        "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+      },
+      "refit_requested_iterations": 4,
+      "refit_actual_iterations": 4,
+      "initial_train_objective": 0.37803268375461935,
+      "final_train_objective": 0.37744745114948963,
+      "confirmation_rmsle": 0.37933306778113673,
+      "history_summary": {
+        "iterations_recorded": 10,
+        "initial_tune_rmsle": 0.3774976006791509,
+        "best_tune_rmsle": 0.3770201663351865,
+        "full_history_in_local_report": true
+      }
+    }
+  },
+  "stability": {
+    "log_mse": {
+      "seed_scores": [
+        0.3797933597665868,
+        0.37980797343718575,
+        0.3796125302986368
+      ],
+      "mean": 0.3797379545008031,
+      "std": 8.88887421026532e-05,
+      "worst": 0.37980797343718575
+    },
+    "squared_rmsle": {
+      "seed_scores": [
+        0.3797933597665868,
+        0.37977674563032143,
+        0.37960543570863703
+      ],
+      "mean": 0.37972518036851505,
+      "std": 8.494349124739472e-05,
+      "worst": 0.3797933597665868
+    },
+    "rmsle": {
+      "seed_scores": [
+        0.3797797260995959,
+        0.37975761039717004,
+        0.3796050119238038
+      ],
+      "mean": 0.37971411614018996,
+      "std": 7.767485049173322e-05,
+      "worst": 0.3797797260995959
+    }
+  },
+  "comparisons": {
+    "log_mse": {
+      "single_vs_warm": {
+        "baseline_rmsle": 0.37988571675973426,
+        "candidate_rmsle": 0.3797933597665837,
+        "rmsle_delta": -9.235699315057744e-05,
+        "ci95": [
+          -0.00014727431864836605,
+          -3.671969981859095e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "independent_vs_warm": {
+        "baseline_rmsle": 0.37968235122691735,
+        "candidate_rmsle": 0.3793481953912615,
+        "rmsle_delta": -0.00033415583565582496,
+        "ci95": [
+          -0.00043269732451143016,
+          -0.0002153021758705063
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_vs_warm": {
+        "baseline_rmsle": 0.37968235122691735,
+        "candidate_rmsle": 0.3793536378941145,
+        "rmsle_delta": -0.00032871333280282133,
+        "ci95": [
+          -0.00043306390141460287,
+          -0.000208776308395299
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_vs_independent": {
+        "baseline_rmsle": 0.3793481953912615,
+        "candidate_rmsle": 0.3793536378941145,
+        "rmsle_delta": 5.442502853003628e-06,
+        "ci95": [
+          -2.9353088317993213e-05,
+          4.406353475356615e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      }
+    },
+    "squared_rmsle": {
+      "single_vs_warm": {
+        "baseline_rmsle": 0.37988571675973426,
+        "candidate_rmsle": 0.3797933597665837,
+        "rmsle_delta": -9.235699315057744e-05,
+        "ci95": [
+          -0.00014727431864836605,
+          -3.671969981859095e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "independent_vs_warm": {
+        "baseline_rmsle": 0.37968235122691735,
+        "candidate_rmsle": 0.3793453613002096,
+        "rmsle_delta": -0.0003369899267077203,
+        "ci95": [
+          -0.00043565983464061153,
+          -0.00022023500839413347
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_vs_warm": {
+        "baseline_rmsle": 0.37968235122691735,
+        "candidate_rmsle": 0.3793536378941145,
+        "rmsle_delta": -0.00032871333280282133,
+        "ci95": [
+          -0.00043306390141460287,
+          -0.000208776308395299
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_vs_independent": {
+        "baseline_rmsle": 0.3793453613002096,
+        "candidate_rmsle": 0.3793536378941145,
+        "rmsle_delta": 8.276593904898988e-06,
+        "ci95": [
+          -2.1848284460294907e-05,
+          3.591908973122614e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      }
+    },
+    "rmsle": {
+      "single_vs_warm": {
+        "baseline_rmsle": 0.37988571675973426,
+        "candidate_rmsle": 0.3797797260995999,
+        "rmsle_delta": -0.00010599066013433633,
+        "ci95": [
+          -0.00015619722847651923,
+          -6.029837645161187e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "independent_vs_warm": {
+        "baseline_rmsle": 0.37968235122691735,
+        "candidate_rmsle": 0.37933585585314994,
+        "rmsle_delta": -0.00034649537376740813,
+        "ci95": [
+          -0.00043969932074230944,
+          -0.00023811460524925975
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_vs_warm": {
+        "baseline_rmsle": 0.37968235122691735,
+        "candidate_rmsle": 0.3793330677811366,
+        "rmsle_delta": -0.0003492834457807237,
+        "ci95": [
+          -0.0004255914736827071,
+          -0.0002619164547828706
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_vs_independent": {
+        "baseline_rmsle": 0.37933585585314994,
+        "candidate_rmsle": 0.3793330677811366,
+        "rmsle_delta": -2.7880720133155457e-06,
+        "ci95": [
+          -3.316028986263819e-05,
+          2.605605505323065e-05
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      }
+    }
+  },
+  "diagnostics": {
+    "line_search_trace": {
+      "single_log_mse_43": {
+        "evaluations": 16,
+        "evaluations_with_negative_rows": 1,
+        "most_negative_rows": 8409,
+        "minimum_log_prediction": -4.71814939496611,
+        "selected_iterations": 7
+      },
+      "single_squared_rmsle_43": {
+        "evaluations": 15,
+        "evaluations_with_negative_rows": 1,
+        "most_negative_rows": 8409,
+        "minimum_log_prediction": -4.71814939496611,
+        "selected_iterations": 6
+      },
+      "joint_log_mse_mean3": {
+        "evaluations": 15,
+        "evaluations_with_negative_rows": 1,
+        "most_negative_rows": 5243,
+        "minimum_log_prediction": -4.188259345799646,
+        "selected_iterations": 5
+      },
+      "joint_squared_rmsle_mean3": {
+        "evaluations": 14,
+        "evaluations_with_negative_rows": 1,
+        "most_negative_rows": 5243,
+        "minimum_log_prediction": -4.188259345799646,
+        "selected_iterations": 5
+      }
+    },
+    "direct_rmsle_vs_same_optimizer_log_mse": {
+      "single": {
+        "baseline_rmsle": 0.3797933597665837,
+        "candidate_rmsle": 0.3797797260995999,
+        "rmsle_delta": -1.3633666983758896e-05,
+        "ci95": [
+          -3.187745484534571e-05,
+          2.280008844494911e-06
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "independent_mean": {
+        "baseline_rmsle": 0.3793481953912615,
+        "candidate_rmsle": 0.37933585585314994,
+        "rmsle_delta": -1.233953811158317e-05,
+        "ci95": [
+          -3.1450671508534425e-05,
+          8.420737218826896e-06
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      },
+      "joint_mean": {
+        "baseline_rmsle": 0.3793536378941145,
+        "candidate_rmsle": 0.3793330677811366,
+        "rmsle_delta": -2.0570112977902344e-05,
+        "ci95": [
+          -5.278566575611932e-05,
+          6.837165593265299e-06
+        ],
+        "bootstrap_repeats": 300,
+        "seed": 42,
+        "unit": "row",
+        "training_repeats": 1
+      }
+    },
+    "scope": "Post-freeze diagnostics; no candidate choices changed. Replays preserve the selected iteration count."
+  },
+  "frozen_primary": [
+    "linear",
+    "conditional",
+    "warm_seed42",
+    "warm_mean3",
+    "single_log_mse_42",
+    "single_squared_rmsle_42",
+    "single_rmsle_42",
+    "independent_log_mse_mean3",
+    "independent_squared_rmsle_mean3",
+    "independent_rmsle_mean3",
+    "joint_log_mse_mean3",
+    "joint_squared_rmsle_mean3",
+    "joint_rmsle_mean3"
+  ],
+  "frozen_choice": "independent_log_mse_mean3",
+  "frozen_promotion": true,
+  "anchor_confirmation_rmsle": 0.3806086990959505,
+  "candidate_confirmation_rmsle": 0.3793481953912647,
+  "selected_confirmation_rmsle": 0.3793481953912647,
+  "seconds": 116.15141094900173,
+  "peak_rss_mib": 1200.87109375,
+  "baseline_replay_max_absolute_difference": {
+    "linear": 0.0,
+    "conditional": 0.0,
+    "warm_seed42": 0.0,
+    "warm_seed43": 0.0,
+    "warm_seed44": 0.0,
+    "warm_mean3": 0.0
+  },
+  "independently_recomputed_audit_scores": {
+    "linear": 0.3806086990959505,
+    "conditional": 0.3807039193356189,
+    "warm_seed42": 0.37988571675973337,
+    "warm_seed43": 0.3811493713807728,
+    "warm_seed44": 0.3801590751022948,
+    "warm_mean3": 0.3796823512269177,
+    "single_log_mse_42": 0.3797933597665868,
+    "single_log_mse_43": 0.37980797343718575,
+    "single_log_mse_44": 0.3796125302986368,
+    "independent_log_mse_mean3": 0.3793481953912647,
+    "joint_log_mse_mean3": 0.3793536378941175,
+    "single_squared_rmsle_42": 0.3797933597665868,
+    "single_squared_rmsle_43": 0.37977674563032143,
+    "single_squared_rmsle_44": 0.37960543570863703,
+    "independent_squared_rmsle_mean3": 0.3793453613002091,
+    "joint_squared_rmsle_mean3": 0.3793536378941175,
+    "single_rmsle_42": 0.3797797260995959,
+    "single_rmsle_43": 0.37975761039717004,
+    "single_rmsle_44": 0.3796050119238038,
+    "independent_rmsle_mean3": 0.3793358558531487,
+    "joint_rmsle_mean3": 0.37933306778113673
+  },
+  "independent_check_scores_reconciled": true,
+  "source_hashes_match_study": true,
+  "report_sha256": "8e82b1e677280a52296c7c5535f128f90d36fbcc812026d52e15a83839ec2978",
+  "gpu_used": false,
+  "threads": 2,
+  "submission_status": "not_submitted",
+  "validation_status": "Share with caveats: repeated historical selection/audit reuse; row intervals exclude training/selection uncertainty; one joint ensemble initialization.",
+  "citations": [
+    "https://www.kaggle.com/competitions/mercari-price-suggestion-challenge/overview/evaluation",
+    "https://doi.org/10.1137/0916069",
+    "https://doi.org/10.1016/S0893-6080(05)80023-1"
+  ],
+  "validation": {
+    "status": "passed",
+    "pytest_tests": 200,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_wall_seconds": 219.47,
+    "junit_seconds": 219.461,
+    "warnings": 492,
+    "cpu_benchmark_modules": 26,
+    "covered_statements": 3580,
+    "total_statements": 3580,
+    "statement_coverage_percent": 100.0,
+    "new_module_covered_statements": 233,
+    "new_module_total_statements": 233,
+    "coverage_excluded_lines": 0,
+    "scope": "26 CPU benchmark modules; statement coverage, not branch coverage, GPU code or the entire repository",
+    "test_source_sha256": "0a252165de7a69951ae89fc614cb6a1fc618b40447dfe143f4a759599a04097b",
+    "ci_workflow_sha256": "98b78ad8ee10d0bf6353823a01b209b3b0d36b2ed0b190073085d7ebde7faccf",
+    "junit_sha256": "25076359b470a3b7dc1dbeb75409e53351d511ea71ec7aa87acf6bcd8fbbbf46",
+    "coverage_json_sha256": "55d9811e61c5715497a8d14e2c2c2cddb7948665bcbed4243ef255bb2ef01fe2"
+  }
+}
