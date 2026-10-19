@@ -149,7 +149,7 @@ def fit_classifier(engine, balanced, x, y, vx, vy, rounds=150):
         ).fit(x, y)
     model = lgb.LGBMClassifier(
         n_estimators=rounds,
-        objective="multiclass",
+        objective="binary" if len(np.unique(y)) == 2 else "multiclass",
         learning_rate=0.05,
         num_leaves=31,
         max_bin=127,
@@ -166,11 +166,11 @@ def fit_classifier(engine, balanced, x, y, vx, vy, rounds=150):
     if known.any():
         options = dict(
             eval_set=[(vx[known], vy[known])],
-            eval_metric="multi_error",
+            eval_metric="binary_error" if len(np.unique(y)) == 2 else "multi_error",
             callbacks=[lgb.early_stopping(25, first_metric_only=True, verbose=False)],
         )
         # Early stopping must monitor classification error, not default log loss.
-        model.set_params(metric="multi_error")
+        model.set_params(metric=options["eval_metric"])
     return model.fit(x, y, **options)
 
 

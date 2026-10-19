@@ -177,6 +177,13 @@ python -m benchmarks.mercari_price_bucket_study \
 把类别编号当作对数价格。可信模型快照可用 pickle 加载，调用 `predict_proba`，将
 `argmax` 经 `model.classes_` 映射为类别；`bins.describe()` 提供价格区间。
 
+上述测量及其源码哈希对应
+[603db32](https://github.com/wxwidget/libtree/commit/603db3242f2054a853cf43c3cb376a9f5d261957)。
+随后增加小数据保护：实际训练只剩两类时选择二分类目标／错误率，只剩一类时使用
+先验常量模型。新增二分类／多分类检查后仍有 18 项测试通过、208／208 条语句覆盖。
+十分类在两种权重模式下的 LightGBM 参数、树模型与概率均与测量版本完全一致；
+JSON 单独记录这项复查，完整数据耗时归属于原测量提交。
+
 ```bash
 python -m pytest tests/test_mercari_price_buckets.py \
   tests/test_mercari_price_bucket_study.py \

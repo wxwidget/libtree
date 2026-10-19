@@ -200,6 +200,15 @@ mistaken for log-price regressions by the existing fusion loader. Load trusted
 model snapshots with pickle, call `predict_proba` and map `argmax` through the
 stored `model.classes_`; `bins.describe()` supplies human-readable ranges.
 
+The measurements and their source hashes correspond to
+[603db32](https://github.com/wxwidget/libtree/commit/603db3242f2054a853cf43c3cb376a9f5d261957).
+A subsequent small-data guard chooses binary loss/error when only two training
+classes remain; a single observed class uses the prior dummy model. Its added
+binary/multiclass checks pass all 18 targeted tests with 208/208 statements
+covered. Ten-class LightGBM parameter sets, boosters and probabilities match the
+measured implementation exactly in both weight modes. The JSON records this
+check separately; reported full-data timings belong to the measurement commit.
+
 ```bash
 python -m pytest tests/test_mercari_price_buckets.py \
   tests/test_mercari_price_bucket_study.py \

@@ -88,20 +88,22 @@ def test_metrics_match_sklearn_and_expose_missing_predictions_and_support():
 
 
 def test_actual_c5_and_lightgbm_fit_class_mapping_weights_and_pickle():
-    x = np.tile(np.arange(3), 30).astype(np.float32)[:, None]
-    y = np.tile([0, 2, 4], 30)
-    for engine in ("c5", "lightgbm"):
-        for balanced in (False, True):
-            model = fit_classifier(engine, balanced, x, y, x, y, rounds=4)
-            p = aligned_proba(model, x, 6)
-            assert p.shape == (90, 6) and not p[:, [1, 3, 5]].any()
-            np.testing.assert_allclose(p.sum(1), 1)
-            assert classification_metrics(y, p.argmax(1), 6)["accuracy"] > 0.9
-            restored = pickle.loads(pickle.dumps(model))
-            np.testing.assert_array_equal(p, aligned_proba(restored, x, 6))
-            for value in (model, restored):
-                if hasattr(value, "close"):
-                    value.close()
+    for labels in ([0, 2, 4], [0, 4]):
+        y = np.tile(labels, 90 // len(labels))
+        x = y.astype(np.float32)[:, None]
+        absent = np.setdiff1d(np.arange(6), labels)
+        for engine in ("c5", "lightgbm"):
+            for balanced in (False, True):
+                model = fit_classifier(engine, balanced, x, y, x, y, rounds=4)
+                p = aligned_proba(model, x, 6)
+                assert p.shape == (90, 6) and not p[:, absent].any()
+                np.testing.assert_allclose(p.sum(1), 1)
+                assert classification_metrics(y, p.argmax(1), 6)["accuracy"] > 0.9
+                restored = pickle.loads(pickle.dumps(model))
+                np.testing.assert_array_equal(p, aligned_proba(restored, x, 6))
+                for value in (model, restored):
+                    if hasattr(value, "close"):
+                        value.close()
     model = fit_classifier("lightgbm", False, x, np.zeros(len(x), int), x, y, rounds=2)
     np.testing.assert_array_equal(aligned_proba(model, x[:1], 6), [[1, 0, 0, 0, 0, 0]])
     with pytest.raises(ValueError):
