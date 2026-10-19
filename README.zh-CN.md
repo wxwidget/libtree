@@ -1,7 +1,10 @@
 # LibTree
 
+[Mercari 融合对照](benchmarks/mercari/FUSION_STRATEGIES.zh-CN.md)用相同候选预测，
+验证单层线性、多层 MLP、分条件线性，包含分组元模型验证、种子波动与家族消融。
+
 [Mercari 弱候选残差融合](benchmarks/mercari/RESIDUAL_FUSION.zh-CN.md)说明当前线性与
-残差融合层次，保留弱模型参与后续校正。实测改善稀疏分支，最佳融合仍为 0.380616。
+残差融合层次，保留弱模型参与后续校正。该前序实验改善了稀疏分支，保留 0.380616 原方案。
 
 [Mercari Kaggle 打榜记录](benchmarks/mercari/README.zh-CN.md)
 提供 LibTree 价格预测、文本／结构化模型消融、重复商品不跨集合的验证和真实提交记录；

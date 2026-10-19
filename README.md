@@ -1,8 +1,12 @@
 # LibTree
 
+[Mercari fusion comparison](benchmarks/mercari/FUSION_STRATEGIES.md) validates
+global linear, multilayer MLP and conditional linear fusion using identical
+candidate predictions, grouped meta roles, seed repeats and family ablations.
+
 [Mercari residual fusion](benchmarks/mercari/RESIDUAL_FUSION.md) explains the
 linear/residual ensemble layers and retains weak experts for later correction.
-The measured sparse branch improves; the best frozen ensemble remains 0.380616.
+That earlier study improved the sparse branch and retained its 0.380616 anchor.
 
 **A compact, deterministic C++17 histogram GBDT library** with native C++, C ABI,
 Python/NumPy, and command-line interfaces. It supports squared-error regression,

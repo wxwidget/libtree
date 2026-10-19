@@ -1,5 +1,11 @@
 # Mercari: LibTree Kaggle competition journal
 
+The [same-input fusion comparison](FUSION_STRATEGIES.md) tests global linear,
+two-hidden-layer MLP and category-dependent linear fusion on 72 prediction
+columns. The reused audit gives 0.380609 / 0.379886 / 0.380704 respectively;
+the three-seed MLP average reaches 0.379682 as a diagnostic. The pre-audit
+strategy check selected global linear; no new Kaggle score is claimed.
+
 [中文记录](README.zh-CN.md) · [Competition](https://www.kaggle.com/competitions/mercari-price-suggestion-challenge) · [Kaggle Kernel](https://www.kaggle.com/code/wxwidget/libtree-mercari-reproducible-entry)
 
 **Reading paths:** [Beginner walkthrough](BEGINNER_GUIDE.md) for concepts and a

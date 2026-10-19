@@ -1,0 +1,550 @@
+{
+  "description": "Frozen candidate predictions for a same-input comparison; no standalone-score filter.",
+  "data_sha256": {
+    "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+    "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+    "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+    "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+  },
+  "experts": [
+    {
+      "name": "frontier_sparse512_binary_bins",
+      "path": "benchmarks/runs/mercari/frontier-001/a100/joint/sparse512_binary_bins.npz",
+      "sha256": "d6d535f59b4a9d5b42784f601c2c0ef4c9b5dc6625ea93f5a62b4301e5f9f7b9",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_sparse512_binary_huber",
+      "path": "benchmarks/runs/mercari/frontier-001/a100/joint/sparse512_binary_huber.npz",
+      "sha256": "4e50f2e69073d78ef3835cda7b7fe9a793c42d13b03c7ff7da4387a031fbafd6",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_sparse512_tfidf_mse",
+      "path": "benchmarks/runs/mercari/frontier-001/a100/joint/sparse512_tfidf_mse.npz",
+      "sha256": "d181c46def471468dff0d87705249d01c2c73b6398ce2f57c15eefdc4f818eb1",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_sparse256_binary_bins",
+      "path": "benchmarks/runs/mercari/frontier-001/a100/separate/sparse256_binary_bins.npz",
+      "sha256": "b7acf62acbcff723a0daf09ffe1a635768c31280b614a37d10392e9c1a9c7bbf",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_sparse256_binary_huber",
+      "path": "benchmarks/runs/mercari/frontier-001/a100/separate/sparse256_binary_huber.npz",
+      "sha256": "aa2cf75fd3bb7bb74df6e8a8d0dd0ac57dd1b74023c91f87326111e1807942d6",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_sparse256_tfidf_mse",
+      "path": "benchmarks/runs/mercari/frontier-001/a100/separate/sparse256_tfidf_mse.npz",
+      "sha256": "3e3cf956f30be512676036f3f152074afe147baaf6c7b5434d3dc76e575ff702",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cal_libtree3",
+      "path": "benchmarks/runs/mercari/frontier-001/calibration-final/cal_libtree3.npz",
+      "sha256": "c08cbe3f2aa925cb6f1fc48285ebd022e6a8bc6310e05b7c03d3bdc605d9c900",
+      "fit_window": "calibration",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cal_libtree5",
+      "path": "benchmarks/runs/mercari/frontier-001/calibration-final/cal_libtree5.npz",
+      "sha256": "01b6bf02c33c1564c682a7c4169802f451a4e33d33de0597a21c4ef569abd426",
+      "fit_window": "calibration",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cal_lightgbm",
+      "path": "benchmarks/runs/mercari/frontier-001/calibration-final/cal_lightgbm.npz",
+      "sha256": "ad89c14fed9f8389a51a2343b99f1847f4e62ae17d9d11af612bc3fe1a34041b",
+      "fit_window": "calibration",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cal_meta_ridge10",
+      "path": "benchmarks/runs/mercari/frontier-001/calibration-final/cal_meta_ridge10.npz",
+      "sha256": "9368c39bfcd2a5c3ad278b9cdd1f8c40920dfbccfd97613075849d3fbf852eac",
+      "fit_window": "calibration",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cal_meta_ridge100",
+      "path": "benchmarks/runs/mercari/frontier-001/calibration-final/cal_meta_ridge100.npz",
+      "sha256": "e9663be2378057742bf34abbb92320cc74446e823423e57264298557f43b1c3c",
+      "fit_window": "calibration",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cal_xgboost",
+      "path": "benchmarks/runs/mercari/frontier-001/calibration-final/cal_xgboost.npz",
+      "sha256": "156006078961fb95abba0b6e5741d6f641e0f900d620c474092235bb8b808461",
+      "fit_window": "calibration",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_stemmed_sparse512_binary_bins",
+      "path": "benchmarks/runs/mercari/frontier-001/stemmed/stemmed/stemmed_sparse512_binary_bins.npz",
+      "sha256": "f0f782d11117590d1fb5e09788c8365afada8edafeed14ac857a018df17ab8e7",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_stemmed_sparse512_binary_huber",
+      "path": "benchmarks/runs/mercari/frontier-001/stemmed/stemmed/stemmed_sparse512_binary_huber.npz",
+      "sha256": "198d278046c078d4a0482f36c1792ba4cf18c5594fd3aba2f7685f16435054a7",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_stemmed_sparse512_tfidf_mse",
+      "path": "benchmarks/runs/mercari/frontier-001/stemmed/stemmed/stemmed_sparse512_tfidf_mse.npz",
+      "sha256": "1014f1792b9d1a8fd5be71c18b7a8ef8c9ae3fb7c08df978f129fd051db25da5",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_cnn128_mse",
+      "path": "benchmarks/runs/mercari/frontier-001/t4/gpu/cnn128_mse.npz",
+      "sha256": "d12f233b3326d7a9d9c49bc1375047d663ff0967cd66481449249ae00fe0db96",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_gru96_huber",
+      "path": "benchmarks/runs/mercari/frontier-001/t4/gpu/gru96_huber.npz",
+      "sha256": "8165e20bb220fdbdcccee7f253c69b84b2ad2a7ac8c3cbd49ee232ae6363dc6b",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_minilm_lgbm63",
+      "path": "benchmarks/runs/mercari/frontier-001/t4/vectors/minilm_lgbm63.npz",
+      "sha256": "bc80ced133f3fc32ea6d58d5341b7ccec8e7b3e774684309df699b3b8dca23ee",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_minilm_ridge_10",
+      "path": "benchmarks/runs/mercari/frontier-001/t4/vectors/minilm_ridge_10.npz",
+      "sha256": "cfc82f38e6def8fabfb74251dff0ba803406840cf15b093839d110043e3c0d86",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_minilm_ridge_100",
+      "path": "benchmarks/runs/mercari/frontier-001/t4/vectors/minilm_ridge_100.npz",
+      "sha256": "f6c21dde548a371b43b5d573b4ab838433da944443f86bb6d05a10cc9ff8e572",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_finetuned_minilm_huber",
+      "path": "benchmarks/runs/mercari/frontier-001/transformer-long/finetuned/finetuned_minilm_huber.npz",
+      "sha256": "e356e171c66f2a25846213cc3b38c2b08c35add8adfb4ee0046bb553c30b89d8",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_lsa_lgbm_31",
+      "path": "benchmarks/runs/mercari/frontier-001/trees/lsa_lgbm_31.npz",
+      "sha256": "cb5e334a3d9f34ad81de84b83371733f0a8959452d46dac09b1456dbe70633a6",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_lsa_lgbm_63",
+      "path": "benchmarks/runs/mercari/frontier-001/trees/lsa_lgbm_63.npz",
+      "sha256": "1a31da0f1c9a5e08fa6a6ed684155a4866580906d3865c932d02ff861d83aee0",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_lsa_ridge_10",
+      "path": "benchmarks/runs/mercari/frontier-001/trees/lsa_ridge_10.npz",
+      "sha256": "359c5e44c1084a818d12c75bad538bee3f16b1dff8e84a4b95d308d4afd7fb16",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "frontier_lsa_ridge_100",
+      "path": "benchmarks/runs/mercari/frontier-001/trees/lsa_ridge_100.npz",
+      "sha256": "b12cc73c8387daf69c42c9b791612076dda1376eb49eab2ed80756eca44d4019",
+      "fit_window": "base",
+      "family": "frontier"
+    },
+    {
+      "name": "smalltext_cal_libtree3",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree3.npz",
+      "sha256": "646764e7f8f3a98c1e4c843170387e8464e32f32dba964446a81791aacfa443c",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_cal_libtree5",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_libtree5.npz",
+      "sha256": "1975596262cf4742cc819a211f71f51a02dd0a48f0a130a5e989d4eda1434a85",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_cal_lightgbm",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_lightgbm.npz",
+      "sha256": "3cf5843c1a89ea87644f43881b285bc82fb4e1e83b5efec46365f6dc9b772c4e",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_cal_meta_ridge10",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge10.npz",
+      "sha256": "a81f9998bba7fc90522068203c3bb317bcce9f4e06777e498def166e268448d4",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_cal_meta_ridge100",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_meta_ridge100.npz",
+      "sha256": "d50d60276c0e8100c102585f1cf38c6eb4e0a13b3aff2664e79d83ac978c3652",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_cal_xgboost",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/new-calibration/cal_xgboost.npz",
+      "sha256": "60754d8eb035309d43a010ccfc9648c66f66d6d185b16064d18ee2172ee20a06",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_product_cal_libtree3",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree3.npz",
+      "sha256": "de879f21c4293b6f4e258e5e4aed65fa6ea765705d5b094c2a562063b7994f76",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_product_cal_libtree5",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_libtree5.npz",
+      "sha256": "fae7ed35e164bfd0d5de073493e4860b2045432c1ed8cca3f114efc3341df8e9",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_product_cal_lightgbm",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_lightgbm.npz",
+      "sha256": "0b5c0a5887373833de2191ff79f895760e9eb3d979398a0490ae8f673d928e01",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_product_cal_xgboost",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/product-calibration-experts/product_cal_xgboost.npz",
+      "sha256": "dd4ac0a964518986db6f3cec66869a6a4e15290535011ab0256743c0bd0f108c",
+      "fit_window": "calibration",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_bag_huber",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_huber.npz",
+      "sha256": "ae07dc6c84fd1aba282a439264a5659ec7459f54e97a4050d96cee05bd785f0e",
+      "fit_window": "base",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_bag_mse",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bag_mse.npz",
+      "sha256": "b1cde9b2880d07558a58524df9ad5ca6aaf2fcad3ac9abfe03897f05f8f57e48",
+      "fit_window": "base",
+      "family": "smalltext"
+    },
+    {
+      "name": "smalltext_bert_mse",
+      "path": "benchmarks/runs/mercari/smalltext-t4-001/raw-experts/bert_mse.npz",
+      "sha256": "671b4eea820527880e700b9249efab0c8d8fba313e976f7df3e30d792b78cb57",
+      "fit_window": "base",
+      "family": "smalltext"
+    },
+    {
+      "name": "cpu_ridge",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 2
+    },
+    {
+      "name": "cpu_ffm",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 3
+    },
+    {
+      "name": "cpu_neural_0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 4
+    },
+    {
+      "name": "cpu_neural_1",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 5
+    },
+    {
+      "name": "cpu_neural_2",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 6
+    },
+    {
+      "name": "cpu_neural_3",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 7
+    },
+    {
+      "name": "cpu_stemmed_huber",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 8
+    },
+    {
+      "name": "cpu_stemmed_bins",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "base",
+      "family": "cpu",
+      "column": 9
+    },
+    {
+      "name": "cpu_basic_libtree3_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 10
+    },
+    {
+      "name": "cpu_basic_libtree3_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 11
+    },
+    {
+      "name": "cpu_basic_libtree5_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 12
+    },
+    {
+      "name": "cpu_basic_libtree5_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 13
+    },
+    {
+      "name": "cpu_attributes_libtree3_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 14
+    },
+    {
+      "name": "cpu_attributes_libtree3_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 15
+    },
+    {
+      "name": "cpu_product_libtree3_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 16
+    },
+    {
+      "name": "cpu_product_libtree3_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 17
+    },
+    {
+      "name": "cpu_product_libtree5_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 18
+    },
+    {
+      "name": "cpu_product_libtree5_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 19
+    },
+    {
+      "name": "cpu_basic_lightgbm_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 20
+    },
+    {
+      "name": "cpu_basic_lightgbm_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 21
+    },
+    {
+      "name": "cpu_product_lightgbm_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 22
+    },
+    {
+      "name": "cpu_product_lightgbm_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 23
+    },
+    {
+      "name": "cpu_product_lightgbm_huber_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 24
+    },
+    {
+      "name": "cpu_product_lightgbm_huber_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 25
+    },
+    {
+      "name": "cpu_product_xgboost_0.5",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 26
+    },
+    {
+      "name": "cpu_product_xgboost_1.0",
+      "path": "benchmarks/runs/mercari/cpu-multiview-001/study/pool.npz",
+      "sha256": "cbe13f7e7326cc6fa323ee586d7cab782000f413a98fbab15de49e1a33f8c242",
+      "fit_window": "calibration",
+      "family": "cpu",
+      "column": 27
+    },
+    {
+      "name": "sparse_lexical",
+      "path": "benchmarks/runs/mercari/sparse-penalties-001/implicit/lexical.npz",
+      "sha256": "06938287667d9af91af0080f4f9cb41347c78dc0d7c0b6492d6b8d91ea5765ff",
+      "fit_window": "base",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_pairs",
+      "path": "benchmarks/runs/mercari/sparse-penalties-001/implicit/pairs.npz",
+      "sha256": "e6cd0a5ff8af4a3485bdf3b5089615d33fcc87f79da5ec198416c7dac0b0e0ba",
+      "fit_window": "base",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_lasso_pairs",
+      "path": "benchmarks/runs/mercari/sparse-penalties-001/implicit/lasso_pairs.npz",
+      "sha256": "5ba67b9519ba4ceb847261e2703d2af4e0fe260dbcbabe563fe4661c08c086dc",
+      "fit_window": "base",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_elasticnet_pairs",
+      "path": "benchmarks/runs/mercari/sparse-penalties-001/implicit/elasticnet_pairs.npz",
+      "sha256": "73692ab634730e45cf4f0d7004e136d8afa8240154ce6b67d3e53fcbe068c117",
+      "fit_window": "base",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_quantities",
+      "path": "benchmarks/runs/mercari/sparse-penalties-001/implicit/quantities.npz",
+      "sha256": "0feafc36f1798356bd8a02def6e00aa4e370489193fe11b523a3cbf0f55a9532",
+      "fit_window": "base",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_both",
+      "path": "benchmarks/runs/mercari/sparse-penalties-001/implicit/both.npz",
+      "sha256": "96dca28e6a9d905b08b5d32aa16f3e18325a644f03e149c61ce1cfad5012ea7d",
+      "fit_window": "base",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_residual_linear",
+      "path": "benchmarks/runs/mercari/residual-retention-001/full/residual_full_linear.npz",
+      "sha256": "e19567a529cc97d2e878fab9b4112c094dd2c78156fa253d37c3167e3dcb86c3",
+      "fit_window": "calibration",
+      "family": "new_sparse"
+    },
+    {
+      "name": "sparse_residual_boosting",
+      "path": "benchmarks/runs/mercari/residual-retention-001/full/residual_full_boosting.npz",
+      "sha256": "7edf41b6377dfcaeb82533dc8fd7754757294203d6e14d52d51a4153f0c02b1a",
+      "fit_window": "calibration",
+      "family": "new_sparse"
+    }
+  ],
+  "excluded_aggregate_inputs": [
+    "frontier baseline",
+    "smalltext baseline",
+    "cpu_multiscale",
+    "cpu reference",
+    "cpu uncorrected",
+    "best anchor"
+  ],
+  "caveat": "Trusted local fit-stage metadata; historical candidate hyperparameters/base mixtures used selection labels. Meta-fit/check separation does not undo that adaptive reuse."
+}
