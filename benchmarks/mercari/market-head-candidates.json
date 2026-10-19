@@ -1,0 +1,60 @@
+{
+  "description": "Optional pre-fusion heads; retains every new candidate, including weaker standalone regimes. Original 72-column manifest stays frozen.",
+  "data_sha256": {
+    "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+    "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+    "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+    "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+  },
+  "experts": [
+    {
+      "name": "market_head_plain_l2",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/plain_l2.npz",
+      "sha256": "f227d05aef2f24a67915fd7987ac1704ce283f1a63d8bdb2ad6c7c2201118896",
+      "fit_window": "calibration",
+      "family": "market_head"
+    },
+    {
+      "name": "market_head_legacy_l2",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/legacy_l2.npz",
+      "sha256": "8725dd3da344d5e92f289a99de45d050c92ce39e2a595bf6a8b7bddab31730d6",
+      "fit_window": "calibration",
+      "family": "market_head"
+    },
+    {
+      "name": "market_head_market_l2",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/market_l2.npz",
+      "sha256": "c3b0d868b26d0d00a44b4c55e7e67bd5c34f5dd62e9933c5cf2e63da6867125d",
+      "fit_window": "calibration",
+      "family": "market_head"
+    },
+    {
+      "name": "market_head_market_huber",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/market_huber.npz",
+      "sha256": "caa6de8c0b50dcc55fd106699ff1fc9ee6d13fcc5a51ab2563632b7c35be85db",
+      "fit_window": "calibration",
+      "family": "market_head"
+    },
+    {
+      "name": "market_head_market_regime",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/market_regime.npz",
+      "sha256": "15c006289fb88b364c7be43ad53eb825f94ef829f90e86c997e68c7d0e8a6367",
+      "fit_window": "calibration",
+      "family": "market_head"
+    },
+    {
+      "name": "market_head_comparables_l2",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/comparables_l2.npz",
+      "sha256": "4d007ea62554c9d0039b549206465d1ea1032379ea93f46098d1827c9ef510f3",
+      "fit_window": "calibration",
+      "family": "market_head"
+    },
+    {
+      "name": "market_head_comparables_regime",
+      "path": "benchmarks/runs/mercari/market-models-001/with-comparables/comparables_regime.npz",
+      "sha256": "4858098404e0112ab1e7dd4770192f30d840e869d8a87eca9855f4ec85bd9a91",
+      "fit_window": "calibration",
+      "family": "market_head"
+    }
+  ]
+}

@@ -5,6 +5,11 @@ records real listing-price experiments, grouped validation, sparse text Ridge
 and native LibTree residual models, reproducible Kernels, and actual submission
 status. Local holdout results and Kaggle scores are recorded separately.
 
+The [market-aware upstream study](mercari/MARKET_MODELS.md)
+([中文](mercari/MARKET_MODELS.zh-CN.md)) profiles raw/log price distributions
+and improves one text branch by 0.413% with comparable-item features. It keeps
+the final fusion fixed and reports the unsuccessful soft-distribution controls.
+
 The [Mercari final-loss fusion experiment](mercari/FINAL_OBJECTIVE.md)
 ([中文](mercari/FINAL_OBJECTIVE.zh-CN.md)) implements global RMSLE gradients
 through a three-MLP mean. The reused audit improves from 0.379682 to 0.379333;

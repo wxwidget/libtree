@@ -1,5 +1,11 @@
 # LibTree
 
+[Market-aware pre-fusion heads](benchmarks/mercari/MARKET_MODELS.md) improve one
+text-model branch from 0.407565 to 0.405882 audit RMSLE (0.413%) using base-only
+comparable-item statistics. The final ensemble stays frozen. The report explains
+why skew does not require Gaussian prices, and records slower distribution heads,
+remaining low-price regressions, costs and reproduction commands.
+
 [Direct final-loss fusion](benchmarks/mercari/FINAL_OBJECTIVE.md) tests exact
 RMSLE gradients and jointly trained three-member MLP averages. Reused local
 audit RMSLE improves from 0.379682 to 0.379333; the same-optimizer log-MSE

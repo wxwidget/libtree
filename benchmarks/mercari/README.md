@@ -1,5 +1,11 @@
 # Mercari: LibTree Kaggle competition journal
 
+The [market-aware pre-fusion study](MARKET_MODELS.md) checks the skewed price
+distribution without imposing Gaussian prices. One fixed text branch improves
+from 0.407565 to 0.405882 audit RMSLE (0.413%) using base-only comparable-item
+features; low-price regressions remain. Includes eight controls, retained weak
+distribution heads, costs and reproduction. Final fusion is unchanged.
+
 The [final-objective study](FINAL_OBJECTIVE.md) compares log MSE, squared RMSLE
 and exact global RMSLE using shared warm starts and the same optimizer. The old
 three-member mean scores 0.379682 on the reused audit; independent RMSLE gives
