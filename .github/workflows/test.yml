@@ -57,6 +57,7 @@ jobs:
           tests/test_mercari_market.py
           tests/test_mercari_retrieval.py tests/test_mercari_retrieval_inputs.py
           tests/test_mercari_retrieval_trunk.py
+          tests/test_mercari_price_buckets.py tests/test_mercari_price_bucket_study.py
           --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel
           --cov=benchmarks.mercari_config --cov=benchmarks.mercari_features
           --cov=benchmarks.mercari_solver --cov=benchmarks.mercari_fm
@@ -76,6 +77,7 @@ jobs:
           --cov=benchmarks.mercari_market --cov=benchmarks.mercari_market_study
           --cov=benchmarks.mercari_retrieval --cov=benchmarks.mercari_retrieval_inputs
           --cov=benchmarks.mercari_retrieval_trunk
+          --cov=benchmarks.mercari_price_buckets --cov=benchmarks.mercari_price_bucket_study
           --junitxml=benchmarks/runs/ci/mercari-junit.xml
           --cov-report=json:benchmarks/runs/ci/mercari-coverage.json
           --cov-report=term-missing --cov-fail-under=100

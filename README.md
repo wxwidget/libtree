@@ -1,5 +1,10 @@
 # LibTree
 
+[Equal-frequency price classification](benchmarks/mercari/PRICE_BUCKETS.md)
+keeps zero prices separate and fits nine positive-price quantile buckets on
+base training only. It compares C5 and LightGBM, class balancing and frozen
+regression baselines, with per-bucket errors and reproducible commands.
+
 [Joint text-body fine tuning](benchmarks/mercari/RETRIEVAL_TRUNK.md) improves one
 CNN branch's reused audit RMSLE from 0.424760 to 0.423351, 0.199% beyond the
 equal-budget training control. The second seed fails the high-price safeguard;

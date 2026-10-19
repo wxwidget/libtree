@@ -1,5 +1,9 @@
 # LibTree
 
+[等频价格多分类评测](benchmarks/mercari/PRICE_BUCKETS.zh-CN.md)将零价独立，
+正价只按基础训练集分位数分成九桶，对比 C5、LightGBM、类别平衡训练和冻结回归
+分桶基线，提供各桶错误分析与复现命令。
+
 [同款检索与文本主干联合微调](benchmarks/mercari/RETRIEVAL_TRUNK.zh-CN.md)将一个 CNN
 分支的复用审计 RMSLE 从 0.424760 降至 0.423351，相对同预算训练对照改善 0.199%。
 第二个种子未通过高价保护，原始输入推理为对照耗时的 1.94 倍；保留失败诊断、

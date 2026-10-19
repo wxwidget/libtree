@@ -1,5 +1,11 @@
 # Mercari: LibTree Kaggle competition journal
 
+The [equal-frequency price classification study](PRICE_BUCKETS.md) makes zero
+its own class and fits nine positive-price buckets using base-training quantiles.
+It reports C5/LightGBM accuracy, class-weight tradeoffs, per-bucket errors and
+frozen regression comparisons. Classification accuracy is a separate objective
+from Kaggle RMSLE; the final regression ensemble stays frozen.
+
 The [joint text-body fine-tuning study](RETRIEVAL_TRUNK.md) adds bounded,
 duplicate-group-excluding comparables and raw model/capacity identities to a
 trainable CNN. Equal-budget controls, repeated seeds, price-slice safeguards,

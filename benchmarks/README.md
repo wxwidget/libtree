@@ -1,5 +1,10 @@
 # Benchmark Guide and Latest Results
 
+The [equal-frequency price classification study](mercari/PRICE_BUCKETS.md)
+([中文](mercari/PRICE_BUCKETS.zh-CN.md)) compares C5 and LightGBM with a separate
+zero-price class, train-only positive quantiles, balanced-class controls,
+per-bucket confusion matrices and frozen regression comparators.
+
 The [Mercari Kaggle case study](mercari/README.md) ([中文](mercari/README.zh-CN.md))
 records real listing-price experiments, grouped validation, sparse text Ridge
 and native LibTree residual models, reproducible Kernels, and actual submission
