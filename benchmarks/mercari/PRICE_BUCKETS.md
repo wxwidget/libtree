@@ -159,12 +159,15 @@ use cached numeric calibration inputs, after earlier predictions warm the model;
 arithmetic mean, maximum, standard deviation and all raw samples are retained.
 These exclude text/context preparation, model loading and upstream pretraining.
 
-| Model | Actual rounds | Fit seconds | Inference mean seconds | Inference max seconds | Inference std seconds |
+| Model | Retained rounds | Fit seconds | Inference mean seconds | Inference max seconds | Inference std seconds |
 | --- | --- | --- | --- | --- | --- |
 | LibTree C5 | 20 | 57.56 | 0.0374 | 0.0405 | 0.0025 |
 | LibTree C5, balanced | 20 | 56.56 | 0.0359 | 0.0379 | 0.0014 |
 | LightGBM | 78 | 279.21 | 1.3328 | 1.3389 | 0.0057 |
 | LightGBM, balanced | 94 | 302.76 | 1.6441 | 1.6487 | 0.0041 |
+
+LightGBM rounds are the selected best iteration retained for prediction. Fit
+time includes the additional early-stopping patience rounds.
 
 Four vCPUs; each inference repeat covers 74,129 rows and 170 columns. Shared feature preparation takes 164.69s, the complete study 887.41s, and process peak RSS is 6460.4 MiB. One fit and three warm inference repeats do not establish thread scaling or a matched-budget speed advantage.
 
@@ -205,8 +208,8 @@ The measurements and their source hashes correspond to
 A subsequent small-data guard chooses binary loss/error when only two training
 classes remain; a single observed class uses the prior dummy model. Its added
 binary/multiclass checks pass all 18 targeted tests with 208/208 statements
-covered. Ten-class LightGBM parameter sets, boosters and probabilities match the
-measured implementation exactly in both weight modes. The JSON records this
+covered. A 300-row, ten-class, three-round control gives identical LightGBM
+parameter sets, boosters and probabilities in both weight modes. The JSON records this
 check separately; reported full-data timings belong to the measurement commit.
 
 ```bash

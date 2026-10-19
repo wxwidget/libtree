@@ -4980,19 +4980,25 @@
   "final_regression_ensemble_modified": false,
   "measurement_commit": "603db3242f2054a853cf43c3cb376a9f5d261957",
   "post_measurement_binary_guard": {
-    "description": "When ties collapse training to two observed classes, select binary objective and binary error. Ten-class model parameters and outputs remain identical to the measured version; performance timings belong to the measurement commit.",
+    "description": "When ties collapse training to two observed classes, select binary objective and binary error. A 300-row, ten-class, three-round control produces identical model parameters, boosters and probabilities in both weight modes; full-data performance timings belong to the measurement commit.",
     "ten_class_rechecks": [
       {
         "balanced": false,
         "identical_parameters": true,
         "identical_booster": true,
-        "max_probability_error": 0.0
+        "max_probability_error": 0.0,
+        "rows": 300,
+        "classes": 10,
+        "max_rounds": 3
       },
       {
         "balanced": true,
         "identical_parameters": true,
         "identical_booster": true,
-        "max_probability_error": 0.0
+        "max_probability_error": 0.0,
+        "rows": 300,
+        "classes": 10,
+        "max_rounds": 3
       }
     ],
     "targeted_tests": 18,
