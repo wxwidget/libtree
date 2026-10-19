@@ -1,5 +1,11 @@
 # LibTree
 
+[Joint text-body fine tuning](benchmarks/mercari/RETRIEVAL_TRUNK.md) improves one
+CNN branch's reused audit RMSLE from 0.424760 to 0.423351, 0.199% beyond the
+equal-budget training control. The second seed fails the high-price safeguard;
+raw-input serving takes 1.94 times the control's time. Includes retained failed
+diagnostics, full costs and reproduction. The complete ensemble stays frozen.
+
 [Market-aware pre-fusion heads](benchmarks/mercari/MARKET_MODELS.md) improve one
 text-model branch from 0.407565 to 0.405882 audit RMSLE (0.413%) using base-only
 comparable-item statistics. The final ensemble stays frozen. The report explains

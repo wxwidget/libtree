@@ -1,5 +1,13 @@
 # Mercari: LibTree Kaggle competition journal
 
+The [joint text-body fine-tuning study](RETRIEVAL_TRUNK.md) adds bounded,
+duplicate-group-excluding comparables and raw model/capacity identities to a
+trainable CNN. Equal-budget controls, repeated seeds, price-slice safeguards,
+retained diagnostic checkpoints and prediction replay test the added information.
+The primary branch reaches 0.423351 audit RMSLE versus the trained control's
+0.424193; seed-43 high-price protection fails and raw-input inference costs
+1.94 times the control. This is a separate CNN experiment with a frozen final ensemble.
+
 The [market-aware pre-fusion study](MARKET_MODELS.md) checks the skewed price
 distribution without imposing Gaussian prices. One fixed text branch improves
 from 0.407565 to 0.405882 audit RMSLE (0.413%) using base-only comparable-item

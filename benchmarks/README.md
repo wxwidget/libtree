@@ -5,6 +5,12 @@ records real listing-price experiments, grouped validation, sparse text Ridge
 and native LibTree residual models, reproducible Kernels, and actual submission
 status. Local holdout results and Kaggle scores are recorded separately.
 
+The [joint text-body/retrieval study](mercari/RETRIEVAL_TRUNK.md)
+([中文](mercari/RETRIEVAL_TRUNK.zh-CN.md)) actually updates pretrained text weights,
+adds bounded comparable lookup, and compares identical training budgets with
+low/high-price safeguards. It records selected versus diagnostic checkpoints,
+input/model hashes, deployment costs and independent prediction replay.
+
 The [market-aware upstream study](mercari/MARKET_MODELS.md)
 ([中文](mercari/MARKET_MODELS.zh-CN.md)) profiles raw/log price distributions
 and improves one text branch by 0.413% with comparable-item features. It keeps

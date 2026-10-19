@@ -1,0 +1,101 @@
+{
+  "description": "Supplementary complete retrieval-trunk pool; no standalone-score filtering. Not incorporated into the frozen final fusion.",
+  "data_sha256": {
+    "train": "1bd6ee22c7236edab8019fcfd3217d22dd579d3b95fc2f611ca1c90b55f99243",
+    "calibration": "70290c92e782d9183fe6281451c6041c3f151adc5e7b1b165b22ecabf62e6008",
+    "selection": "3fde208f3c70c52f2a9baecfc35e34e48ab06c8840e11cf943432cbb33dac197",
+    "confirmation": "913112d91e024fc1a6ae448468e18aa11ac68f4f451b196410ff2cfbb6b38cac"
+  },
+  "experts": [
+    {
+      "name": "retrieval_trunk_control_seed42",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/control_seed42.npz",
+      "sha256": "6bea5e91442eacdec5f8527c18646b20bc56aab7172841c58acade8250c1e6aa",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": false
+    },
+    {
+      "name": "retrieval_trunk_control_seed43",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/control_seed43.npz",
+      "sha256": "3f29a5ccf9a2a041370b353a81fa7f4526731ef169785b9e274da1177d9b9d1f",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    },
+    {
+      "name": "retrieval_trunk_diagnostic_control_seed42",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/diagnostic_control_seed42.npz",
+      "sha256": "6bea5e91442eacdec5f8527c18646b20bc56aab7172841c58acade8250c1e6aa",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    },
+    {
+      "name": "retrieval_trunk_diagnostic_control_seed43",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/diagnostic_control_seed43.npz",
+      "sha256": "d101cf5389d95504d0e6a32fc6aa9a53f714f8b538b0e5d6c2cbb14d5474ebe9",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    },
+    {
+      "name": "retrieval_trunk_diagnostic_market_seed42",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/diagnostic_market_seed42.npz",
+      "sha256": "1199610b1361e72b370ed5352bdf2a7aa5ef4b9376538a02e04cfee93f437d4b",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    },
+    {
+      "name": "retrieval_trunk_diagnostic_retrieval_seed42",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/diagnostic_retrieval_seed42.npz",
+      "sha256": "77ac977519ed4366bf93da0870cb54360dafa798cfc447f7bda0bffa6d2b0b0d",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    },
+    {
+      "name": "retrieval_trunk_diagnostic_retrieval_seed43",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/diagnostic_retrieval_seed43.npz",
+      "sha256": "a9a762bf064d0356dad71b778939f0e109e65aa761585c9e1be7e876b40c22b5",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    },
+    {
+      "name": "retrieval_trunk_market_seed42",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/market_seed42.npz",
+      "sha256": "3f29a5ccf9a2a041370b353a81fa7f4526731ef169785b9e274da1177d9b9d1f",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": false
+    },
+    {
+      "name": "retrieval_trunk_retrieval_seed42",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/retrieval_seed42.npz",
+      "sha256": "77ac977519ed4366bf93da0870cb54360dafa798cfc447f7bda0bffa6d2b0b0d",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": false
+    },
+    {
+      "name": "retrieval_trunk_retrieval_seed43",
+      "path": "benchmarks/runs/mercari/retrieval-trunk-001/full/retrieval_seed43.npz",
+      "sha256": "3f29a5ccf9a2a041370b353a81fa7f4526731ef169785b9e274da1177d9b9d1f",
+      "fit_window": "base",
+      "family": "new_retrieval",
+      "checkpoint_window": "calibration",
+      "diagnostic_only": true
+    }
+  ]
+}

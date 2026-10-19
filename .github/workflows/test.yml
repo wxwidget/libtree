@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      NUMBA_NUM_THREADS: '2'
       TF_CPP_MIN_LOG_LEVEL: '3'
       TF_NUM_INTRAOP_THREADS: '2'
       TF_NUM_INTEROP_THREADS: '1'
@@ -52,6 +55,8 @@ jobs:
           tests/test_mercari_fusion.py
           tests/test_mercari_objective.py
           tests/test_mercari_market.py
+          tests/test_mercari_retrieval.py tests/test_mercari_retrieval_inputs.py
+          tests/test_mercari_retrieval_trunk.py
           --cov=benchmarks.mercari --cov=benchmarks.mercari_kernel
           --cov=benchmarks.mercari_config --cov=benchmarks.mercari_features
           --cov=benchmarks.mercari_solver --cov=benchmarks.mercari_fm
@@ -69,6 +74,8 @@ jobs:
           --cov=benchmarks.mercari_fusion
           --cov=benchmarks.mercari_objective
           --cov=benchmarks.mercari_market --cov=benchmarks.mercari_market_study
+          --cov=benchmarks.mercari_retrieval --cov=benchmarks.mercari_retrieval_inputs
+          --cov=benchmarks.mercari_retrieval_trunk
           --junitxml=benchmarks/runs/ci/mercari-junit.xml
           --cov-report=json:benchmarks/runs/ci/mercari-coverage.json
           --cov-report=term-missing --cov-fail-under=100
@@ -100,7 +107,7 @@ jobs:
           name: mercari-verification
           path: benchmarks/runs/ci/mercari-*
       - name: Compiled sparse optimization and parallel FM arithmetic
-        run: python -m pytest tests/test_mercari_fm.py tests/test_mercari_penalties.py -q
+        run: python -m pytest tests/test_mercari_fm.py tests/test_mercari_penalties.py tests/test_mercari_retrieval.py -q
   minimum-python-integration:
     runs-on: ubuntu-latest
     steps:
